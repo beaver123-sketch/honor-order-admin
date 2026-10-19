@@ -85,3 +85,17 @@
  .drawer-mask.new-order-modal .drawer-head,.drawer-mask.new-order-modal .drawer-meta,.drawer-mask.new-order-modal .drawer-footer{padding-left:14px;padding-right:14px}
  .drawer-mask.new-order-modal .drawer-tabs{padding:0 5px}
 }
+
+/* 恢复原后台密度：详情列压缩为两行信息加查看入口 */
+.order-detail-preview{max-width:118px;margin:0 auto;min-width:0;font-size:11px;line-height:1.65;text-align:center}
+.detail-preview-first,.detail-preview-second{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#697583}
+.detail-preview-first{color:#596675}
+.detail-preview-first.detail-unset{color:#a3acb6}
+.detail-preview-second{color:#99a3ad}
+.order-detail-preview .detail-view-btn{font-size:11px;margin-top:4px;background:transparent;border:0;padding:0 2px;height:auto;color:#409eff}
+.order-detail-preview .detail-view-btn:hover{background:none;text-decoration:underline;color:#66b1ff}
+.honor-more{position:relative;display:inline-flex}
+.honor-more-menu{position:absolute;top:32px;right:0;width:137px;padding:4px 0;border-radius:4px;border:1px solid #e4e8ef;background:white;box-shadow:0 5px 18px #1325371f;z-index:70}
+.honor-more-menu[hidden]{display:none}
+.honor-more-menu button{width:100%;padding:9px 13px;background:white;border:0;color:#596878;text-align:left;font-size:12px}
+.honor-more-menu button:hover{background:#ecf5ff;color:#409eff}
