@@ -38,6 +38,52 @@
 .state-smart{width:161px}.state-smart .smart-pop{width:189px}
 .state-smart .smart-option{min-height:29px;padding-left:18px}
 .state-smart .smart-options{max-height:190px}
+
+/* 荣誉订单详情：统一列表 + 四类可编辑业务信息 */
+.detail-view-btn{border:1px solid #a7d1ff;color:#409eff;background:#f2f8ff;border-radius:3px;padding:4px 7px;white-space:nowrap;font-size:11px;cursor:pointer}
+.detail-view-btn:hover{background:#409eff;color:#fff}
+.drawer-mask{position:fixed;inset:0;background:rgba(9,24,43,.35);display:none;z-index:200;justify-content:flex-end;opacity:0;transition:opacity .15s}
+.drawer-mask.show{display:flex;opacity:1}
+.order-drawer{width:min(1040px,95vw);height:100%;background:#fff;box-shadow:-10px 0 40px #081f3740;display:flex;flex-direction:column;color:#606266;font-size:13px}
+.drawer-head{display:flex;align-items:center;gap:15px;padding:21px 25px 15px;flex:none;border-bottom:1px solid #eef0f4}
+.drawer-head-main{flex:1;min-width:0}
+.drawer-heading{font-size:18px;font-weight:700;color:#303744;margin:0}
+.drawer-subtitle{font-size:12px;color:#98a1ac;margin:7px 0 0}
+.drawer-head .drawer-x{background:none;border:none;color:#929bab;font-size:26px;width:34px;height:34px}
+.drawer-meta{padding:12px 25px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;background:#f8fafc;border-bottom:1px solid #e8edf4;font-size:12px}
+.drawer-meta strong{font-weight:600;color:#596474;margin-left:6px}
+.drawer-badge{border-radius:3px;padding:3px 8px;color:#409eff;background:#ecf5ff;border:1px solid #d9ecff}
+.drawer-badge.done{color:#67c23a;background:#f0f9eb;border-color:#e1f3d8}
+.drawer-badge.returned{color:#f56c6c;background:#fef0f0;border-color:#fde2e2}
+.drawer-tabs{display:flex;gap:0;flex:none;overflow-x:auto;padding:0 20px;border-bottom:1px solid #e8edf3;scrollbar-width:thin}
+.drawer-tab{position:relative;padding:15px 15px;background:#fff;border:none;white-space:nowrap;color:#66717d;font-size:13px}
+.drawer-tab.on{color:#409eff;font-weight:600}
+.drawer-tab.on::after{content:"";height:2px;background:#409eff;position:absolute;left:8px;right:8px;bottom:0}
+.drawer-tab:hover{color:#409eff}
+.drawer-body{flex:1;overflow:auto;padding:21px 25px 70px;background:#f6f8fb;scrollbar-width:thin}
+.drawer-intro{border:1px solid #d9eafc;border-left:3px solid #409eff;color:#6a788b;background:#f1f8ff;padding:10px 14px;line-height:1.7;border-radius:3px;font-size:12px;margin-bottom:18px}
+.drawer-card{background:#fff;border:1px solid #e7ecf3;border-radius:5px;padding:5px 20px 20px;margin-bottom:16px}
+.drawer-card-title{font-weight:700;color:#303744;font-size:14px;margin:16px 0;border-bottom:1px solid #edf0f4;padding-bottom:12px}
+.drawer-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:26px;row-gap:16px}
+.drawer-field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.drawer-field.full{grid-column:1/-1}
+.drawer-field label{font-size:12px;color:#5d6977;font-weight:500}
+.drawer-field .required{color:#f56c6c;margin-left:3px}
+.drawer-field input,.drawer-field select,.drawer-field textarea{border:1px solid #dcdfe6;border-radius:3px;min-height:34px;background:#fff;padding:7px 11px;color:#606266;font:inherit;outline:0;width:100%;min-width:0}
+.drawer-field input:focus,.drawer-field select:focus,.drawer-field textarea:focus{border-color:#409eff}
+.drawer-field textarea{min-height:88px;resize:vertical;line-height:1.5}
+.drawer-field input::placeholder,.drawer-field textarea::placeholder{color:#bdc4ce}
+.drawer-hint{font-size:11px;color:#9ba4b0;line-height:1.6}
+.drawer-file{border:1px dashed #cad7e5;background:#fcfdff;border-radius:4px;padding:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.drawer-file .file-control{font-size:12px;max-width:280px;padding:0;border:0;height:auto;min-height:22px}
+.drawer-preview{max-height:115px;max-width:200px;object-fit:contain;border:1px solid #ebedf0;border-radius:3px}
+.drawer-file-label{flex:1;color:#7b8c9b;min-width:150px;overflow-wrap:anywhere;font-size:12px}
+.drawer-footer{height:72px;display:flex;flex:none;align-items:center;gap:12px;padding:0 25px;border-top:1px solid #e8edf3;background:#fff;box-shadow:0 -2px 9px #c4cbd311}
+.drawer-footer .footer-note{margin-right:auto;color:#97a2ae;font-size:12px}
+.drawer-footer .btn{height:34px;padding:0 22px;font-size:13px}
+.drawer-type-pill{font-size:11px;background:#f5f7fa;color:#7e8a98;border-radius:3px;padding:5px 7px}
+.drawer-unsaved{color:#e6a23c;font-size:12px}
+@media(max-width:850px){.order-drawer{width:100vw}.drawer-fields{grid-template-columns:1fr}.drawer-head,.drawer-body,.drawer-meta{padding-left:16px;padding-right:16px}.drawer-footer{padding:0 16px}.drawer-footer .footer-note{display:none}.drawer-tab{padding:12px 10px}}
 </style>
 </head>
 <body>
@@ -99,7 +145,7 @@
       </div>
     </section>
     <section class="card list-card">
-      <div class="list-toolbar"><div class="list-label">数据列表 <span class="count" id="recordCount">共 8 条</span></div><div class="toolbar-actions"><button class="btn primary tiny" id="importBtn">▣ 导入表格批量退回</button><button class="btn tiny" id="exportBtn">导出Excel</button></div></div>
+      <div class="list-toolbar"><div class="list-label">数据列表 <span class="count" id="recordCount">共 8 条</span></div><div class="toolbar-actions"><button class="btn primary tiny" id="newOrderBtn">＋ 新增订单</button><button class="btn primary tiny" id="importBtn">▣ 导入表格批量退回</button><button class="btn tiny" id="exportBtn">导出Excel</button></div></div>
       <div class="table-wrap"><table class="orders-table"><colgroup><col style="width:5.3%"><col style="width:5.2%"><col style="width:4.7%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:4.6%"><col style="width:5.5%"><col style="width:5.1%"><col style="width:5.5%"><col style="width:4.8%"><col style="width:5.3%"><col style="width:4.7%"><col style="width:5%"><col style="width:4.5%"><col style="width:5.3%"><col style="width:4.8%"><col style="width:8%"></colgroup><thead><tr><th>ID</th><th>权益名称</th><th>数量</th><th>扣除(荣誉<br>币)</th><th>扣除(金币)</th><th>扣除(总荣誉<br>币)</th><th>被赠送人</th><th>用户ID</th><th>用户名</th><th>荣誉等级</th><th>国家</th><th>订单状态</th><th>订单时间</th><th>等待时间</th><th>完成时间</th><th>使用状态</th><th>使用时间</th><th>详情</th><th>whatsapp</th><th>操作人</th><th>操作</th></tr></thead><tbody id="orderRows"></tbody></table></div>
       <div class="pagination"><select class="select page-size" id="pageSize"><option value="50">50条/页</option><option value="20">20条/页</option><option value="10">10条/页</option><option value="5">5条/页</option></select><button class="pg-btn" id="prevPage">‹</button><button class="pg-btn" id="nextPage">›</button><span>前往</span><input class="page-input" id="pageNumber" value="1" inputmode="numeric"><span>页</span><span class="right" id="totalRight">共 8 条</span></div>
     </section>
@@ -109,6 +155,27 @@
 </div>
 <div class="country-pop" id="countryPop"><div class="country-pop-head"><b>已选国家 / 地区</b><button class="link" id="closeCountry">关闭</button></div><div class="country-tags" id="countryTags"></div></div>
 <div class="overlay" id="overlay"><div class="dialog"><div class="dialog-head"><span id="modalTitle">提示</span><button class="dialog-close" id="modalClose">×</button></div><div class="dialog-content" id="modalBody"></div><div class="dialog-footer"><button class="btn" id="modalCancel">取消</button><button class="btn primary" id="modalOK">确定</button></div></div></div>
+
+<!-- 订单详情侧边弹层：所有订单共用，业务 Tab 分别编辑 -->
+<div class="drawer-mask" id="detailMask" aria-hidden="true">
+  <aside class="order-drawer" role="dialog" aria-modal="true" aria-labelledby="drawerHeading">
+    <header class="drawer-head">
+      <div class="drawer-head-main"><h2 class="drawer-heading" id="drawerHeading">订单详情</h2><p class="drawer-subtitle" id="drawerSubtitle">订单信息直接在后台维护</p></div>
+      <span class="drawer-type-pill" id="drawerTypeHint">业务类型</span><button type="button" class="drawer-x" id="drawerClose" aria-label="关闭">×</button>
+    </header>
+    <div class="drawer-meta" id="drawerMeta"></div>
+    <nav class="drawer-tabs" id="drawerTabs" aria-label="订单详情类型">
+      <button class="drawer-tab on" data-detail-tab="base">订单基础信息</button>
+      <button class="drawer-tab" data-detail-tab="unblock">账号解封</button>
+      <button class="drawer-tab" data-detail-tab="banner">Banner &amp; Splash</button>
+      <button class="drawer-tab" data-detail-tab="gift">Customized Gift</button>
+      <button class="drawer-tab" data-detail-tab="ride">Customized Ride</button>
+    </nav>
+    <main class="drawer-body" id="drawerBody"></main>
+    <footer class="drawer-footer"><span class="footer-note" id="drawerSaveHint">修改内容保存至订单记录 · 当前为本地演示</span><button class="btn" id="drawerCancel">取消</button><button class="btn primary" id="drawerSave">保存信息</button></footer>
+  </aside>
+</div>
+
 <script>
 (function(){
 "use strict";
@@ -123,7 +190,7 @@ var seed=[
 {id:"940365",benefit:"Customized Gift - 2 Months",qty:1,honor:3000,coin:0,total:3000,to:"无",uid:"6111527",name:"Zolfa",level:6,country:"沙特阿拉伯",region:"中东区",status:"待处理",created:"2026-09-24 13:33:30",waiting:"25天",whatsapp:"+966 0951****14"}
 ];
 var storageKey="honor-order-demo-v2",rows,shown=[],page=1,selected=[],dialogAction=null;
-try{var saved=JSON.parse(localStorage.getItem(storageKey));rows=Array.isArray(saved)&&saved.length===seed.length?saved:seed.map(function(x){return Object.assign({},x)});rows.forEach(function(r){if(r.status==="已完成")r.status="已处理"})}catch(e){rows=seed.map(function(x){return Object.assign({},x)});}
+try{var saved=JSON.parse(localStorage.getItem(storageKey));rows=Array.isArray(saved)&&saved.length>=seed.length?saved:seed.map(function(x){return Object.assign({},x)});rows.forEach(function(r){if(r.status==="已完成")r.status="已处理"})}catch(e){rows=seed.map(function(x){return Object.assign({},x)});}
 function el(id){return document.getElementById(id)}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(rows))}catch(e){}}
@@ -187,7 +254,7 @@ function renderActionButtons(r){
 }
 
 function render(){var f=getFilters();shown=rows.filter(function(r){return (!f.benefit||r.benefit===f.benefit||((f.benefit==="定制礼物 - 2个月"||f.benefit==="荣誉卡 - 2个月")&&r.benefit==="Customized Gift - 2 Months")||(f.benefit==="开屏 - 24小时"&&r.benefit==="Open Screen - 24h"))&&(!f.uid||r.uid.indexOf(f.uid)>-1)&&(!f.status||r.status===f.status)&&(!f.country||r.country.indexOf(f.country)>-1)&&(!f.regions.length||f.regions.indexOf(r.region)>-1)&&(!f.start||r.created.slice(0,10)>=f.start)&&(!f.end||r.created.slice(0,10)<=f.end)});var per=+el("pageSize").value;var max=Math.max(1,Math.ceil(shown.length/per));page=Math.max(1,Math.min(page,max));var part=shown.slice((page-1)*per,page*per);el("recordCount").textContent="共 "+shown.length+" 条";el("totalRight").textContent="共 "+shown.length+" 条";el("pageNumber").value=page;el("prevPage").disabled=page<=1;el("nextPage").disabled=page>=max;
-el("orderRows").innerHTML=part.length?part.map(function(r){var stateClass=r.status==="已处理"?"status-completed":r.status==="已退回"?"status-returned":r.status==="退回中"?"status-pending-return":"";return '<tr><td>'+esc(r.id)+'</td><td class="benefit">'+benefitHTML(r.benefit)+'</td><td>'+r.qty+'</td><td>'+r.honor+'</td><td>'+r.coin+'</td><td>'+r.total+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.uid)+'</td><td class="username">'+esc(r.name)+'</td><td>'+r.level+'</td><td>'+esc(r.country)+'</td><td class="'+stateClass+'">'+esc(r.status)+'</td><td class="time-cell">'+timeHTML(r.created)+'</td><td class="'+(r.status==="待处理"?"waiting":"muted")+'">'+(r.status==="待处理"?esc(r.waiting):"--")+'</td><td class="time-cell">'+timeHTML(r.completed||"--")+'</td><td>'+esc(r.used||"")+'</td><td>'+esc(r.usedTime||"")+'</td><td></td><td class="time-cell">'+esc(r.whatsapp).replace(" ","<br>")+'</td><td>'+esc(r.operator||"0")+'</td><td>'+renderActionButtons(r)+'</td></tr>'}).join(""):'<tr class="empty-row"><td colspan="21">暂无数据</td></tr>'}
+el("orderRows").innerHTML=part.length?part.map(function(r){var stateClass=r.status==="已处理"?"status-completed":r.status==="已退回"?"status-returned":r.status==="退回中"?"status-pending-return":"";return '<tr><td>'+esc(r.id)+'</td><td class="benefit">'+benefitHTML(r.benefit)+'</td><td>'+r.qty+'</td><td>'+r.honor+'</td><td>'+r.coin+'</td><td>'+r.total+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.uid)+'</td><td class="username">'+esc(r.name)+'</td><td>'+r.level+'</td><td>'+esc(r.country)+'</td><td class="'+stateClass+'">'+esc(r.status)+'</td><td class="time-cell">'+timeHTML(r.created)+'</td><td class="'+(r.status==="待处理"?"waiting":"muted")+'">'+(r.status==="待处理"?esc(r.waiting):"--")+'</td><td class="time-cell">'+timeHTML(r.completed||"--")+'</td><td>'+esc(r.used||"")+'</td><td>'+esc(r.usedTime||"") +'</td><td><button class="detail-view-btn" data-detail-id="'+esc(r.id)+'">查看/编辑</button></td><td class="time-cell">'+esc(r.whatsapp).replace(" ","<br>")+'</td><td>'+esc(r.operator||"0")+'</td><td>'+renderActionButtons(r)+'</td></tr>'}).join(""):'<tr class="empty-row"><td colspan="21">暂无数据</td></tr>'}
 function reset(){el("benefitFilter").value="";smartSelectors.benefit.sync();el("userIdFilter").value="";el("statusFilter").value="待处理";smartSelectors.status.sync();el("countryFilter").value="";el("dateStart").value="";el("dateEnd").value="";el("dateStart").type="text";el("dateEnd").type="text";document.querySelectorAll("[data-region],#allCountry").forEach(function(x){x.checked=false});page=1;render()}
 function modal(title,body,ok,onConfirm){el("modalTitle").textContent=title;el("modalBody").innerHTML=body;el("modalOK").textContent=ok||"确定";dialogAction=onConfirm||null;el("overlay").classList.add("open")}
 function closeModal(){el("overlay").classList.remove("open");dialogAction=null}
@@ -211,6 +278,305 @@ function switchTab(name){document.querySelectorAll(".tab").forEach(function(n){n
 document.querySelectorAll(".tab").forEach(function(n){n.onclick=function(){switchTab(this.getAttribute("data-tab"))}});
 document.querySelectorAll(".nav-item").forEach(function(n){n.onclick=function(){if(this.dataset.page==="荣誉订单"){switchTab("荣誉订单");document.querySelectorAll(".nav-item").forEach(function(y){y.classList.remove("active")});this.classList.add("active")}else{notice("本次演示仅还原「荣誉订单」页面")}}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();el("countryPop").classList.remove("open")}});
+
+/* 四种 Lark 表格原有字段按业务类型转换为订单详情可编辑信息 */
+var detailState={original:null,draft:null,tab:"base",creating:false,dirty:false};
+var sharedDetailKeys=["status","created","uid","country","benefit","name","qty","honor","coin","total","to","level","whatsapp","operator"];
+var orderBenefits=Array.from(new Set([
+"Customized Gift - 2 Months","Open Screen - 24h","Account Unblocking","Banner - 24h","Banner - 72h",
+"Customized Ride - 2 Months","Customized Gift - 2 Months","PK Energy Gift (Daily Sales Limit: 5000)",
+"PK War Drum Gift (Daily Sales Limit: 1000)","PK Defense Gift (Daily Sales Limit: 500)",
+"自定义座驾 - 2个月（每月限售：3）","定制礼物 - 2个月","横幅 - 24小时","横幅 - 72小时","开屏 - 24小时","开屏 - 72 h"
+].concat(benefitList)));
+var typeNames={base:"订单基础信息",unblock:"账号解封",banner:"Banner & Splash",gift:"Customized Gift",ride:"Customized Ride"};
+var stages={base:"订单基础信息",unblock:"账号解封信息",banner:"Banner & Splash 投放信息",gift:"Customized Gift 定制信息",ride:"Customized Ride 定制信息"};
+var tabSchemas={
+base:[
+ {title:"订单与用户信息",fields:[
+  {k:"id",label:"订单 ID",locked:true},{k:"benefit",label:"权益名称",type:"select",opts:orderBenefits,required:true},
+  {k:"uid",label:"用户 ID",required:true},{k:"name",label:"用户名"},
+  {k:"country",label:"国家 / 地区"},{k:"level",label:"荣誉等级",type:"number"},
+  {k:"to",label:"被赠送人"},{k:"whatsapp",label:"WhatsApp 联系方式"},
+  {k:"created",label:"订单时间",type:"datetime"},{k:"status",label:"订单状态",type:"select",opts:statusList},
+ ]},
+ {title:"支付与履约信息",fields:[
+  {k:"qty",label:"数量",type:"number"},{k:"honor",label:"扣除荣誉币",type:"number"},
+  {k:"coin",label:"扣除金币",type:"number"},{k:"total",label:"扣除总荣誉币",type:"number"},
+  {k:"operator",label:"操作人"},{k:"generalNotes",label:"订单备注",type:"textarea",wide:true},
+ ]}
+],
+unblock:[
+ {title:"兑换信息",fields:[
+  {k:"status",label:"STATUS / 订单状态",type:"select",opts:statusList},
+  {k:"created",label:"Redeemed Time / 兑换时间",type:"datetime"},
+  {k:"uid",label:"Redeemed ID / 兑换用户 ID"},
+  {k:"country",label:"Nationality / 兑换用户国籍"}
+ ]},
+ {title:"账号解封处理",fields:[
+  {k:"unlockingId",label:"Unlocking ID / 待解封账号 ID"},
+  {k:"suspensionReason",label:"Suspension Reason / 封禁原因",type:"textarea"},
+  {k:"unlockingNationality",label:"Nationality / 待解封账号国籍"},
+  {k:"unlockingStatus",label:"Unlocking Status / 解封状态",type:"select",opts:["","待核实","待处理","处理中","解封成功","解封失败"]},
+  {k:"notes",label:"Notes / 处理备注",type:"textarea",wide:true}
+ ]}
+],
+banner:[
+ {title:"兑换与投放信息",fields:[
+  {k:"status",label:"Status / 订单状态",type:"select",opts:statusList},
+  {k:"created",label:"Redeemed Time / 兑换时间",type:"datetime"},
+  {k:"uid",label:"UID / 用户 ID"},
+  {k:"country",label:"Nationality / 用户国籍"},
+  {k:"displayRegion",label:"Display Region / 展示地区"},
+  {k:"type",label:"Type / 资源类型",type:"select",opts:["","Banner","Splash","Banner & Splash"]},
+  {k:"notes",label:"Notes / 备注",type:"textarea",wide:true}
+ ]},
+ {title:"广告素材与配置",fields:[
+  {k:"groupLink",label:"Group Link / 群组链接",type:"url"},
+  {k:"configLink",label:"Config Link / 配置链接",type:"url"},
+  {k:"color",label:"Color / 主色值",placeholder:"#RRGGBB"},
+  {k:"copy",label:"Copy / 主文案",type:"textarea"},
+  {k:"wording",label:"Wording / 补充文案",type:"textarea",wide:true},
+  {k:"image",label:"Image / 广告图片",type:"file",accept:"image/*",wide:true},
+  {k:"startTime",label:"Start Time / 生效时间",type:"datetime"},
+  {k:"endTime",label:"End Time / 结束时间",type:"datetime"}
+ ]},
+ {title:"制作与交付进度",fields:[
+  {k:"processingUI",label:"Processing UI / UI 处理进度",type:"select",opts:["","待收集资料","资料已收集","设计处理中","已通知设计","设计完成"]},
+  {k:"finalDesigned",label:"Final Designed / 最终设计",type:"file",accept:"image/*,.pdf",wide:true}
+ ]}
+],
+gift:[
+ {title:"兑换信息",fields:[
+  {k:"status",label:"STATUS / 订单状态",type:"select",opts:statusList},
+  {k:"created",label:"Redeemed Time / 兑换时间",type:"datetime"},
+  {k:"uid",label:"Redeemed ID / 兑换用户 ID"},
+  {k:"honorWallId",label:"Honor Wall ID / 荣誉墙 ID"},
+  {k:"country",label:"Nationality / 国籍"},
+  {k:"onlineCountry",label:"Online Country / 上线国家"}
+ ]},
+ {title:"定制礼物素材",fields:[
+  {k:"videoMaterial",label:"Video Material (horizontal) / 横版视频",type:"file",accept:"video/*",wide:true},
+  {k:"giftName",label:"Gift Name / 礼物名称"},
+  {k:"giftDescription",label:"Gift Description / 礼物描述（10词内，可不填）",type:"textarea",wide:true,maxWords:10},
+  {k:"giftPic",label:"Gift Pic / 礼物图片",type:"file",accept:"image/*",wide:true}
+ ]},
+ {title:"定价与履约",fields:[
+  {k:"giftPrice",label:"Gift Price / 礼物价格（金）",type:"number",min:177000,hint:"普通礼物最低 177,000 金币；限量礼物最低 600,000 金币。"},
+  {k:"limitedGift",label:"是否限量礼物",type:"select",opts:["否","是"]},
+  {k:"validDuration",label:"Valid Duration / 有效时长"},
+  {k:"processingUI",label:"Processing UI / 设计进度",type:"select",opts:["","待收集资料","资料已收集","设计处理中","已通知设计","设计完成"]},
+  {k:"notes",label:"Notes / 备注",type:"textarea",wide:true},
+  {k:"groupLink",label:"Group Link / 群组链接",type:"url",wide:true}
+ ]}
+],
+ride:[
+ {title:"兑换信息",fields:[
+  {k:"status",label:"Status / 订单状态",type:"select",opts:statusList},
+  {k:"created",label:"Redeemed Time / 兑换时间",type:"datetime"},
+  {k:"uid",label:"Redeemed ID / 兑换用户 ID"},
+  {k:"honorWallId",label:"Honor Wall ID / 荣誉墙 ID"},
+  {k:"country",label:"Nationality / 国籍"}
+ ]},
+ {title:"定制座驾方案",fields:[
+  {k:"theme",label:"Theme / 主题"},
+  {k:"backgroundScene",label:"Background / Scene / 背景场景",type:"textarea"},
+  {k:"rideName",label:"Ride Name / 座驾名称"},
+  {k:"referenceMedia",label:"Reference Image or Video / 参考素材",type:"file",accept:"image/*,video/*",wide:true}
+ ]},
+ {title:"设计制作与交付",fields:[
+  {k:"processingUI",label:"Processing UI / UI 处理进度",type:"select",opts:["","待收集资料","资料已收集","设计处理中","已通知设计","设计完成"]},
+  {k:"files",label:"Files / 交付文件",type:"file",accept:"image/*,video/*,.zip,.pdf",wide:true},
+  {k:"notes",label:"Notes / 备注",type:"textarea",wide:true},
+  {k:"groupLink",label:"Group Link / 群组链接",type:"url",wide:true}
+ ]}
+]
+};
+function inferOrderType(benefit){
+ var v=String(benefit||"").toLocaleLowerCase();
+ if(/unblock|解封|封号/.test(v))return "unblock";
+ if(/ride|座驾/.test(v))return "ride";
+ if(/gift|礼物|盒|box/.test(v))return "gift";
+ if(/banner|splash|open screen|开屏|横幅/.test(v))return "banner";
+ return "base";
+}
+function dGet(field){
+ if(!detailState.draft)return "";
+ if(sharedDetailKeys.includes(field))return detailState.draft[field]??"";
+ return (detailState.draft.detailTabs&&detailState.draft.detailTabs[detailState.tab]||{})[field]??"";
+}
+function dSet(field,value){
+ if(sharedDetailKeys.includes(field)){if(["qty","honor","coin","total","level"].includes(field))detailState.draft[field]=value===""?0:Number(value);else detailState.draft[field]=value;return}
+ if(!detailState.draft.detailTabs)detailState.draft.detailTabs={};
+ if(!detailState.draft.detailTabs[detailState.tab])detailState.draft.detailTabs[detailState.tab]={};
+ detailState.draft.detailTabs[detailState.tab][field]=value;
+}
+function toInputDate(v){
+ if(!v)return "";
+ return String(v).trim().replace(" ","T").slice(0,16);
+}
+function fromInputDate(v){
+ if(!v)return "";
+ var s=v.replace("T"," ");
+ return s.length===16?s+":00":s;
+}
+function renderField(field){
+ var k=field.k,v=dGet(k),isDate=field.type==="datetime",type=field.type||"text";
+ var inp="";
+ var attrs=' data-dfield="'+esc(k)+'" id="detail-'+esc(detailState.tab+"-"+k)+'"';
+ var hint=field.hint?'<div class="drawer-hint">'+esc(field.hint)+'</div>':"";
+ if(k==="id")inp='<input type="text" value="'+esc(detailState.draft.id||"系统自动生成")+'" readonly style="background:#f5f7fa;color:#9ca5b1">';
+ else if(type==="select")inp='<select'+attrs+'>'+field.opts.map(function(x){return '<option value="'+esc(x)+'"'+(String(v)===String(x)?" selected":"")+'>'+esc(x||"请选择")+'</option>'}).join("")+'</select>';
+ else if(type==="textarea")inp='<textarea'+attrs+' placeholder="请输入'+esc(field.label.split(" / ")[0])+'">'+esc(v)+'</textarea>';
+ else if(type==="file"){
+   var isPicture=typeof v==="string" && (/^data:image\//.test(v)||/^https?:\/\/[^"]+\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i.test(v));
+   var shownName=typeof v==="string" && /^data:/.test(v)?"已上传本地素材":v||"尚未上传素材";
+   inp='<div class="drawer-file"><input class="file-control" data-dupload="'+esc(k)+'" type="file" accept="'+esc(field.accept||"*/*")+'"><span class="drawer-file-label">'+esc(shownName)+'</span>'+(v?'<button class="btn" type="button" data-file-clear="'+esc(k)+'">移除</button>':"")+'</div>';
+   if(isPicture)inp+='<img class="drawer-preview" src="'+esc(v)+'" alt="素材预览">';
+   inp+='<input type="text" '+attrs+' value="'+(!/^data:/.test(v)?esc(v):"")+'" placeholder="或粘贴图片 / 视频 / 文件 URL" style="margin-top:7px">';
+   hint='<div class="drawer-hint">支持上传本地文件或填写链接。演示版仅持久化小文件，大文件请填写可访问链接。</div>';
+ }else{
+   var inputType=isDate?"datetime-local":type==="number"?"number":type==="url"?"url":"text";
+   var value=isDate?toInputDate(v):String(v);
+   inp='<input'+attrs+' type="'+inputType+'" value="'+esc(value)+'"'+(field.min?' min="'+field.min+'"':"")+(field.placeholder?' placeholder="'+esc(field.placeholder)+'"':"")+(type==="number"?' step="1"':"")+(field.locked?" readonly":"")+'>';
+ }
+ return '<div class="drawer-field'+(field.wide?" full":"")+'"><label for="detail-'+esc(detailState.tab+"-"+k)+'">'+esc(field.label)+(field.required?'<span class="required">*</span>':"")+'</label>'+inp+hint+'</div>';
+}
+function detailTypeLabel(){
+ var t=inferOrderType(detailState.draft.benefit);
+ return t==="base"?"未识别类型":typeNames[t];
+}
+function updateDetailMeta(){
+ if(!detailState.draft)return;
+ var r=detailState.draft;
+ el("drawerHeading").textContent=detailState.creating?"新增荣誉订单":"订单详情 · "+r.id;
+ el("drawerSubtitle").textContent=detailState.creating?"后台手动创建订单，创建后进入统一订单列表":"订单信息直接在后台录入与维护；不再依赖在线表格人工复制";
+ el("drawerTypeHint").textContent="当前业务："+detailTypeLabel();
+ el("drawerMeta").innerHTML='<span>订单编号 <strong>'+esc(r.id||"创建后生成")+'</strong></span><span>用户ID <strong>'+esc(r.uid||"--")+'</strong></span><span>权益 <strong>'+esc(r.benefit||"--")+'</strong></span><span>订单状态 <strong class="drawer-badge'+(r.status==="已处理"?" done":r.status==="已退回"?" returned":"")+'">'+esc(r.status||"待处理")+'</strong></span>';
+ el("drawerSaveHint").innerHTML=(detailState.dirty?'<span class="drawer-unsaved">● 有未保存的修改</span>':'修改内容保存至订单记录')+' · 当前为本地演示';
+}
+function drawDetailTab(){
+ var s=detailState.tab;
+ el("drawerTabs").querySelectorAll("[data-detail-tab]").forEach(function(x){x.classList.toggle("on",x.dataset.detailTab===s)});
+ var info=s==="base"?"订单基础信息与统一列表中的字段同步；可以直接修改订单、用户和支付信息。":
+ "已将原 Lark 的「"+typeNames[s]+"」表格字段搬入后台。该 Tab 可独立编辑并保存，用户 ID、国籍、订单时间、订单状态与基础信息共用。";
+ var htmlBody='<div class="drawer-intro">'+esc(info)+'</div>';
+ htmlBody+=tabSchemas[s].map(function(group){return '<section class="drawer-card"><h3 class="drawer-card-title">'+esc(group.title)+'</h3><div class="drawer-fields">'+group.fields.map(renderField).join("")+'</div></section>'}).join("");
+ el("drawerBody").innerHTML='<form id="detailEditForm" autocomplete="off">'+htmlBody+'</form>';
+ el("drawerBody").scrollTop=0;
+ updateDetailMeta();
+}
+function collectDetailTab(){
+ if(!detailState.draft)return;
+ el("drawerBody").querySelectorAll("[data-dfield]").forEach(function(input){
+   var k=input.dataset.dfield;
+   if(k==="id")return;
+   if(input.closest(".drawer-field") && input.closest(".drawer-field").querySelector("[data-dupload]") && !input.value){
+     // 如果先上传了本地文件，则空的链接输入框不覆盖已上传的素材。
+     var old=dGet(k);if(old && /^data:/.test(String(old)))return;
+   }
+   dSet(k,input.type==="datetime-local"?fromInputDate(input.value):input.value);
+ });
+ if(detailState.tab==="base"&&detailState.draft.benefit)updateDetailMeta();
+}
+function openDetail(id,creating){
+ var found=!creating?rows.find(function(x){return String(x.id)===String(id)}):null;
+ if(!creating&&!found){notice("找不到对应订单","error");return}
+ detailState.creating=!!creating;
+ detailState.original=found?JSON.stringify(found):null;
+ detailState.draft=found?JSON.parse(JSON.stringify(found)):{
+   id:"",benefit:"Customized Gift - 2 Months",qty:1,honor:0,coin:0,total:0,to:"无",
+   uid:"",name:"",country:"",region:"",status:"待处理",created:new Date().toLocaleString("sv-SE",{hour12:false}),
+   level:0,whatsapp:"",waiting:"0天",operator:"0",detailTabs:{}
+ };
+ if(!detailState.draft.detailTabs)detailState.draft.detailTabs={};
+ detailState.tab="base";
+ detailState.dirty=!!creating;
+ el("detailMask").classList.add("show");
+ el("detailMask").setAttribute("aria-hidden","false");
+ drawDetailTab();
+ setTimeout(function(){el("drawerBody").querySelector("input:not([readonly]),select")?.focus()},80);
+}
+function closeDetail(force){
+ if(!force){collectDetailTab();var dirty=detailState.creating||JSON.stringify(detailState.draft)!==detailState.original;if(dirty&&!window.confirm("当前订单有未保存的修改，确定要关闭吗？"))return}
+ el("detailMask").classList.remove("show");
+ el("detailMask").setAttribute("aria-hidden","true");
+ detailState.draft=null;detailState.original=null;detailState.dirty=false;
+}
+function checkDetail(){
+ var r=detailState.draft;
+ if(!r.uid||!String(r.uid).trim()){notice("请先填写用户 ID","error");detailState.tab="base";drawDetailTab();return false}
+ if(!r.benefit){notice("请选择权益名称","error");detailState.tab="base";drawDetailTab();return false}
+ if(!statusList.includes(r.status)){notice("订单状态不正确","error");return false}
+ var tabs=r.detailTabs||{};
+ var gift=tabs.gift||{};
+ if(gift.giftDescription&&gift.giftDescription.trim().split(/\s+/).length>10){notice("礼物描述应控制在 10 个单词以内","error");detailState.tab="gift";drawDetailTab();return false}
+ if(gift.giftPrice!==""&&gift.giftPrice!=null&&Number(gift.giftPrice)>0){
+   var min=gift.limitedGift==="是"?600000:177000;
+   if(Number(gift.giftPrice)<min){notice("礼物价格不能低于 "+min.toLocaleString()+" 金币","error");detailState.tab="gift";drawDetailTab();return false}
+ }
+ if(tabs.banner&&tabs.banner.startTime&&tabs.banner.endTime&&tabs.banner.endTime<tabs.banner.startTime){notice("结束时间不能早于开始时间","error");detailState.tab="banner";drawDetailTab();return false}
+ return true;
+}
+function saveDetail(){
+ collectDetailTab();
+ if(!checkDetail())return;
+ var r=detailState.draft;
+ if(detailState.creating){
+   var seq=String(new Date().getTime()).slice(-9);
+   r.id="M"+seq;
+   while(rows.some(function(x){return x.id===r.id})){seq=String(Number(seq)+1);r.id="M"+seq}
+   rows.unshift(r);
+ }else{
+   var i=rows.findIndex(function(x){return x.id===r.id});
+   if(i<0){notice("订单不存在，无法保存","error");return}
+   rows[i]=r;
+ }
+ try{
+   localStorage.setItem(storageKey,JSON.stringify(rows));
+ }catch(e){notice("浏览器存储空间不足，请移除大文件并改用素材链接后重试","error");if(detailState.creating)rows.shift();else{var p=rows.findIndex(function(x){return x.id===r.id});if(p>=0)rows[p]=JSON.parse(detailState.original)}return}
+ render();
+ closeDetail(true);
+ notice(detailState.creating?"手动订单已创建":"订单信息已保存");
+}
+el("newOrderBtn").addEventListener("click",function(){openDetail(null,true)});
+el("orderRows").addEventListener("click",function(e){var node=e.target.closest("[data-detail-id]");if(node)openDetail(node.dataset.detailId,false)});
+el("drawerTabs").addEventListener("click",function(e){
+ var tab=e.target.closest("[data-detail-tab]");
+ if(!tab||!detailState.draft||tab.dataset.detailTab===detailState.tab)return;
+ collectDetailTab();
+ detailState.tab=tab.dataset.detailTab;
+ drawDetailTab();
+});
+el("drawerBody").addEventListener("input",function(e){
+ if(!detailState.draft)return;
+ if(e.target.matches("[data-dfield]")){
+   var key=e.target.dataset.dfield;
+   if(key){dSet(key,e.target.type==="datetime-local"?fromInputDate(e.target.value):e.target.value);detailState.dirty=true;updateDetailMeta()}
+ }
+});
+el("drawerBody").addEventListener("change",function(e){
+ var f=e.target.closest("[data-dupload]");
+ if(f&&f.files&&f.files[0]){
+   var file=f.files[0],key=f.dataset.dupload;
+   if(file.size>650000){dSet(key,"文件："+file.name);detailState.dirty=true;drawDetailTab();notice("文件过大，演示版仅记录文件名；正式使用请接入文件存储","error");return}
+   var reader=new FileReader();
+   reader.onload=function(){dSet(key,String(reader.result));detailState.dirty=true;drawDetailTab();notice("素材已添加，请点击保存信息")};
+   reader.onerror=function(){notice("文件读取失败，请重试","error")};
+   reader.readAsDataURL(file);
+ }
+ var clear=e.target.closest("[data-file-clear]");
+ if(clear){dSet(clear.dataset.fileClear,"");detailState.dirty=true;drawDetailTab()}
+});
+el("drawerBody").addEventListener("click",function(e){
+ var remove=e.target.closest("[data-file-clear]");
+ if(remove){dSet(remove.dataset.fileClear,"");detailState.dirty=true;drawDetailTab()}
+});
+el("drawerSave").addEventListener("click",saveDetail);
+el("drawerCancel").addEventListener("click",function(){closeDetail(false)});
+el("drawerClose").addEventListener("click",function(){closeDetail(false)});
+el("detailMask").addEventListener("click",function(e){if(e.target===this)closeDetail(false)});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&el("detailMask").classList.contains("show")){e.stopImmediatePropagation();closeDetail(false)}},true);
+
 initSmartSelect("benefit",benefitList,"");initSmartSelect("status",statusList,"待处理");
 render();
 })();
