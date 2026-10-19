@@ -85,6 +85,7 @@
 .drawer-unsaved{color:#e6a23c;font-size:12px}
 @media(max-width:850px){.order-drawer{width:100vw}.drawer-fields{grid-template-columns:1fr}.drawer-head,.drawer-body,.drawer-meta{padding-left:16px;padding-right:16px}.drawer-footer{padding:0 16px}.drawer-footer .footer-note{display:none}.drawer-tab{padding:12px 10px}}
 </style>
+<link rel="stylesheet" href="./enhancements.css">
 </head>
 <body>
 <div id="app">
@@ -99,7 +100,7 @@
           <div class="nav-item">推荐套装</div><div class="nav-item">头像框</div><div class="nav-item">派对主题</div><div class="nav-item">资料卡</div><div class="nav-item">座驾</div><div class="nav-item">靓号</div><div class="nav-item">聊天气泡</div><div class="nav-item">荣誉权益</div><div class="nav-item">我的页主题</div>
         </div></div>
         <div class="nav-subsection"><div class="nav-subhead">资源管理<b>⌃</b></div><div class="nav-subitems"><div class="nav-item">靓号库</div></div></div>
-        <div class="nav-subsection"><div class="nav-subhead" style="color:#fff;font-weight:600">订单管理<b>⌃</b></div><div class="nav-subitems"><div class="nav-item active" data-page="荣誉订单">荣誉订单</div><div class="nav-item">商品订单</div></div></div>
+        <div class="nav-subsection"><div class="nav-subhead" style="color:#fff;font-weight:600">订单管理<b>⌃</b></div><div class="nav-subitems"><div class="nav-item active" data-page="荣誉订单">荣誉订单</div><div class="nav-item" data-page="海外群代理订单">海外群代理订单</div><div class="nav-item">商品订单</div></div></div>
         <div class="nav-subsection collapsed"><div class="nav-subhead">商城数据<b>⌄</b></div><div class="nav-subitems"><div class="nav-item">数据统计</div></div></div>
       </div>
     </div>
@@ -110,7 +111,7 @@
 </aside>
 <section class="workspace">
   <header class="topbar"><button class="hamburger" id="sidebarToggle" aria-label="收起侧边栏">☰</button><div class="breadcrumb"><span>▣&nbsp; 商城管理</span><span class="slash">/</span><span>订单管理</span><span class="slash">/</span><span class="end" id="crumbEnd">荣誉订单</span></div><div class="top-actions"><button class="theme-toggle" title="主题切换" id="themeToggle"></button><span class="lang" title="语言">⚑</span><span class="profile"><svg width="13" height="14" viewBox="0 0 13 14"><circle cx="6.5" cy="4" r="3"/><path d="M.5 14c0-4 2-6 6-6s6 2 6 6"/></svg>LunaY张悦</span></div></header>
-  <nav class="tabs"><button class="tiny-arrow" aria-label="切换标签">≪</button><button class="tab" data-tab="分类管理">分类管理</button><button class="tab" data-tab="荣誉权益">荣誉权益</button><button class="tab active" data-tab="荣誉订单">荣誉订单</button><div class="tab-spacer"></div><button class="tab-icon" title="下一页标签">»</button><button class="tab-icon" title="刷新" id="refresh">⟳</button><button class="tab-icon" title="关闭其他页面">×</button></nav>
+  <nav class="tabs"><button class="tiny-arrow" aria-label="切换标签">≪</button><button class="tab" data-tab="分类管理">分类管理</button><button class="tab" data-tab="荣誉权益">荣誉权益</button><button class="tab active" data-tab="荣誉订单">荣誉订单</button><button class="tab" data-tab="海外群代理订单">海外群代理订单</button><div class="tab-spacer"></div><button class="tab-icon" title="下一页标签">»</button><button class="tab-icon" title="刷新" id="refresh">⟳</button><button class="tab-icon" title="关闭其他页面">×</button></nav>
   <main class="content" id="mainContent">
     <section class="card search-panel">
       <div class="card-title">查询条件</div>
@@ -145,8 +146,8 @@
       </div>
     </section>
     <section class="card list-card">
-      <div class="list-toolbar"><div class="list-label">数据列表 <span class="count" id="recordCount">共 8 条</span></div><div class="toolbar-actions"><button class="btn primary tiny" id="newOrderBtn">＋ 新增订单</button><button class="btn primary tiny" id="importBtn">▣ 导入表格批量退回</button><button class="btn tiny" id="exportBtn">导出Excel</button></div></div>
-      <div class="table-wrap"><table class="orders-table"><colgroup><col style="width:5.3%"><col style="width:5.2%"><col style="width:4.7%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:4.6%"><col style="width:5.5%"><col style="width:5.1%"><col style="width:5.5%"><col style="width:4.8%"><col style="width:5.3%"><col style="width:4.7%"><col style="width:5%"><col style="width:4.5%"><col style="width:5.3%"><col style="width:4.8%"><col style="width:8%"></colgroup><thead><tr><th>ID</th><th>权益名称</th><th>数量</th><th>扣除(荣誉<br>币)</th><th>扣除(金币)</th><th>扣除(总荣誉<br>币)</th><th>被赠送人</th><th>用户ID</th><th>用户名</th><th>荣誉等级</th><th>国家</th><th>订单状态</th><th>订单时间</th><th>等待时间</th><th>完成时间</th><th>使用状态</th><th>使用时间</th><th>详情</th><th>whatsapp</th><th>操作人</th><th>操作</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+      <div class="list-toolbar"><div class="list-label">数据列表 <span class="count" id="recordCount">共 8 条</span></div><div class="toolbar-actions"><button class="btn primary tiny" id="newOrderBtn">＋ 新增定制订单</button><button class="btn tiny" id="honorAuditBtn">操作日志</button><button class="btn tiny" id="honorBotBtn">通知配置</button><button class="btn primary tiny" id="importBtn">▣ 导入表格批量退回</button><button class="btn tiny" id="exportBtn">导出Excel</button></div></div>
+      <div class="table-wrap"><table class="orders-table"><colgroup><col style="width:5.3%"><col style="width:5.2%"><col style="width:4.7%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:4.6%"><col style="width:5.5%"><col style="width:5.1%"><col style="width:5.5%"><col style="width:4.8%"><col style="width:5.3%"><col style="width:4.7%"><col style="width:5%"><col style="width:4.5%"><col style="width:5.3%"><col style="width:4.8%"><col style="width:8%"></colgroup><thead><tr><th>ID</th><th>权益名称</th><th>数量</th><th>扣除(荣誉<br>币)</th><th>扣除(金币)</th><th>扣除(总荣誉<br>币)</th><th>被赠送人</th><th>用户ID</th><th>用户名</th><th>荣誉等级</th><th>国家</th><th>订单状态</th><th>订单时间</th><th>等待时间</th><th>完成时间</th><th>使用状态</th><th>使用时间</th><th>详情</th><th>whatsapp</th><th>操作员工（英文名）</th><th>操作</th></tr></thead><tbody id="orderRows"></tbody></table></div>
       <div class="pagination"><select class="select page-size" id="pageSize"><option value="50">50条/页</option><option value="20">20条/页</option><option value="10">10条/页</option><option value="5">5条/页</option></select><button class="pg-btn" id="prevPage">‹</button><button class="pg-btn" id="nextPage">›</button><span>前往</span><input class="page-input" id="pageNumber" value="1" inputmode="numeric"><span>页</span><span class="right" id="totalRight">共 8 条</span></div>
     </section>
     <div class="placeholder-view" id="placeholderView">当前原型重点还原「荣誉订单」页面，请切换回「荣誉订单」查看。</div>
@@ -253,12 +254,13 @@ function renderActionButtons(r){
   return '<div class="inline-actions">'+acts.map(function(a){return '<button class="action-btn'+(a[2]?" red":"")+'" data-action="'+a[0]+'" data-id="'+esc(r.id)+'">'+a[1]+'</button>'}).join("")+'</div>';
 }
 
+function displayOperator(r){var name=String(r.operatorEnglish||"").trim();if(name)return '<span class="operator-name">'+esc(name)+"</span>";var old=String(r.operator||"").trim();return old&&!/^\d+$/.test(old)?esc(old):'<span class="muted">--</span>'}
 function render(){var f=getFilters();shown=rows.filter(function(r){return (!f.benefit||r.benefit===f.benefit||((f.benefit==="定制礼物 - 2个月"||f.benefit==="荣誉卡 - 2个月")&&r.benefit==="Customized Gift - 2 Months")||(f.benefit==="开屏 - 24小时"&&r.benefit==="Open Screen - 24h"))&&(!f.uid||r.uid.indexOf(f.uid)>-1)&&(!f.status||r.status===f.status)&&(!f.country||r.country.indexOf(f.country)>-1)&&(!f.regions.length||f.regions.indexOf(r.region)>-1)&&(!f.start||r.created.slice(0,10)>=f.start)&&(!f.end||r.created.slice(0,10)<=f.end)});var per=+el("pageSize").value;var max=Math.max(1,Math.ceil(shown.length/per));page=Math.max(1,Math.min(page,max));var part=shown.slice((page-1)*per,page*per);el("recordCount").textContent="共 "+shown.length+" 条";el("totalRight").textContent="共 "+shown.length+" 条";el("pageNumber").value=page;el("prevPage").disabled=page<=1;el("nextPage").disabled=page>=max;
-el("orderRows").innerHTML=part.length?part.map(function(r){var stateClass=r.status==="已处理"?"status-completed":r.status==="已退回"?"status-returned":r.status==="退回中"?"status-pending-return":"";return '<tr><td>'+esc(r.id)+'</td><td class="benefit">'+benefitHTML(r.benefit)+'</td><td>'+r.qty+'</td><td>'+r.honor+'</td><td>'+r.coin+'</td><td>'+r.total+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.uid)+'</td><td class="username">'+esc(r.name)+'</td><td>'+r.level+'</td><td>'+esc(r.country)+'</td><td class="'+stateClass+'">'+esc(r.status)+'</td><td class="time-cell">'+timeHTML(r.created)+'</td><td class="'+(r.status==="待处理"?"waiting":"muted")+'">'+(r.status==="待处理"?esc(r.waiting):"--")+'</td><td class="time-cell">'+timeHTML(r.completed||"--")+'</td><td>'+esc(r.used||"")+'</td><td>'+esc(r.usedTime||"") +'</td><td><button class="detail-view-btn" data-detail-id="'+esc(r.id)+'">查看/编辑</button></td><td class="time-cell">'+esc(r.whatsapp).replace(" ","<br>")+'</td><td>'+esc(r.operator||"0")+'</td><td>'+renderActionButtons(r)+'</td></tr>'}).join(""):'<tr class="empty-row"><td colspan="21">暂无数据</td></tr>'}
+el("orderRows").innerHTML=part.length?part.map(function(r){var stateClass=r.status==="已处理"?"status-completed":r.status==="已退回"?"status-returned":r.status==="退回中"?"status-pending-return":"";return '<tr><td>'+esc(r.id)+'</td><td class="benefit">'+benefitHTML(r.benefit)+'</td><td>'+r.qty+'</td><td>'+r.honor+'</td><td>'+r.coin+'</td><td>'+r.total+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.uid)+'</td><td class="username">'+esc(r.name)+'</td><td>'+r.level+'</td><td>'+esc(r.country)+'</td><td class="'+stateClass+'">'+esc(r.status)+'</td><td class="time-cell">'+timeHTML(r.created)+'</td><td class="'+(r.status==="待处理"?"waiting":"muted")+'">'+(r.status==="待处理"?esc(r.waiting):"--")+'</td><td class="time-cell">'+timeHTML(r.completed||"--")+'</td><td>'+esc(r.used||"")+'</td><td>'+esc(r.usedTime||"") +'</td><td><button class="detail-view-btn" data-detail-id="'+esc(r.id)+'">查看/编辑</button></td><td class="time-cell">'+esc(r.whatsapp).replace(" ","<br>")+'</td><td>'+displayOperator(r)+'</td><td>'+renderActionButtons(r)+'</td></tr>'}).join(""):'<tr class="empty-row"><td colspan="21">暂无数据</td></tr>'}
 function reset(){el("benefitFilter").value="";smartSelectors.benefit.sync();el("userIdFilter").value="";el("statusFilter").value="待处理";smartSelectors.status.sync();el("countryFilter").value="";el("dateStart").value="";el("dateEnd").value="";el("dateStart").type="text";el("dateEnd").type="text";document.querySelectorAll("[data-region],#allCountry").forEach(function(x){x.checked=false});page=1;render()}
 function modal(title,body,ok,onConfirm){el("modalTitle").textContent=title;el("modalBody").innerHTML=body;el("modalOK").textContent=ok||"确定";dialogAction=onConfirm||null;el("overlay").classList.add("open")}
 function closeModal(){el("overlay").classList.remove("open");dialogAction=null}
-function changeStatus(id,status){var r=rows.find(function(x){return x.id===id});if(!r)return;var prev=r.status;if(status==="已处理"&&prev!=="待处理")return;if(status==="退回中"&&prev!=="待处理"&&prev!=="已处理")return;r.status=status;r.completed=status==="已处理"?new Date().toLocaleString("sv-SE",{hour12:false}):"";r.operator="1";save();render();notice("订单 "+id+" 已更新为「"+status+"」")}
+function changeStatus(id,status){var r=rows.find(function(x){return x.id===id});if(!r)return;var prev=r.status;if(status==="已处理"&&prev!=="待处理")return;if(status==="退回中"&&prev!=="待处理"&&prev!=="已处理")return;r.status=status;r.completed=status==="已处理"?new Date().toLocaleString("sv-SE",{hour12:false}):"";r.operator="1";save();render();if(window.HonorAdmin&&typeof window.HonorAdmin.onStatus==="function")window.HonorAdmin.onStatus(r,prev,status);notice("订单 "+id+" 已更新为「"+status+"」")}
 el("orderRows").addEventListener("click",function(e){var b=e.target.closest("[data-action]");if(!b)return;var id=b.getAttribute("data-id");var action=b.getAttribute("data-action");var status=action==="complete"?"已处理":"退回中";var current=rows.find(function(x){return x.id===id});if(!current)return;if(action==="complete"&&current.status!=="待处理")return;if(action==="return"&&current.status!=="待处理"&&current.status!=="已处理")return;modal(action==="complete"?"完成订单":"退回订单",'确认将订单 <b>'+esc(id)+'</b> 标记为「'+status+'」吗？<br><span class="hint">当前页面为交互演示，操作仅保存在本地浏览器。</span>',"确认",function(){changeStatus(id,status)})});
 el("modalClose").onclick=closeModal;el("modalCancel").onclick=closeModal;el("overlay").addEventListener("click",function(e){if(e.target===this)closeModal()});el("modalOK").onclick=function(){var fn=dialogAction;closeModal();if(fn)fn()};
 el("searchBtn").onclick=function(){page=1;render()};el("resetBtn").onclick=reset;el("userIdFilter").onkeydown=function(e){if(e.key==="Enter"){page=1;render()}};el("countryFilter").onkeydown=el("userIdFilter").onkeydown;el("pageSize").onchange=function(){page=1;render()};el("prevPage").onclick=function(){page--;render()};el("nextPage").onclick=function(){page++;render()};el("pageNumber").onchange=function(){page=Math.max(1,parseInt(this.value,10)||1);render()};
@@ -281,7 +283,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal(
 
 /* 四种 Lark 表格原有字段按业务类型转换为订单详情可编辑信息 */
 var detailState={original:null,draft:null,tab:"base",creating:false,dirty:false};
-var sharedDetailKeys=["status","created","uid","country","benefit","name","qty","honor","coin","total","to","level","whatsapp","operator"];
+var sharedDetailKeys=["status","created","uid","country","benefit","name","qty","honor","coin","total","to","level","whatsapp","operator","operatorEnglish"];
 var orderBenefits=Array.from(new Set([
 "Customized Gift - 2 Months","Open Screen - 24h","Account Unblocking","Banner - 24h","Banner - 72h",
 "Customized Ride - 2 Months","Customized Gift - 2 Months","PK Energy Gift (Daily Sales Limit: 5000)",
@@ -302,7 +304,7 @@ base:[
  {title:"支付与履约信息",fields:[
   {k:"qty",label:"数量",type:"number"},{k:"honor",label:"扣除荣誉币",type:"number"},
   {k:"coin",label:"扣除金币",type:"number"},{k:"total",label:"扣除总荣誉币",type:"number"},
-  {k:"operator",label:"操作人"},{k:"generalNotes",label:"订单备注",type:"textarea",wide:true},
+  {k:"operatorEnglish",label:"操作员工英文名",required:true,placeholder:"请填写海外员工英文名"},{k:"generalNotes",label:"订单备注",type:"textarea",wide:true},
  ]}
 ],
 unblock:[
@@ -456,7 +458,7 @@ function updateDetailMeta(){
 }
 function drawDetailTab(){
  var s=detailState.tab;
- el("drawerTabs").querySelectorAll("[data-detail-tab]").forEach(function(x){x.classList.toggle("on",x.dataset.detailTab===s)});
+ el("drawerTabs").querySelectorAll("[data-detail-tab]").forEach(function(x){var target=inferOrderType(detailState.draft.benefit);x.style.display=(x.dataset.detailTab==="base"||x.dataset.detailTab===target)?"":"none";x.classList.toggle("on",x.dataset.detailTab===s)});
  var info=s==="base"?"订单基础信息与统一列表中的字段同步；可以直接修改订单、用户和支付信息。":
  "已将原 Lark 的「"+typeNames[s]+"」表格字段搬入后台。该 Tab 可独立编辑并保存，用户 ID、国籍、订单时间、订单状态与基础信息共用。";
  var htmlBody='<div class="drawer-intro">'+esc(info)+'</div>';
@@ -522,6 +524,7 @@ function saveDetail(){
  collectDetailTab();
  if(!checkDetail())return;
  var r=detailState.draft;
+ if(detailState.creating&&!String(r.operatorEnglish||"").trim()){notice("请填写海外员工英文名","error");detailState.tab="base";drawDetailTab();return}
  if(detailState.creating){
    var seq=String(new Date().getTime()).slice(-9);
    r.id="M"+seq;
@@ -536,10 +539,11 @@ function saveDetail(){
    localStorage.setItem(storageKey,JSON.stringify(rows));
  }catch(e){notice("浏览器存储空间不足，请移除大文件并改用素材链接后重试","error");if(detailState.creating)rows.shift();else{var p=rows.findIndex(function(x){return x.id===r.id});if(p>=0)rows[p]=JSON.parse(detailState.original)}return}
  render();
+ if(window.HonorAdmin&&typeof window.HonorAdmin.onSave==="function")window.HonorAdmin.onSave(r,detailState.creating);
  closeDetail(true);
- notice(detailState.creating?"手动订单已创建":"订单信息已保存");
+ notice(detailState.creating?"订单已成功登记（群机器人暂未接入）":"订单信息已保存");
 }
-el("newOrderBtn").addEventListener("click",function(){openDetail(null,true)});
+el("newOrderBtn").addEventListener("click",function(){window.HonorAdmin.openNewOrder("custom")});
 el("orderRows").addEventListener("click",function(e){var node=e.target.closest("[data-detail-id]");if(node)openDetail(node.dataset.detailId,false)});
 el("drawerTabs").addEventListener("click",function(e){
  var tab=e.target.closest("[data-detail-tab]");
@@ -578,9 +582,11 @@ el("drawerClose").addEventListener("click",function(){closeDetail(false)});
 el("detailMask").addEventListener("click",function(e){if(e.target===this)closeDetail(false)});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&el("detailMask").classList.contains("show")){e.stopImmediatePropagation();closeDetail(false)}},true);
 
+window.HonorAdmin={get rows(){return rows},state:detailState,esc:esc,notice:notice,openDetail:openDetail,drawDetailTab:drawDetailTab,collectDetailTab:collectDetailTab,switchTab:switchTab,render:render};
 initSmartSelect("benefit",benefitList,"");initSmartSelect("status",statusList,"待处理");
 render();
 })();
 </script>
+<script src="./enhancements.js"></script>
 </body>
 </html>
