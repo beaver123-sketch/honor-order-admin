@@ -43,6 +43,7 @@ document.body.insertAdjacentHTML("beforeend",[
 $("drawerTypeHint").insertAdjacentHTML("afterend",'<select id="creationTypeSelect" aria-label="选择新增订单类型"></select>');
 function newOrder(mode){
  A.openDetail(null,true);
+ $("detailMask").classList.add("new-order-modal");
  var d=A.state;
  d.creationMode=mode==="overseas"?"overseas":"custom";
  d.creationType=d.creationMode==="overseas"?"banner":"gift";
@@ -70,6 +71,7 @@ $("creationTypeSelect").addEventListener("change",function(){
  A.drawDetailTab();
 });
 function editOrder(id){
+ $("detailMask").classList.remove("new-order-modal");
  $("creationTypeSelect").classList.remove("visible");
  A.openDetail(id,false);
  A.state.creationMode=null;
