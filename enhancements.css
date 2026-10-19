@@ -55,3 +55,33 @@
 .ext-log-table td{color:#626e7b}
 .ext-log-empty{text-align:center!important;padding:48px!important;color:#a2adb9!important}
 @media(max-width:900px){.overseas-filters,.overseas-orders,.overseas-intro{min-width:800px}.ext-setting-row{align-items:flex-start;flex-direction:column}.ext-setting-label{text-align:left;width:auto}.ext-setting-input{width:100%}}
+
+
+/* 仅“新增订单”使用页面居中的弹窗；订单查看与编辑继续使用右侧抽屉 */
+.drawer-mask.new-order-modal{align-items:center;justify-content:center;padding:24px;background:rgba(8,22,40,.43)}
+.drawer-mask.new-order-modal .order-drawer{
+ width:min(940px,calc(100vw - 48px));
+ height:min(790px,calc(100vh - 48px));
+ max-height:calc(100vh - 48px);
+ border:1px solid #e6ebf1;
+ border-radius:9px;
+ overflow:hidden;
+ box-shadow:0 22px 68px rgba(5,21,42,.28);
+ transform:translateY(0);
+}
+.drawer-mask.new-order-modal .drawer-head{padding:17px 24px 14px}
+.drawer-mask.new-order-modal .drawer-heading{font-size:18px}
+.drawer-mask.new-order-modal .drawer-body{padding:19px 24px 22px;overflow:auto}
+.drawer-mask.new-order-modal .drawer-meta{padding:13px 24px;gap:12px}
+.drawer-mask.new-order-modal .drawer-tabs{padding:0 18px}
+.drawer-mask.new-order-modal .drawer-footer{height:65px;padding:0 24px}
+.drawer-mask.new-order-modal .drawer-card{margin-bottom:14px}
+.drawer-mask.new-order-modal .drawer-create-type{display:flex;align-items:center;gap:9px}
+.drawer-mask.new-order-modal #creationTypeSelect.visible{min-width:150px;height:33px}
+@media(max-width:640px){
+ .drawer-mask.new-order-modal{padding:8px}
+ .drawer-mask.new-order-modal .order-drawer{width:100%;height:calc(100vh - 16px);max-height:calc(100vh - 16px);border-radius:6px}
+ .drawer-mask.new-order-modal .drawer-body{padding:15px 14px 18px}
+ .drawer-mask.new-order-modal .drawer-head,.drawer-mask.new-order-modal .drawer-meta,.drawer-mask.new-order-modal .drawer-footer{padding-left:14px;padding-right:14px}
+ .drawer-mask.new-order-modal .drawer-tabs{padding:0 5px}
+}
