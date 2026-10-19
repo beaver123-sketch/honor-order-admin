@@ -39,6 +39,7 @@
 .state-smart .smart-option{min-height:29px;padding-left:18px}
 .state-smart .smart-options{max-height:190px}
 </style>
+<link rel="stylesheet" href="./custom-orders.css">
 </head>
 <body>
 <div id="app">
@@ -99,7 +100,7 @@
       </div>
     </section>
     <section class="card list-card">
-      <div class="list-toolbar"><div class="list-label">数据列表 <span class="count" id="recordCount">共 8 条</span></div><div class="toolbar-actions"><button class="btn primary tiny" id="importBtn">▣ 导入表格批量退回</button><button class="btn tiny" id="exportBtn">导出Excel</button></div></div>
+      <div class="list-toolbar"><div class="list-label">数据列表 <span class="count" id="recordCount">共 8 条</span></div><div class="toolbar-actions"><button class="btn primary tiny co-create-btn" id="newCustomizedOrder"><span class="co-plus">＋</span>新增定制礼物/座驾订单</button><button class="btn primary tiny" id="importBtn">▣ 导入表格批量退回</button><button class="btn tiny" id="exportBtn">导出Excel</button></div></div>
       <div class="table-wrap"><table class="orders-table"><colgroup><col style="width:5.3%"><col style="width:5.2%"><col style="width:4.7%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:4.6%"><col style="width:5.5%"><col style="width:5.1%"><col style="width:5.5%"><col style="width:4.8%"><col style="width:5.3%"><col style="width:4.7%"><col style="width:5%"><col style="width:4.5%"><col style="width:5.3%"><col style="width:4.8%"><col style="width:8%"></colgroup><thead><tr><th>ID</th><th>权益名称</th><th>数量</th><th>扣除(荣誉<br>币)</th><th>扣除(金币)</th><th>扣除(总荣誉<br>币)</th><th>被赠送人</th><th>用户ID</th><th>用户名</th><th>荣誉等级</th><th>国家</th><th>订单状态</th><th>订单时间</th><th>等待时间</th><th>完成时间</th><th>使用状态</th><th>使用时间</th><th>详情</th><th>whatsapp</th><th>操作人</th><th>操作</th></tr></thead><tbody id="orderRows"></tbody></table></div>
       <div class="pagination"><select class="select page-size" id="pageSize"><option value="50">50条/页</option><option value="20">20条/页</option><option value="10">10条/页</option><option value="5">5条/页</option></select><button class="pg-btn" id="prevPage">‹</button><button class="pg-btn" id="nextPage">›</button><span>前往</span><input class="page-input" id="pageNumber" value="1" inputmode="numeric"><span>页</span><span class="right" id="totalRight">共 8 条</span></div>
     </section>
@@ -123,7 +124,7 @@ var seed=[
 {id:"940365",benefit:"Customized Gift - 2 Months",qty:1,honor:3000,coin:0,total:3000,to:"无",uid:"6111527",name:"Zolfa",level:6,country:"沙特阿拉伯",region:"中东区",status:"待处理",created:"2026-09-24 13:33:30",waiting:"25天",whatsapp:"+966 0951****14"}
 ];
 var storageKey="honor-order-demo-v2",rows,shown=[],page=1,selected=[],dialogAction=null;
-try{var saved=JSON.parse(localStorage.getItem(storageKey));rows=Array.isArray(saved)&&saved.length===seed.length?saved:seed.map(function(x){return Object.assign({},x)});rows.forEach(function(r){if(r.status==="已完成")r.status="已处理"})}catch(e){rows=seed.map(function(x){return Object.assign({},x)});}
+try{var saved=JSON.parse(localStorage.getItem(storageKey));rows=Array.isArray(saved)&&saved.length>=seed.length?saved:seed.map(function(x){return Object.assign({},x)});rows.forEach(function(r){if(r.status==="已完成")r.status="已处理"})}catch(e){rows=seed.map(function(x){return Object.assign({},x)});}
 function el(id){return document.getElementById(id)}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(rows))}catch(e){}}
@@ -154,6 +155,7 @@ var benefitList=[
 "金豆*100k",
 "金豆*200k",
 "Customized Gift - 2 Months",
+"Customized Ride - 2 Months",
 "Open Screen - 24h"
 ];
 var statusList=["待处理","已处理","已退回","退回中"];
@@ -187,7 +189,7 @@ function renderActionButtons(r){
 }
 
 function render(){var f=getFilters();shown=rows.filter(function(r){return (!f.benefit||r.benefit===f.benefit||((f.benefit==="定制礼物 - 2个月"||f.benefit==="荣誉卡 - 2个月")&&r.benefit==="Customized Gift - 2 Months")||(f.benefit==="开屏 - 24小时"&&r.benefit==="Open Screen - 24h"))&&(!f.uid||r.uid.indexOf(f.uid)>-1)&&(!f.status||r.status===f.status)&&(!f.country||r.country.indexOf(f.country)>-1)&&(!f.regions.length||f.regions.indexOf(r.region)>-1)&&(!f.start||r.created.slice(0,10)>=f.start)&&(!f.end||r.created.slice(0,10)<=f.end)});var per=+el("pageSize").value;var max=Math.max(1,Math.ceil(shown.length/per));page=Math.max(1,Math.min(page,max));var part=shown.slice((page-1)*per,page*per);el("recordCount").textContent="共 "+shown.length+" 条";el("totalRight").textContent="共 "+shown.length+" 条";el("pageNumber").value=page;el("prevPage").disabled=page<=1;el("nextPage").disabled=page>=max;
-el("orderRows").innerHTML=part.length?part.map(function(r){var stateClass=r.status==="已处理"?"status-completed":r.status==="已退回"?"status-returned":r.status==="退回中"?"status-pending-return":"";return '<tr><td>'+esc(r.id)+'</td><td class="benefit">'+benefitHTML(r.benefit)+'</td><td>'+r.qty+'</td><td>'+r.honor+'</td><td>'+r.coin+'</td><td>'+r.total+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.uid)+'</td><td class="username">'+esc(r.name)+'</td><td>'+r.level+'</td><td>'+esc(r.country)+'</td><td class="'+stateClass+'">'+esc(r.status)+'</td><td class="time-cell">'+timeHTML(r.created)+'</td><td class="'+(r.status==="待处理"?"waiting":"muted")+'">'+(r.status==="待处理"?esc(r.waiting):"--")+'</td><td class="time-cell">'+timeHTML(r.completed||"--")+'</td><td>'+esc(r.used||"")+'</td><td>'+esc(r.usedTime||"")+'</td><td></td><td class="time-cell">'+esc(r.whatsapp).replace(" ","<br>")+'</td><td>'+esc(r.operator||"0")+'</td><td>'+renderActionButtons(r)+'</td></tr>'}).join(""):'<tr class="empty-row"><td colspan="21">暂无数据</td></tr>'}
+el("orderRows").innerHTML=part.length?part.map(function(r){var stateClass=r.status==="已处理"?"status-completed":r.status==="已退回"?"status-returned":r.status==="退回中"?"status-pending-return":"";return '<tr><td>'+esc(r.id)+'</td><td class="benefit">'+benefitHTML(r.benefit)+'</td><td>'+r.qty+'</td><td>'+r.honor+'</td><td>'+r.coin+'</td><td>'+r.total+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.uid)+'</td><td class="username">'+esc(r.name)+'</td><td>'+r.level+'</td><td>'+esc(r.country)+'</td><td class="'+stateClass+'">'+esc(r.status)+'</td><td class="time-cell">'+timeHTML(r.created)+'</td><td class="'+(r.status==="待处理"?"waiting":"muted")+'">'+(r.status==="待处理"?esc(r.waiting):"--")+'</td><td class="time-cell">'+timeHTML(r.completed||"--")+'</td><td>'+esc(r.used||"")+'</td><td>'+esc(r.usedTime||"")+'</td><td>'+(r.manualSource==="custom"?'<button class="co-open-detail" data-custom-detail="'+esc(r.id)+'">查看配置</button>':'')+'</td><td class="time-cell">'+esc(r.whatsapp).replace(" ","<br>")+'</td><td>'+esc(r.operator||"0")+'</td><td>'+renderActionButtons(r)+'</td></tr>'}).join(""):'<tr class="empty-row"><td colspan="21">暂无数据</td></tr>'}
 function reset(){el("benefitFilter").value="";smartSelectors.benefit.sync();el("userIdFilter").value="";el("statusFilter").value="待处理";smartSelectors.status.sync();el("countryFilter").value="";el("dateStart").value="";el("dateEnd").value="";el("dateStart").type="text";el("dateEnd").type="text";document.querySelectorAll("[data-region],#allCountry").forEach(function(x){x.checked=false});page=1;render()}
 function modal(title,body,ok,onConfirm){el("modalTitle").textContent=title;el("modalBody").innerHTML=body;el("modalOK").textContent=ok||"确定";dialogAction=onConfirm||null;el("overlay").classList.add("open")}
 function closeModal(){el("overlay").classList.remove("open");dialogAction=null}
@@ -212,8 +214,15 @@ document.querySelectorAll(".tab").forEach(function(n){n.onclick=function(){switc
 document.querySelectorAll(".nav-item").forEach(function(n){n.onclick=function(){if(this.dataset.page==="荣誉订单"){switchTab("荣誉订单");document.querySelectorAll(".nav-item").forEach(function(y){y.classList.remove("active")});this.classList.add("active")}else{notice("本次演示仅还原「荣誉订单」页面")}}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();el("countryPop").classList.remove("open")}});
 initSmartSelect("benefit",benefitList,"");initSmartSelect("status",statusList,"待处理");
+window.HonorOrderAdmin={
+ get rows(){return rows},
+ get storageKey(){return storageKey},
+ render:render,notice:notice,esc:esc,
+ resetFilters:reset
+};
 render();
 })();
 </script>
+<script src="./custom-orders.js"></script>
 </body>
 </html>
