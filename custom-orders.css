@@ -47,3 +47,8 @@
 .co-footer button{height:32px;padding:0 18px}
 .co-preview{display:inline-block;color:#409eff;font-size:11px;margin-top:3px}
 @media(max-width:720px){.co-backdrop{padding:8px}.co-dialog{width:100%;max-height:calc(100vh - 16px)}.co-heading,.co-types{padding:14px}.co-body{padding:12px}.co-section{padding:14px}.co-grid{grid-template-columns:1fr}.co-field.wide{grid-column:auto}.co-footer{padding:12px 14px}.co-footer .co-footnote{display:none}}
+
+/* Notification settings appear only while the switch is enabled. */
+.co-notify-options{padding-top:16px;margin-top:16px;border-top:1px solid #edf0f4}
+.co-notify-options[hidden]{display:none!important}
+.co-footer{justify-content:flex-end}
