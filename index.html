@@ -276,7 +276,13 @@ function renderDetailCell(r){
  var isNewInfo=Object.keys(details).some(function(k){return details[k]!==undefined&&details[k]!==null&&String(details[k]).trim()!==""});
  var one=populated[0],two=populated[1],need=v.map(function(pair){return pair[0]}).join("、");
  var main=one?one[0]+"："+one[1]:(t==="base"?"普通权益":"待补充配置");
- var subtitle=two?two[0]+"："+two[1]:(configured&&t==="gift"&&populated[2]?populated[2][0]+"："+populated[2][1]:"");
+ var subtitle=two?two[0]+"："+two[1]:"";
+ if(t==="gift"){
+   var extras=[details.giftPrice?String(details.giftPrice)+"金币":"",details.validDuration?String(details.validDuration):""].filter(Boolean);
+   if(extras.length)subtitle="价格/有效期："+extras.join(" · ");
+ }
+ if(t==="ride"&&details.processingUI){subtitle="设计进度："+details.processingUI+(details.theme?" · "+details.theme:"")}
+ if(t==="banner"&&details.startTime){subtitle="时间："+String(details.startTime).slice(0,16)+(details.endTime?" 至 "+String(details.endTime).slice(0,16):"")}
  var title=populated.length?populated.map(function(pair){return pair[0]+"："+pair[1]}).join("\n"):(t==="base"?"无需附加配置":"待补充："+need);
  var tag=isNewInfo?"":" detail-unset";
  return '<div class="order-detail-preview" title="'+esc(title)+'"><div class="detail-preview-first'+tag+'">'+esc(main)+'</div>'+(subtitle?'<div class="detail-preview-second">'+esc(subtitle)+'</div>':"")+
@@ -455,7 +461,7 @@ function renderField(field){
  var attrs=' data-dfield="'+esc(k)+'" id="detail-'+esc(detailState.tab+"-"+k)+'"';
  var hint=field.hint?'<div class="drawer-hint">'+esc(field.hint)+'</div>':"";
  if(k==="id")inp='<input type="text" value="'+esc(detailState.draft.id||"系统自动生成")+'" readonly style="background:#f5f7fa;color:#9ca5b1">';
- else if(type==="select")inp='<select'+attrs+'>'+field.opts.map(function(x){return '<option value="'+esc(x)+'"'+(String(v)===String(x)?" selected":"")+'>'+esc(x||"请选择")+'</option>'}).join("")+'</select>';
+ else if(type==="select")inp='<select'+attrs+(k==="benefit"&&detailState.creating?' disabled title="订单类型由上方录入类型选择"':'')+'>'+(k==="benefit"&&detailState.creating?[detailState.draft.benefit]:field.opts).map(function(x){return '<option value="'+esc(x)+'"'+(String(v)===String(x)?" selected":"")+'>'+esc(x||"请选择")+'</option>'}).join("")+'</select>';
  else if(type==="textarea")inp='<textarea'+attrs+' placeholder="请输入'+esc(field.label.split(" / ")[0])+'">'+esc(v)+'</textarea>';
  else if(type==="file"){
    var isPicture=typeof v==="string" && (/^data:image\//.test(v)||/^https?:\/\/[^"]+\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i.test(v));
@@ -488,7 +494,7 @@ function drawDetailTab(){
  var s=detailState.tab;
  el("drawerTabs").querySelectorAll("[data-detail-tab]").forEach(function(x){var target=inferOrderType(detailState.draft.benefit);x.style.display=(x.dataset.detailTab==="base"||x.dataset.detailTab===target)?"":"none";x.classList.toggle("on",x.dataset.detailTab===s)});
  var info=s==="base"?"订单基础信息与统一列表中的字段同步；当前订单有额外业务配置时，切换上方对应业务 Tab 可查看和编辑。":
- "已将原 Lark 的「"+typeNames[s]+"」表格字段搬入后台。该 Tab 可独立编辑并保存，用户 ID、国籍、订单时间、订单状态与基础信息共用。";
+ "「"+typeNames[s]+"」业务配置：信息由后台直接维护，保存后会在荣誉订单列表的「详情」列显示关键摘要；未填写字段不会生成虚拟数据。";
  var htmlBody='<div class="drawer-intro">'+esc(info)+'</div>';
  htmlBody+=tabSchemas[s].map(function(group){return '<section class="drawer-card"><h3 class="drawer-card-title">'+esc(group.title)+'</h3><div class="drawer-fields">'+group.fields.map(renderField).join("")+'</div></section>'}).join("");
  el("drawerBody").innerHTML='<form id="detailEditForm" autocomplete="off">'+htmlBody+'</form>';
