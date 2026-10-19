@@ -102,7 +102,6 @@ function notificationSection(){
  '<div class="co-notify-options" id="coNotifyOptions"'+(form.notifyEnabled?"":" hidden")+'><div class="co-grid">',
  '<div class="co-field wide"><label for="coWebhook">配置机器人 webhook</label>',
  '<input class="co-input" id="coWebhook" type="password" autocomplete="off" placeholder="请输入" value=""></div>',
- '<div class="co-field wide"><label>通知目标群</label><div><span class="co-notice-target">Honor Mall Purchase Notice</span></div></div>',
  '</div></div></section>'
  ].join("");
 }
