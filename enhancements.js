@@ -122,7 +122,19 @@ function closeUtility(){$("extLayer").classList.remove("open");$("extLayer").set
 $("extClose").onclick=closeUtility;$("extBackdrop").onclick=closeUtility;
 function openUtility(kind){
  $("extLayer").classList.add("open");$("extLayer").setAttribute("aria-hidden","false");
- if(kind==="notify"){
+ $("extLayer").classList.toggle("small-dialog",kind==="more"||kind==="notify");
+ if(kind==="more"){
+  $("extTitle").textContent="更多操作";
+  $("extSubtitle").textContent="荣誉订单辅助管理功能";
+  $("extBody").innerHTML=[
+   '<div class="ext-operation-options">',
+   ' <button class="ext-operation-item" id="moreLogAction" type="button"><span class="ext-operation-icon" aria-hidden="true">☷</span><span class="ext-operation-text"><strong>操作日志</strong><small>查询海外员工操作记录、按订单筛选及导出</small></span><span class="ext-operation-arrow" aria-hidden="true">›</span></button>',
+   ' <button class="ext-operation-item" id="moreNotifyAction" type="button"><span class="ext-operation-icon" aria-hidden="true">♧</span><span class="ext-operation-text"><strong>Lark 通知配置</strong><small>查看群机器人通知开关与配置说明</small></span><span class="ext-operation-arrow" aria-hidden="true">›</span></button>',
+   '</div>'
+  ].join("");
+  $("moreLogAction").onclick=function(){openUtility("audit")};
+  $("moreNotifyAction").onclick=function(){openUtility("notify")};
+ }else if(kind==="notify"){
   $("extTitle").textContent="Lark 机器人消息配置";
   $("extSubtitle").textContent="复用原后台开关与 Webhook 配置结构";
   $("extBody").innerHTML=[
@@ -167,11 +179,7 @@ function exportLogs(){
  var url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
  var link=document.createElement("a");link.href=url;link.download="荣誉商城操作日志.csv";link.click();setTimeout(function(){URL.revokeObjectURL(url)},1000);
 }
-$("honorAuditBtn").onclick=function(){hideMore();openUtility("audit")};
-var honorMoreBtn=$("honorMoreBtn"),honorMoreMenu=$("honorMoreMenu");
-function hideMore(){honorMoreMenu.hidden=true;honorMoreBtn.setAttribute("aria-expanded","false")}
-honorMoreBtn.onclick=function(){honorMoreMenu.hidden=!honorMoreMenu.hidden;honorMoreBtn.setAttribute("aria-expanded",String(!honorMoreMenu.hidden))};
-document.addEventListener("click",function(e){if(!e.target.closest(".honor-more"))hideMore()});
+$("honorMoreBtn").onclick=function(){openUtility("more")};
 
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("extLayer").classList.contains("open")){closeUtility();e.stopImmediatePropagation()}},true);
 refreshOverseas();
