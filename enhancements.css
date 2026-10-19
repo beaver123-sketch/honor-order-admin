@@ -99,3 +99,42 @@
 .honor-more-menu[hidden]{display:none}
 .honor-more-menu button{width:100%;padding:9px 13px;background:white;border:0;color:#596878;text-align:left;font-size:12px}
 .honor-more-menu button:hover{background:#ecf5ff;color:#409eff}
+
+
+/* 荣誉订单顶部操作区：主按钮、数据操作与其他操作分组呈现 */
+.list-card>.list-toolbar{height:auto;min-height:58px;gap:18px;flex-wrap:wrap;padding:12px 16px}
+.list-card>.list-toolbar .list-label{flex:0 0 auto;white-space:nowrap}
+.honor-action-groups{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px;margin-left:auto}
+.honor-action-primary,.honor-action-data{display:flex;align-items:center;gap:9px}
+.honor-action-divider{width:1px;height:20px;background:#e4e9f0;flex:none}
+.honor-action-groups .honor-toolbar-btn{height:32px;min-height:32px;padding:0 13px;border-color:#dce3ed;border-radius:4px;font-size:12px;box-shadow:none;transition:background .18s,border-color .18s,color .18s;line-height:1}
+.honor-action-groups .honor-action-primary .honor-toolbar-btn{background:#409eff;border-color:#409eff;color:white;font-weight:500;padding:0 17px}
+.honor-action-groups .honor-action-primary .honor-toolbar-btn:hover{background:#66b1ff;border-color:#66b1ff}
+.honor-action-groups .honor-btn-icon{display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;width:15px;font-weight:500;margin-right:3px}
+.honor-action-groups .honor-action-data .honor-toolbar-btn{background:#fff;color:#667382}
+.honor-action-groups .honor-action-data .honor-toolbar-btn:hover{color:#409eff;border-color:#a7cdf6;background:#f7fbff}
+.honor-action-groups .honor-more-trigger{color:#748193;background:#f8fafc}
+.honor-action-groups .honor-more-trigger:hover{color:#409eff;background:#f5faff;border-color:#b9d8fb}
+.honor-more-dots{font-weight:800;letter-spacing:1px;font-size:16px;line-height:.5;margin-right:2px}
+@media(max-width:1230px){.honor-action-groups{gap:9px}.honor-action-primary,.honor-action-data{gap:6px}.honor-action-groups .honor-toolbar-btn{padding:0 10px}}
+@media(max-width:920px){.list-card>.list-toolbar{align-items:flex-start}.honor-action-groups{width:100%;margin-left:0;justify-content:flex-start}.honor-action-divider{display:none}}
+/* 所有新加的辅助操作统一使用居中弹窗，历史订单详情抽屉维持原样 */
+.ext-utility-layer.open{display:flex;justify-content:center;align-items:center;padding:22px}
+.ext-utility-layer .ext-utility-drawer{height:auto;max-height:min(740px,calc(100vh - 44px));width:min(860px,calc(100vw - 44px));border-radius:8px;border:1px solid #e4e9ef;overflow:hidden;box-shadow:0 22px 60px #091e3533}
+.ext-utility-layer.small-dialog .ext-utility-drawer{width:min(550px,calc(100vw - 44px))}
+.ext-utility-layer .ext-utility-head{padding:18px 23px 15px;background:#fff;flex:none}
+.ext-utility-layer .ext-utility-head h2{font-size:17px;margin:0 0 5px}
+.ext-utility-layer .ext-utility-body{flex:1;min-height:0;overflow:auto;padding:20px 23px;background:#f8fafc}
+.ext-utility-layer .ext-utility-close{width:28px;height:28px;padding:0;line-height:1;border-radius:4px}
+.ext-utility-layer .ext-utility-close:hover{background:#f5f7fa;color:#409eff}
+.ext-utility-layer .ext-card{padding:18px;margin-bottom:0}
+.ext-utility-layer .ext-info{margin-bottom:13px}
+.ext-operation-options{display:flex;flex-direction:column;gap:10px}
+.ext-operation-item{width:100%;display:flex;gap:14px;align-items:center;min-height:76px;border:1px solid #e3e9f1;border-radius:6px;padding:15px 17px;text-align:left;background:#fff;color:#566576;cursor:pointer;transition:all .15s}
+.ext-operation-item:hover{background:#f3f8ff;border-color:#a4cefb;box-shadow:0 2px 8px #1976d012}
+.ext-operation-icon{display:flex;align-items:center;justify-content:center;flex:none;border-radius:7px;width:40px;height:40px;background:#eaf4ff;color:#409eff;font-size:20px}
+.ext-operation-text{display:flex;flex-direction:column;gap:5px;flex:1}
+.ext-operation-text strong{font-size:14px;font-weight:600;color:#3e4c5d}
+.ext-operation-text small{font-size:12px;color:#98a3b0;line-height:1.5}
+.ext-operation-arrow{font-size:23px;color:#b9c3cf}
+@media(max-width:600px){.ext-utility-layer.open{padding:8px}.ext-utility-layer .ext-utility-drawer{max-height:calc(100vh - 16px);width:calc(100vw - 16px)}.ext-utility-layer .ext-utility-body{padding:14px}.ext-utility-layer .ext-utility-head{padding:16px}}
