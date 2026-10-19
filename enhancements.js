@@ -29,7 +29,7 @@ defaultRoot.querySelector("#placeholderView").insertAdjacentHTML("beforebegin",[
  '  <button class="btn primary" id="ovQuery">⌕ 查询</button><button class="btn" id="ovReset">⟳ 重置</button>',
  ' </div></section>',
  ' <section class="card overseas-orders"><div class="list-toolbar"><div class="list-label">数据列表<span class="count" id="ovCount">共 0 条</span></div>',
- ' <div class="toolbar-actions"><button class="btn primary tiny" id="ovCreate">＋ 新增 Banner / Splash 订单</button><button class="btn tiny" id="ovAudit">操作日志</button><button class="btn tiny" id="ovBot">通知配置</button></div></div>',
+ ' <div class="toolbar-actions"><button class="btn primary tiny" id="ovCreate">＋ 新增 Banner / Splash 订单</button></div></div>',
  ' <div class="table-wrap"><table class="overseas-table"><thead><tr><th>订单 ID</th><th>订单类型</th><th>权益名称</th><th>用户 ID</th><th>用户名</th><th>国家</th><th>订单状态</th><th>登记时间</th><th>操作员工（英文名）</th><th>通知状态</th><th>操作</th></tr></thead><tbody id="ovRows"></tbody></table></div>',
  ' <div class="overseas-foot"><span>数据同步显示在荣誉订单统一列表中</span><span id="ovTotal">共 0 条</span></div></section>',
 '</section>'
@@ -98,6 +98,11 @@ function refreshOverseas(){
  }).join(""):'<tr><td class="empty" colspan="11">暂无海外群代理登记订单，点击右上角「新增 Banner / Splash 订单」开始录入。</td></tr>';
 }
 function switchPage(name){
+ var nav=document.querySelector(".tabs"),slot=nav.querySelector(".tab-spacer"),extra=nav.querySelector('[data-tab="海外群代理订单"]');
+ if(name==="海外群代理订单"&&!extra){
+   extra=document.createElement("button");extra.className="tab";extra.dataset.tab="海外群代理订单";extra.textContent="海外群代理订单";nav.insertBefore(extra,slot);
+   extra.onclick=function(){switchPage("海外群代理订单")};
+ }else if(name!=="海外群代理订单"&&extra){extra.remove()}
  A.switchTab(name);
  defaultRoot.classList.remove("placeholder-mode","overseas-mode");
  if(name==="海外群代理订单"){defaultRoot.classList.add("overseas-mode");refreshOverseas()}
@@ -106,7 +111,7 @@ function switchPage(name){
  document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("active",t.dataset.tab===name)});
 }
 document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){switchPage(t.dataset.tab)}});
-document.querySelectorAll(".nav-item").forEach(function(n){n.onclick=function(){if(n.dataset.page)switchPage(n.dataset.page);else A.notice("当前演示版仅开放荣誉订单与海外群代理订单")}});
+document.querySelectorAll(".nav-item").forEach(function(n){n.onclick=function(){if(n.dataset.page)switchPage(n.dataset.page);else if(n.dataset.config==="notify")openUtility("notify");else A.notice("当前演示版仅开放荣誉订单与海外群代理订单")}});
 $("ovQuery").onclick=refreshOverseas;
 $("ovReset").onclick=function(){$("ovType").value="";$("ovUid").value="";$("ovStatus").value="";refreshOverseas()};
 $("ovUid").onkeydown=function(e){if(e.key==="Enter")refreshOverseas()};
@@ -162,10 +167,12 @@ function exportLogs(){
  var url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
  var link=document.createElement("a");link.href=url;link.download="荣誉商城操作日志.csv";link.click();setTimeout(function(){URL.revokeObjectURL(url)},1000);
 }
-$("ovAudit").onclick=function(){openUtility("audit")};
-$("ovBot").onclick=function(){openUtility("notify")};
-$("honorAuditBtn").onclick=function(){openUtility("audit")};
-$("honorBotBtn").onclick=function(){openUtility("notify")};
+$("honorAuditBtn").onclick=function(){hideMore();openUtility("audit")};
+var honorMoreBtn=$("honorMoreBtn"),honorMoreMenu=$("honorMoreMenu");
+function hideMore(){honorMoreMenu.hidden=true;honorMoreBtn.setAttribute("aria-expanded","false")}
+honorMoreBtn.onclick=function(){honorMoreMenu.hidden=!honorMoreMenu.hidden;honorMoreBtn.setAttribute("aria-expanded",String(!honorMoreMenu.hidden))};
+document.addEventListener("click",function(e){if(!e.target.closest(".honor-more"))hideMore()});
+
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("extLayer").classList.contains("open")){closeUtility();e.stopImmediatePropagation()}},true);
 refreshOverseas();
 })();
