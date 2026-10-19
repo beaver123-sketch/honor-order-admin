@@ -5,9 +5,11 @@ if(!api)return;
 var byId=function(id){return document.getElementById(id)};
 var esc=api.esc;
 var stageOptions=["待收集资料","资料收集中","待 UI 设计","UI 设计中","待上线","complete（launched）","已取消"];
+var orderStatusOptions=["待处理","已处理","已退回","退回中"];
 var editingId=null,kind="gift",form={},isDirty=false,ephemeralWebhook="";
 var baseFields=[
  {key:"productionStatus",label:"Status / 制作状态",type:"select",options:stageOptions},
+ {key:"orderStatus",label:"订单状态",type:"select",options:orderStatusOptions,required:true},
  {key:"redeemedTime",label:"Redeemed Time / 兑换时间",type:"datetime-local"},
  {key:"redeemedId",label:"Redeemed ID / 兑换用户 ID",required:true},
  {key:"honorWallId",label:"Honor Wall ID / 荣誉墙 ID"},
@@ -54,7 +56,7 @@ function nextWorkingDays(value,days){
  return localDatetime(dt).slice(0,10);
 }
 function baseDefault(){var now=localDatetime();return {
- productionStatus:"待收集资料",redeemedTime:now,redeemedId:"",honorWallId:"",nationality:"",
+ productionStatus:"待收集资料",orderStatus:"待处理",redeemedTime:now,redeemedId:"",honorWallId:"",nationality:"",
  operatorEnglish:"",onlineCountry:"",giftName:"",giftDescription:"",giftPrice:"177000",
  giftType:"普通礼物",validDuration:"2个月",videoMaterial:"",giftPic:"",theme:"",
  backgroundScene:"",backgroundMedia:"",referenceMedia:"",rideName:"",files:"",
@@ -125,6 +127,7 @@ function open(record){
  editingId=record?String(record.id):null;
  kind=record&&record.manualType==="ride"?"ride":"gift";
  form=record&&record.customization?Object.assign(baseDefault(),JSON.parse(JSON.stringify(record.customization))):baseDefault();
+ form.orderStatus=record&&orderStatusOptions.includes(record.status)?record.status:"待处理";
  form.fileNames=Object.assign({},form.fileNames||{});
  isDirty=false;ephemeralWebhook="";
  byId("coBackdrop").classList.add("open");
@@ -139,6 +142,7 @@ function close(force){
  ephemeralWebhook="";isDirty=false;editingId=null;
 }
 function validate(){
+ if(!orderStatusOptions.includes(form.orderStatus)){api.notice("请选择有效的订单状态","error");return false}
  if(!String(form.redeemedId||"").trim()){api.notice("请输入兑换用户 ID","error");return false}
  if(!String(form.operatorEnglish||"").trim()){api.notice("请输入海外员工英文名","error");return false}
  if(kind==="ride"&&!String(form.rideName||"").trim()){api.notice("请输入座驾名称","error");return false}
@@ -185,7 +189,7 @@ function save(){
  record.created=freshTime;
  record.operatorEnglish=String(form.operatorEnglish).trim();
  record.operator=record.operatorEnglish;
- record.status=existing?existing.status:"待处理";
+ record.status=form.orderStatus;
  record.customization=JSON.parse(JSON.stringify(form));
  record.customization.notifyTarget="Honor Mall Purchase Notice";
  record.notificationStatus=form.notifyEnabled?"未发送":"未启用";
