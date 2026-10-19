@@ -1,0 +1,49 @@
+
+/* New custom gift & ride registration. Scoped to .co-* to preserve the original admin. */
+.co-create-btn{margin-right:2px;font-weight:500}
+.co-create-btn .co-plus{font-size:15px;line-height:1;margin-right:1px}
+.co-open-detail{background:none;color:#409eff;border:0;padding:0 4px;white-space:nowrap;font-size:11px}
+.co-open-detail:hover{color:#66b1ff;text-decoration:underline}
+.co-backdrop{position:fixed;inset:0;z-index:160;background:rgba(15,28,44,.44);display:none;align-items:center;justify-content:center;padding:22px}
+.co-backdrop.open{display:flex}
+.co-dialog{display:flex;flex-direction:column;width:min(910px,calc(100vw - 44px));max-height:min(820px,calc(100vh - 44px));border-radius:6px;background:#fff;overflow:hidden;box-shadow:0 20px 60px #071d3740;color:#606266;font-size:12px}
+.co-heading{display:flex;align-items:center;gap:18px;flex:none;border-bottom:1px solid #e8edf4;padding:19px 23px 15px}
+.co-heading-main{flex:1}
+.co-heading h2{margin:0 0 6px;color:#30343e;font-weight:600;font-size:17px}
+.co-heading p{font-size:12px;margin:0;color:#a0a8b2}
+.co-close{background:transparent;border:0;color:#a2adbb;font-size:25px;padding:3px 7px}
+.co-close:hover{color:#409eff}
+.co-types{display:flex;align-items:center;gap:10px;flex:none;background:white;padding:14px 23px;border-bottom:1px solid #e9edf4}
+.co-types-label{font-weight:600;margin-right:5px;color:#5b6673}
+.co-type-btn{padding:7px 17px;border:1px solid #dce3eb;border-radius:3px;background:#fff;color:#647282;cursor:pointer}
+.co-type-btn.active{background:#ecf5ff;color:#409eff;border-color:#409eff}
+.co-type-btn:disabled{opacity:.5;cursor:not-allowed}
+.co-body{overflow:auto;flex:1;padding:18px 23px 25px;background:#f5f7fa}
+.co-note{padding:11px 13px;margin-bottom:14px;border:1px solid #cfe6fa;background:#f0f8ff;color:#6686a4;border-radius:4px;line-height:1.7}
+.co-section{background:#fff;border:1px solid #e7ecf2;border-radius:4px;padding:17px 19px 20px;margin-bottom:13px}
+.co-section h3{margin:0 0 17px;padding:0 0 12px;border-bottom:1px solid #edf0f4;font-size:13px;color:#3c4755}
+.co-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;row-gap:15px}
+.co-field{min-width:0;display:flex;flex-direction:column;gap:7px}
+.co-field.wide{grid-column:1/-1}
+.co-field label{color:#66707d;font-size:12px;line-height:1.5}
+.co-req{color:#f56c6c;padding-left:3px}
+.co-input,.co-field select,.co-field textarea{width:100%;min-height:34px;padding:8px 10px;border:1px solid #dce3ea;border-radius:3px;outline:0;background:white;color:#606b78;font:inherit}
+.co-input:focus,.co-field select:focus,.co-field textarea:focus{border-color:#409eff}
+.co-field textarea{resize:vertical;min-height:78px;line-height:1.5}
+.co-field input::placeholder,.co-field textarea::placeholder{color:#b9c3ce}
+.co-help{color:#9da7b2;line-height:1.5}
+.co-media{display:flex;align-items:center;flex-wrap:wrap;gap:9px;border:1px dashed #d3dfe9;border-radius:4px;padding:10px;background:#fcfdff}
+.co-media input[type=file]{flex:none;max-width:260px;font-size:11px}
+.co-media-name{color:#8895a4;font-size:11px;overflow-wrap:anywhere;flex:1}
+.co-media .co-input{flex-basis:100%;min-width:0}
+.co-toggle-line{display:flex;align-items:center;gap:12px;min-height:34px}
+.co-switch{width:47px;height:25px;flex:none;background:#c8cdd5;border:0;border-radius:15px;padding:3px;display:flex;align-items:center;cursor:pointer}
+.co-switch:before{content:"";display:block;height:19px;width:19px;background:#fff;border-radius:50%;box-shadow:0 1px 2px #68778626}
+.co-switch.on{background:#409eff;justify-content:flex-end}
+.co-notice-target{color:#409eff;background:#ecf5ff;padding:5px 8px;border-radius:3px;display:inline-block}
+.co-alert{color:#9c7639;background:#fffaf0;border:1px solid #f4e4bf;border-radius:3px;padding:10px 12px;line-height:1.7;margin-top:12px}
+.co-footer{display:flex;align-items:center;gap:11px;flex:none;justify-content:flex-end;padding:14px 23px;border-top:1px solid #e8edf4;background:#fff}
+.co-footer .co-footnote{margin-right:auto;color:#a2abb6}
+.co-footer button{height:32px;padding:0 18px}
+.co-preview{display:inline-block;color:#409eff;font-size:11px;margin-top:3px}
+@media(max-width:720px){.co-backdrop{padding:8px}.co-dialog{width:100%;max-height:calc(100vh - 16px)}.co-heading,.co-types{padding:14px}.co-body{padding:12px}.co-section{padding:14px}.co-grid{grid-template-columns:1fr}.co-field.wide{grid-column:auto}.co-footer{padding:12px 14px}.co-footer .co-footnote{display:none}}
