@@ -70,7 +70,7 @@ document.body.insertAdjacentHTML("beforeend",[
  '<button class="co-type-btn active" data-co-kind="gift" type="button">定制礼物 Customized Gift</button>',
  '<button class="co-type-btn" data-co-kind="ride" type="button">定制座驾 Customized Ride</button></div>',
  '<div class="co-body" id="coBody"></div>',
- '<div class="co-footer"><span class="co-footnote">演示版仅保存在当前浏览器 · 不调用真实下单或通知接口</span>',
+ '<div class="co-footer">',
  '<button class="btn" type="button" id="coCancel">取消</button>',
  '<button class="btn primary" type="button" id="coSave">保存订单</button></div>',
  '</div></div>'
@@ -95,27 +95,27 @@ function oneField(field){
 function section(title,fields){return '<section class="co-section"><h3>'+esc(title)+'</h3><div class="co-grid">'+fields.map(oneField).join("")+'</div></section>'}
 function notificationSection(){
  return [
- '<section class="co-section"><h3>Lark 群消息通知</h3><div class="co-grid">',
- '<div class="co-field wide"><label>是否推送群聊 Lark 机器人消息</label><div class="co-toggle-line">',
- '<button type="button" id="coNotifySwitch" class="co-switch'+(form.notifyEnabled?" on":"")+'" role="switch" aria-checked="'+(!!form.notifyEnabled)+'"></button>',
- '<span id="coNotifyText">'+(form.notifyEnabled?"已开启（演示）":"关闭")+'</span></div></div>',
+ '<section class="co-section"><h3>Lark 群消息通知</h3>',
+ '<div class="co-grid"><div class="co-field wide"><label>是否推送群聊 Lark 机器人消息</label><div class="co-toggle-line">',
+ '<button type="button" id="coNotifySwitch" class="co-switch'+(form.notifyEnabled?" on":"")+'" role="switch" aria-checked="'+(!!form.notifyEnabled)+'" aria-controls="coNotifyOptions"></button>',
+ '<span id="coNotifyText">'+(form.notifyEnabled?"已开启":"已关闭")+'</span></div></div></div>',
+ '<div class="co-notify-options" id="coNotifyOptions"'+(form.notifyEnabled?"":" hidden")+'><div class="co-grid">',
  '<div class="co-field wide"><label for="coWebhook">配置机器人 webhook</label>',
- '<input class="co-input" id="coWebhook" type="password" autocomplete="off" placeholder="请输入 Webhook（演示版不会保存或发送）" value="">',
- '<span class="co-help">Webhook 属于敏感凭据，正式版本需要由服务端安全保存；此原型不会持久化输入。</span></div>',
+ '<input class="co-input" id="coWebhook" type="password" autocomplete="off" placeholder="请输入" value=""></div>',
  '<div class="co-field wide"><label>通知目标群</label><div><span class="co-notice-target">Honor Mall Purchase Notice</span></div></div>',
- '</div><div class="co-alert">当前为前端原型：开关及配置项仅供预览。保存订单不会真实推送消息，且不会保留 Webhook 密钥。正式通知需接入安全的服务端接口。</div></section>'
+ '</div></div></section>'
  ].join("");
 }
 function paint(){
  byId("coTitle").textContent=(editingId?"编辑":"新增")+labels[kind]+"订单";
  document.querySelectorAll("[data-co-kind]").forEach(function(n){n.classList.toggle("active",n.dataset.coKind===kind);n.disabled=!!editingId});
- var content='<div class="co-note">仅新增定制礼物、定制座驾订单；录入后统一纳入当前荣誉订单列表，不更改原有列表字段和状态规则。</div>';
+ var content='';
  content+=section("订单基础信息",baseFields);
  content+=section(kind==="gift"?"定制礼物信息":"定制座驾信息",kind==="gift"?giftFields:rideFields);
  content+=notificationSection();
  byId("coBody").innerHTML=content;
  byId("coBody").scrollTop=0;
- byId("coNotifySwitch").onclick=function(){form.notifyEnabled=!form.notifyEnabled;isDirty=true;this.classList.toggle("on",form.notifyEnabled);this.setAttribute("aria-checked",String(form.notifyEnabled));byId("coNotifyText").textContent=form.notifyEnabled?"已开启（演示）":"关闭";};
+ byId("coNotifySwitch").onclick=function(){form.notifyEnabled=!form.notifyEnabled;isDirty=true;this.classList.toggle("on",form.notifyEnabled);this.setAttribute("aria-checked",String(form.notifyEnabled));byId("coNotifyText").textContent=form.notifyEnabled?"已开启":"已关闭";byId("coNotifyOptions").hidden=!form.notifyEnabled;if(!form.notifyEnabled){ephemeralWebhook="";byId("coWebhook").value=""}};
  var webhook=byId("coWebhook");webhook.value="";webhook.oninput=function(){ephemeralWebhook=webhook.value;isDirty=true};
 }
 function collect(){
@@ -151,7 +151,6 @@ function validate(){
   var price=Number(form.giftPrice),min=form.giftType==="限量礼物"?600000:177000;
   if(!Number.isFinite(price)||price<min){api.notice("当前礼物价格不能低于 "+min.toLocaleString("en-US")+" 金币","error");return false}
  }
- if(form.notifyEnabled&&ephemeralWebhook.trim()){api.notice("演示版不会保存 Webhook 或发送群通知");}
  return true;
 }
 function persist(row,creating){
@@ -190,7 +189,7 @@ function save(){
  record.status=existing?existing.status:"待处理";
  record.customization=JSON.parse(JSON.stringify(form));
  record.customization.notifyTarget="Honor Mall Purchase Notice";
- record.notificationStatus=form.notifyEnabled?"未发送（演示）":"未启用";
+ record.notificationStatus=form.notifyEnabled?"未发送":"未启用";
  // Webhook is deliberately not serialized; file objects likewise are never stored.
  if(!persist(record,creating))return;
  close(true);
