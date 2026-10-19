@@ -454,7 +454,7 @@ function detailTypeLabel(){
 function updateDetailMeta(){
  if(!detailState.draft)return;
  var r=detailState.draft;
- el("drawerHeading").textContent=detailState.creating?"新增荣誉订单":"订单详情 · "+r.id;
+ el("drawerHeading").textContent=detailState.creating?(detailState.creationMode==="overseas"?"新增 Banner / Splash 订单":"新增定制订单"):"订单详情 · "+r.id;
  el("drawerSubtitle").textContent=detailState.creating?"后台手动创建订单，创建后进入统一订单列表":"订单信息直接在后台录入与维护；不再依赖在线表格人工复制";
  el("drawerTypeHint").textContent="当前业务："+detailTypeLabel();
  el("drawerMeta").innerHTML='<span>订单编号 <strong>'+esc(r.id||"创建后生成")+'</strong></span><span>用户ID <strong>'+esc(r.uid||"--")+'</strong></span><span>权益 <strong>'+esc(r.benefit||"--")+'</strong></span><span>订单状态 <strong class="drawer-badge'+(r.status==="已处理"?" done":r.status==="已退回"?" returned":"")+'">'+esc(r.status||"待处理")+'</strong></span>';
@@ -485,6 +485,7 @@ function collectDetailTab(){
  if(detailState.tab==="base"&&detailState.draft.benefit)updateDetailMeta();
 }
 function openDetail(id,creating){
+ if(!creating){el("detailMask").classList.remove("new-order-modal");}
  var found=!creating?rows.find(function(x){return String(x.id)===String(id)}):null;
  if(!creating&&!found){notice("找不到对应订单","error");return}
  detailState.creating=!!creating;
@@ -504,8 +505,9 @@ function openDetail(id,creating){
 }
 function closeDetail(force){
  if(!force){collectDetailTab();var dirty=detailState.creating||JSON.stringify(detailState.draft)!==detailState.original;if(dirty&&!window.confirm("当前订单有未保存的修改，确定要关闭吗？"))return}
- el("detailMask").classList.remove("show");
+ el("detailMask").classList.remove("show","new-order-modal");
  el("detailMask").setAttribute("aria-hidden","true");
+ el("creationTypeSelect").classList.remove("visible");
  detailState.draft=null;detailState.original=null;detailState.dirty=false;
 }
 function checkDetail(){
