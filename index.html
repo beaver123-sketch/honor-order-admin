@@ -341,7 +341,7 @@ banner:[
   {k:"endTime",label:"End Time / 结束时间",type:"datetime"}
  ]},
  {title:"制作与交付进度",fields:[
-  {k:"processingUI",label:"Processing UI / UI 处理进度",type:"select",opts:["","待收集资料","资料已收集","设计处理中","已通知设计","设计完成"]},
+  {k:"processingUI",label:"Processing UI / UI 处理进度",type:"select",opts:["","待收集资料","资料已收集","设计处理中","已通知设计","设计完成"],hint:"工作日与周末的通知负责人按实际运营排班确认，资料收集完毕后同步 UI 与通知群。"},
   {k:"finalDesigned",label:"Final Designed / 最终设计",type:"file",accept:"image/*,.pdf",wide:true}
  ]}
 ],
@@ -361,7 +361,7 @@ gift:[
   {k:"giftPic",label:"Gift Pic / 礼物图片",type:"file",accept:"image/*",wide:true}
  ]},
  {title:"定价与履约",fields:[
-  {k:"giftPrice",label:"Gift Price / 礼物价格（金）",type:"number",min:177000,hint:"普通礼物最低 177,000 金币；限量礼物最低 600,000 金币。"},
+  {k:"giftPrice",label:"Gift Price / 礼物价格（金）",type:"number",min:177000,hint:"未填写价格默认 177,000 金币；限量礼物最低 600,000 金币。"},
   {k:"limitedGift",label:"是否限量礼物",type:"select",opts:["否","是"]},
   {k:"validDuration",label:"Valid Duration / 有效时长"},
   {k:"processingUI",label:"Processing UI / 设计进度",type:"select",opts:["","待收集资料","资料已收集","设计处理中","已通知设计","设计完成"]},
@@ -509,6 +509,7 @@ function checkDetail(){
  if(!statusList.includes(r.status)){notice("订单状态不正确","error");return false}
  var tabs=r.detailTabs||{};
  var gift=tabs.gift||{};
+ if(gift.giftPrice===""&&gift.giftPrice!==undefined)gift.giftPrice=177000;
  if(gift.giftDescription&&gift.giftDescription.trim().split(/\s+/).length>10){notice("礼物描述应控制在 10 个单词以内","error");detailState.tab="gift";drawDetailTab();return false}
  if(gift.giftPrice!==""&&gift.giftPrice!=null&&Number(gift.giftPrice)>0){
    var min=gift.limitedGift==="是"?600000:177000;
