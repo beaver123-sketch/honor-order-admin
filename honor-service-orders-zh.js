@@ -83,7 +83,7 @@ const common=[
  {k:"nationality",l:"Nationality",req:1,list:"soCountryList"},
  {k:"redemptionTime",l:"Redemption Time",req:1,kind:"datetime-local"},
  {k:"orderStatus",l:"Order Status",req:1,kind:"select",opts:T.statuses},
- {k:"assignedTo",l:"Assigned To",list:"soAssigneeList"},
+ {k:"assignedTo",l:"Assigned To",placeholder:"Enter assignee name"},
  {k:"operatorEnglish",l:"Operator (English Name)",req:1,placeholder:"Enter overseas operator English name"},
  {k:"whatsapp",l:"WhatsApp"},
  {k:"notes",l:"Notes",kind:"textarea",wide:1}
@@ -107,8 +107,7 @@ const byType={
   {k:"startTime",l:"Start Time",req:1,kind:"datetime-local"},
   {k:"endTime",l:"End Time",req:1,kind:"datetime-local"},
   {k:"finalDesign",l:"Final Design",kind:"file",accept:"image/*,.pdf",wide:1},
-  {k:"uiDesigner",l:"UI Designer",list:"soDesignerList",placeholder:"e.g. @Luka YM GAO"},
-  {k:"processingUI",l:"Processing UI",kind:"textarea",wide:1,placeholder:"After collecting, notify @Jackson W YANG / @Luka YM GAO"},
+  {k:"processingUI",l:"Processing UI",kind:"mention",wide:1,placeholder:"Type @ to mention a UI designer, then add follow-up notes"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"bannerNotes",l:"Notes",kind:"textarea",wide:1}
  ],
@@ -119,9 +118,9 @@ const byType={
   {k:"giftName",l:"Gift Name",req:1},
   {k:"giftDescription",l:"Gift Description",kind:"textarea",hint:"Maximum 10 words"},
   {k:"giftImage",l:"Gift Image",kind:"file",accept:"image/*",wide:1},
+  {k:"giftReferenceImage",l:"Gift Reference Image",kind:"image-upload",wide:1},
   {k:"giftVideo",l:"Gift Video",kind:"file",accept:"video/*",wide:1},
-  {k:"uiDesigner",l:"UI Designer",list:"soDesignerList",placeholder:"e.g. @Luka YM GAO"},
-  {k:"processingUI",l:"Processing UI",kind:"textarea",wide:1,placeholder:"After collecting, notify @Jackson W YANG / @Luka YM GAO"},
+  {k:"processingUI",l:"Processing UI",kind:"mention",wide:1,placeholder:"Type @ to mention a UI designer, then add follow-up notes"},
   {k:"giftPrice",l:"Gift Price",req:1,kind:"number",hint:"Regular ≥177,000 coins; Limited ≥600,000"},
   {k:"validDuration",l:"Valid Duration",req:1,placeholder:"2 months"},
   {k:"groupLink",l:"Group Link",kind:"url"},
@@ -134,8 +133,7 @@ const byType={
   {k:"rideName",l:"Ride Name",req:1},
   {k:"referenceMedia",l:"Reference Image or Video",kind:"file",accept:"image/*,video/*",wide:1},
   {k:"designFiles",l:"Design Files",kind:"file",accept:"image/*,video/*,.pdf,.zip",wide:1},
-  {k:"uiDesigner",l:"UI Designer",list:"soDesignerList",placeholder:"e.g. @Luka YM GAO"},
-  {k:"processingUI",l:"Processing UI",kind:"textarea",wide:1,placeholder:"After collecting, notify @Jackson W YANG / @Luka YM GAO"},
+  {k:"processingUI",l:"Processing UI",kind:"mention",wide:1,placeholder:"Type @ to mention a UI designer, then add follow-up notes"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"rideNotes",l:"Notes",kind:"textarea",wide:1}
  ]
@@ -166,7 +164,7 @@ try{
 let filters={},page=1,pageSize=20,editor=null;
 function defaultDraft(){
  return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:nowLocal(),
-  orderStatus:"pending",assignedTo:"",operatorEnglish:((window.HonorAudit?.actor()||"Unknown")==="Unknown"?"":window.HonorAudit.actor()),whatsapp:"",notes:"",benefitName:"",uiDesigner:"",processingUI:"",
+  orderStatus:"pending",assignedTo:"",scheduleStart:"",scheduleEnd:"",giftReferenceImage:"",giftReferenceImageData:"",operatorEnglish:((window.HonorAudit?.actor()||"Unknown")==="Unknown"?"":window.HonorAudit.actor()),whatsapp:"",notes:"",benefitName:"",uiDesigner:"",processingUI:"",
   unbanStatus:"pending",displayType:"banner",giftType:"regular",giftPrice:"177000",
   notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:"",
   history:[],notifications:[]};
@@ -454,6 +452,22 @@ function fieldHtml(f,d,readonly){
   ctrl='<select'+attr+(readonly||k==="orderType"&&editor.mode!=="add"?" disabled":"")+'>'+opts+'</select>';
  }else if(["nationality","accountNationality","availableCountries","displayRegion"].includes(k)){
   ctrl=fieldCountries(f,v,readonly);
+ }else if(f.kind==="mention"){
+  ctrl='<div class="so-mention-wrap"><textarea'+attr+(readonly?' disabled':'')+
+    ' placeholder="'+escapeHtml(f.placeholder||"Type @ to select a designer")+'">'+escapeHtml(v)+'</textarea>'+
+    (readonly?'':'<div class="so-mention-menu" hidden role="listbox"></div>')+'</div>';
+ }else if(f.kind==="image-upload"){
+  const preview=String(d.giftReferenceImageData||"");
+  const safePreview=/^data:image\/(?:jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(preview)?preview:"";
+  ctrl='<div class="so-gift-ref">'+
+    (readonly?'':'<label class="so-button so-upload-label" for="so-upload-giftReferenceImage">Upload Reference Image</label>'+
+      '<input type="file" id="so-upload-giftReferenceImage" data-gift-ref-upload accept="image/png,image/jpeg,image/webp" class="so-native-file">'+
+      '<button class="so-button so-ref-remove" type="button" data-gift-ref-clear'+(!v?' hidden':'')+'>Remove</button>')+
+    '<input type="hidden"'+attr+' value="'+escapeHtml(v)+'">'+
+    '<span class="so-gift-ref-filename">'+escapeHtml(v||"No file selected")+'</span>'+
+    '<img class="so-gift-ref-preview" alt="Gift reference preview" src="'+escapeHtml(safePreview)+'"'+(safePreview?'':' hidden')+'>'+
+    (readonly?'':'<small class="so-hint">Demo preview saved in this browser; no server upload. PNG / JPG / WebP.</small>')+
+   '</div>';
  }else if(f.kind==="textarea"){
   ctrl='<textarea'+attr+(readonly?" disabled":"")+' placeholder="'+escapeHtml(f.placeholder||"Please enter")+'">'+escapeHtml(v)+'</textarea>';
  }else if(f.kind==="file"){
@@ -483,6 +497,89 @@ function openOrder(mode,id){
  $("soModal").setAttribute("aria-hidden","false");
  paintOrder();
 }
+const UI_DESIGNERS=["Jackson W YANG","Luka YM GAO","MA-Emillia"];
+function mentionContext(text,caret){
+ const left=String(text||"").slice(0,caret);
+ const at=left.lastIndexOf("@");
+ if(at<0||left.slice(at).includes("\n")||left.length-at>70)return null;
+ const query=left.slice(at+1);
+ if(!query||UI_DESIGNERS.some(name=>name.toLowerCase().includes(query.toLowerCase())))return {start:at,end:caret,query};
+ return null;
+}
+function hideMention(root){
+ const menu=root?.querySelector(".so-mention-menu");
+ if(menu){menu.hidden=true;menu.innerHTML="";}
+}
+function showMention(input){
+ const root=input.closest(".so-mention-wrap"),menu=root?.querySelector(".so-mention-menu");
+ if(!menu)return;
+ const point=mentionContext(input.value,input.selectionStart);
+ if(!point){hideMention(root);return}
+ const options=UI_DESIGNERS.filter(name=>name.toLowerCase().includes(point.query.toLowerCase()));
+ if(!options.length){hideMention(root);return}
+ menu.dataset.start=String(point.start);
+ menu.dataset.end=String(point.end);
+ menu.innerHTML=options.map((name,i)=>'<button type="button" role="option" class="so-mention-choice'+(i===0?' selected':'')+
+   '" data-mention-name="'+escapeHtml(name)+'">@'+escapeHtml(name)+'</button>').join("");
+ menu.hidden=false;
+}
+function chooseMention(button){
+ const root=button.closest(".so-mention-wrap"),input=root?.querySelector("textarea[data-field=processingUI]");
+ if(!input||!editor)return;
+ const menu=root.querySelector(".so-mention-menu");
+ const start=Number(menu.dataset.start),end=Number(menu.dataset.end);
+ const name=button.dataset.mentionName;
+ const insertion="@"+name+" ";
+ const next=input.value.slice(0,start)+insertion+input.value.slice(end);
+ input.value=next;
+ const caret=start+insertion.length;
+ input.focus();input.setSelectionRange(caret,caret);
+ editor.data.processingUI=next;editor.changed=true;
+ hideMention(root);
+}
+function loadReferenceImage(file){
+ if(!file||!editor)return;
+ if(!/^image\/(png|jpeg|webp)$/.test(file.type)||file.size>8*1024*1024){
+  toast("Choose a JPG, PNG or WebP image under 8 MB",true);return;
+ }
+ const ed=editor;
+ ed.imageProcessing=true;
+ const objectUrl=URL.createObjectURL(file);
+ const img=new Image();
+ img.onload=()=>{
+  URL.revokeObjectURL(objectUrl);
+  if(editor!==ed)return;
+  try{
+   const factor=Math.min(1,1100/Math.max(img.naturalWidth,img.naturalHeight));
+   const canvas=document.createElement("canvas");
+   canvas.width=Math.max(1,Math.round(img.naturalWidth*factor));
+   canvas.height=Math.max(1,Math.round(img.naturalHeight*factor));
+   const ctx=canvas.getContext("2d");
+   if(!ctx)throw Error("Canvas unsupported");
+   ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
+   ctx.drawImage(img,0,0,canvas.width,canvas.height);
+   const data=canvas.toDataURL("image/jpeg",0.78);
+   if(data.length>1600000)throw Error("Preview too large");
+   ed.data.giftReferenceImage=file.name;
+   ed.data.giftReferenceImageData=data;
+   ed.changed=true;
+   const box=$("soModalBody").querySelector(".so-gift-ref");
+   if(box){
+    const name=box.querySelector("[data-field=giftReferenceImage]");
+    const label=box.querySelector(".so-gift-ref-filename");
+    const pic=box.querySelector(".so-gift-ref-preview");
+    const remove=box.querySelector("[data-gift-ref-clear]");
+    if(name)name.value=file.name;
+    if(label)label.textContent=file.name;
+    if(pic){pic.src=data;pic.hidden=false}
+    if(remove)remove.hidden=false;
+   }
+  }catch(_){toast("Could not prepare the reference image",true)}
+  finally{ed.imageProcessing=false}
+ };
+ img.onerror=()=>{URL.revokeObjectURL(objectUrl);if(editor===ed){ed.imageProcessing=false;toast("Cannot read the selected image",true)}};
+ img.src=objectUrl;
+}
 function collectForm(){
  if(!editor)return;
  $("soModalBody").querySelectorAll("[data-field]").forEach(n=>{if(n.disabled)return;editor.data[n.dataset.field]=n.value});
@@ -497,7 +594,9 @@ function paintOrder(){
  $("soTypeTag").textContent=T.types[d.orderType]||"—";
  const head='<section class="so-section"><h3 class="so-section-title">Basic Information</h3><div class="so-field-grid">'+common.filter(f=>mode!=="add"||f.k!=="benefitName").map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  const specifics='<section class="so-section"><h3 class="so-section-title">'+escapeHtml(T.types[d.orderType])+'</h3><div class="so-field-grid">'+(byType[d.orderType]||[]).map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
- $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics;
+ const scheduleFields=[{k:"scheduleStart",l:"Start Date",kind:"date"},{k:"scheduleEnd",l:"End Date",kind:"date"}];
+ const schedule='<section class="so-section so-schedule-section"><h3 class="so-section-title">Schedule</h3><div class="so-field-grid">'+scheduleFields.map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
+ $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics+schedule;
  initFormRegionWidgets();
  $("soModalBody").scrollTop=0;
  $("soModalFooter").innerHTML=(readonly?
@@ -523,6 +622,8 @@ function check(d){
  if(d.orderType==="banner"){
   if(d.endTime<=d.startTime)return fail("结束时间必须晚于开始时间");
  }
+ if(!!d.scheduleStart!==!!d.scheduleEnd)return fail("请选择完整的排期起止日期");
+ if(d.scheduleStart&&d.scheduleEnd&&d.scheduleEnd<d.scheduleStart)return fail("排期结束日期不能早于开始日期");
  return true;
 }
 function newId(){
@@ -532,7 +633,7 @@ function newId(){
 }
 function diff(a,b){
  if(!a)return "Created service order";
- const changed=[...common,...(byType[b.orderType]||[])].filter(x=>String(a[x.k]??"")!==String(b[x.k]??"")).map(x=>x.l);
+ const changed=[...common,...(byType[b.orderType]||[]),{k:"scheduleStart",l:"Start Date"},{k:"scheduleEnd",l:"End Date"}].filter(x=>String(a[x.k]??"")!==String(b[x.k]??"")).map(x=>x.l);
  return changed.length?"Updated: "+changed.slice(0,8).join(", ")+(changed.length>8?" …":"")+"":"No field changes";
 }
 function auditRecord(action,orderId,before,after,detail){
@@ -540,7 +641,9 @@ function auditRecord(action,orderId,before,after,detail){
 }
 function saveOrder(){
  collectForm();
- const ed=editor;if(!ed||!check(ed.data))return;
+ const ed=editor;if(!ed)return;
+ if(ed.imageProcessing){toast("Please wait while the reference image is processing",true);return}
+ if(!check(ed.data))return;
  const d=JSON.parse(JSON.stringify(ed.data));
  d.operatorEnglish=String(d.operatorEnglish||"").trim();
  if(window.HonorAudit?.setOperator)window.HonorAudit.setOperator(d.operatorEnglish);
@@ -695,6 +798,8 @@ $("soModalBody").onchange=e=>{
  if(!editor||editor.mode==="view")return;
  const widget=e.target.closest(".so-region-widget");
  if(widget){regionChange(widget,e);return;}
+ const giftFile=e.target.closest("[data-gift-ref-upload]");
+ if(giftFile&&giftFile.files?.length){loadReferenceImage(giftFile.files[0]);return;}
  const f=e.target.closest("[data-file-for]");
  if(f&&f.files?.length){
   const field=f.dataset.fileFor,inp=$("so-edit-"+field);
@@ -707,6 +812,7 @@ $("soModalBody").oninput=e=>{
  if(region){regionSearch(region,e);return;}
  const input=e.target.closest("[data-field]");if(!input)return;
  editor.data[input.dataset.field]=input.value;editor.changed=true;
+ if(input.dataset.field==="processingUI")showMention(input);
  if(input.dataset.field==="orderType"){
   editor.data.notifyEnabled=!!readyPolicy(input.value);
   editor.data.notifyConfigRef="";
@@ -717,10 +823,43 @@ $("soModalBody").oninput=e=>{
  }
 };
 $("soModalBody").onclick=e=>{
+ const mention=e.target.closest("[data-mention-name]");
+ if(mention){chooseMention(mention);return;}
+ const clear=e.target.closest("[data-gift-ref-clear]");
+ if(clear&&editor){
+  editor.data.giftReferenceImage="";editor.data.giftReferenceImageData="";editor.changed=true;
+  const box=clear.closest(".so-gift-ref"),inp=box?.querySelector("[data-field=giftReferenceImage]");
+  const pic=box?.querySelector(".so-gift-ref-preview");
+  if(inp)inp.value="";
+  if(pic){pic.src="";pic.hidden=true}
+  const title=box?.querySelector(".so-gift-ref-filename");
+  if(title)title.textContent="No file selected";
+  clear.hidden=true;return;
+ }
  const widget=e.target.closest(".so-region-widget");
  if(widget)regionClick(widget,e);
 };
+$("soModalBody").addEventListener("keydown",e=>{
+ const root=e.target.closest(".so-mention-wrap");
+ const menu=root?.querySelector(".so-mention-menu");
+ if(!menu||menu.hidden)return;
+ const options=[...menu.querySelectorAll("[data-mention-name]")];
+ if(e.key==="Escape"){hideMention(root);e.stopPropagation();e.preventDefault();return;}
+ if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+  e.preventDefault();
+  const active=options.findIndex(b=>b.classList.contains("selected"));
+  const next=(active+(e.key==="ArrowDown"?1:-1)+options.length)%options.length;
+  options.forEach((b,i)=>b.classList.toggle("selected",i===next));return;
+ }
+ if(e.key==="Enter"&&options.length){
+  e.preventDefault();
+  chooseMention(options.find(b=>b.classList.contains("selected"))||options[0]);
+ }
+});
 document.addEventListener("pointerdown",e=>{
+ if(!e.target.closest(".so-mention-wrap")){
+  document.querySelectorAll(".so-mention-wrap").forEach(hideMention);
+ }
  document.querySelectorAll(".so-region-widget.is-open").forEach(widget=>{
   if(!widget.contains(e.target))closeRegionPanel(widget);
  });
