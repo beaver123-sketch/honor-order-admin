@@ -515,7 +515,7 @@ function fieldHtml(f,d,readonly){
  }else{
   const type=f.kind||"text",ph=f.placeholder||"Please enter";
   ctrl='<input class="so-input"'+attr+' type="'+escapeHtml(type)+'" value="'+escapeHtml(v)+'"'+(readonly?" disabled":"")+
-    (type==="number"?' min="0" step="1"':"")+(f.list?' list="'+f.list+'"':"")+' placeholder="'+escapeHtml(ph)+'">';
+    (type==="number"?' min="0" step="1"':"")+(f.inputmode?' inputmode="'+escapeHtml(f.inputmode)+'" pattern="[0-9]*"':"")+(f.list?' list="'+f.list+'"':"")+' placeholder="'+escapeHtml(ph)+'">';
  }
  return '<div class="so-control'+(f.wide||["nationality","accountNationality","availableCountries","displayRegion"].includes(k)?" wide":"")+'"><label class="so-control-label" for="so-edit-'+escapeHtml(k)+'">'+escapeHtml(f.l)+(f.req?'<span class="so-required">*</span>':"")+'</label>'+ctrl+(help?'<small class="so-hint">'+escapeHtml(help)+'</small>':"")+(k==="endTime"?'<small id="soTimingHint" class="so-hint so-duration-hint"></small>':"")+'</div>';
 }
