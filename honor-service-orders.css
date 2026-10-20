@@ -205,6 +205,7 @@
 .so-region-filter-line{padding:0 16px 18px;display:flex;gap:17px;align-items:flex-start;min-width:0}
 .so-region-filter-label{flex:0 0 116px;padding-top:9px;color:#647487;font-size:12px;font-weight:500;white-space:nowrap}
 .so-region-widget{position:relative;flex:1;min-width:0;font-size:12px;color:#627184}
+.so-region-widget.is-open{z-index:160}
 .so-region-line{display:flex;gap:14px;align-items:flex-start;min-width:0;justify-content:space-between}
 .so-region-groups{min-width:0;display:flex;flex-wrap:wrap;gap:7px 15px;align-items:center;padding-top:4px;flex:1}
 .so-region-category{display:inline-flex;align-items:center;gap:4px;min-height:28px;white-space:nowrap;min-width:0}
@@ -219,7 +220,7 @@
 .so-region-search{width:168px;height:33px;border:1px solid #dae2eb;border-radius:3px;background:#fff;padding:0 10px;font:inherit;font-size:12px;outline:0}
 .so-region-search:focus{border-color:#409eff}
 .so-region-search::placeholder{color:#a7b3c0}
-.so-region-tool-btn{height:33px;border:1px solid #d7e1ec;background:#fff;color:#647185;border-radius:3px;padding:0 10px;cursor:pointer;white-space:nowrap;font:inherit;font-size:12px}
+.so-region-tool-btn{height:33px;border:1px solid #d7e1ec;background:#fff;color:#647185;border-radius:3px;padding:0 10px;cursor:pointer;white-space:nowrap;font:inherit;font-size:12px;position:relative;z-index:1;pointer-events:auto}
 .so-region-tool-btn:hover{color:#409eff;border-color:#9eccfa}
 .so-region-panel{position:absolute;top:calc(100% + 6px);right:0;width:min(100%,550px);z-index:125;background:#fff;border:1px solid #dce5ee;border-radius:4px;box-shadow:0 9px 28px #213a5925;overflow:hidden}
 .so-region-panel[hidden]{display:none}
