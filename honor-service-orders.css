@@ -259,3 +259,13 @@
 .so-schedule-section .so-field-grid{gap:14px 24px}
 .so-schedule-section input[type=date]{max-width:100%;color-scheme:light}
 @media(max-width:650px){.so-schedule-section .so-field-grid{grid-template-columns:1fr}.so-gift-ref-preview{max-width:100%}}
+
+/* Production schedule, linked attachments and duration warnings. */
+.so-duration-hint{display:block;color:#5f7b99;line-height:1.5;margin-top:6px}
+.so-duration-hint.warning{color:#cf8200}
+.so-attachment-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;width:100%}
+.so-attachment-list:empty{display:none}
+.so-attachment-action{border:1px solid #c9def5;border-radius:3px;background:#f1f8ff;color:#287ccc;cursor:pointer;padding:5px 9px;font-size:12px;max-width:100%;overflow-wrap:anywhere;text-align:left}
+.so-attachment-action:hover{background:#e0f0ff}
+.so-multi-preview{width:100%}
+.so-schedule-section>.so-hint{display:block;padding:1px 16px 12px;color:#8092a7}
