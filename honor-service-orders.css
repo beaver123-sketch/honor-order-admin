@@ -269,3 +269,25 @@
 .so-attachment-action:hover{background:#e0f0ff}
 .so-multi-preview{width:100%}
 .so-schedule-section>.so-hint{display:block;padding:1px 16px 12px;color:#8092a7}
+
+/* Banner / Splash selection: choices on the left, selected items on the right. */
+.so-type-picker{display:grid;grid-template-columns:minmax(220px,1fr) minmax(220px,1fr);min-width:0;gap:12px;width:100%}
+.so-type-picker>input[type=hidden]{display:none}
+.so-type-choices,.so-type-selected{min-width:0;border:1px solid #dae5f1;border-radius:5px;background:#fff;overflow:hidden}
+.so-type-pane-head{padding:9px 12px;font-size:12px;line-height:18px;font-weight:600;color:#5d6d81;background:#f5f9ff;border-bottom:1px solid #e5edf5}
+.so-type-choice-list{display:grid;grid-template-columns:1fr;gap:0;padding:5px 0;max-height:265px;overflow:auto}
+.so-type-choice{display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;min-height:34px;font-size:12px;color:#52657a}
+.so-type-choice:hover{background:#f1f7ff}
+.so-type-choice input{width:14px;height:14px;margin:0;accent-color:#409eff;flex:0 0 auto}
+.so-type-choice input:disabled{cursor:default}
+.so-type-choice:has(input:checked){background:#f4f9ff}
+.so-type-choice span{white-space:nowrap;overflow-wrap:anywhere}
+.so-type-selected{background:#fcfdff;display:flex;flex-direction:column}
+.so-type-count{font-weight:500;color:#2889e5;margin-left:4px}
+.so-type-tags{display:flex;align-content:flex-start;align-items:flex-start;gap:7px;flex-wrap:wrap;padding:12px;min-height:140px}
+.so-type-tag{display:inline-flex;align-items:center;gap:7px;border:1px solid #bfdcfb;border-radius:4px;background:#edf6ff;color:#287ccb;padding:5px 8px;font-size:12px;line-height:18px}
+.so-type-tag button{padding:0;border:0;background:transparent;color:#4d88ba;font-size:17px;line-height:14px;cursor:pointer}
+.so-type-tag button:hover{color:#f15f66}
+.so-type-placeholder{font-size:12px;color:#99a8b8;line-height:1.5}
+@media(max-width:680px){.so-type-picker{grid-template-columns:1fr}.so-type-tags{min-height:62px}.so-type-choice-list{max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:410px){.so-type-choice-list{grid-template-columns:1fr}}
