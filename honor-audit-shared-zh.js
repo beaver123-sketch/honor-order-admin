@@ -5,7 +5,7 @@
  const KEY="honor-admin-unified-activity-zh-v1";
  const LIMIT=1600;
  const blocked=/webhook|secret|password|token|authorization|credentials/i;
- const omit=new Set(["history","notifications","notifyConfigRef","fileNames"]);
+ const omit=new Set(["history","notifications","notifyConfigRef","fileNames","giftReferenceImageData"]);
  const serial=v=>{
    if(v===null||v===undefined)return "";
    if(typeof v==="object"){try{return JSON.stringify(v).slice(0,220)}catch(_){return "[Object]"}}
