@@ -14,10 +14,7 @@ const T={
 };
 // Webhook URLs are sensitive: hold them only in page memory, never localStorage or order data.
 const ORDER_TYPES=["unban","banner","gift","ride"];
-const safeRef=v=>{
- try{const u=new URL(String(v||""));return u.protocol==="https:"&&u.hostname.includes(".")&&!u.username&&!u.password}
- catch(_){return false}
-};
+const safeRef=v=>String(v??"").trim().length>0;
 function loadPolicies(){
  const initial=Object.fromEntries(ORDER_TYPES.map(t=>[t,{enabled:false,webhookRef:""}]));
  try{
@@ -411,16 +408,11 @@ function filtered(){
 }
 function statusHtml(v){return '<span class="so-pill '+escapeHtml(v)+'">'+escapeHtml(T.statuses[v]||v)+'</span>'}
 function tr(o){
- const primaryActions=[
+ const buttons='<div class="so-action-row">'+[
   '<button type="button" class="so-action-btn edit" data-action="edit" data-id="'+escapeHtml(o.id)+'">Edit</button>',
-  '<button type="button" class="so-action-btn notify" data-action="notify" data-id="'+escapeHtml(o.id)+'">Notify Assignee</button>'
- ].join("");
- const statusActions=[
   o.orderStatus==="pending"?'<button type="button" class="so-action-btn complete" data-action="complete" data-id="'+escapeHtml(o.id)+'">Complete</button>':"",
   (o.orderStatus==="pending"||o.orderStatus==="processed")?'<button type="button" class="so-action-btn return" data-action="return" data-id="'+escapeHtml(o.id)+'">Return</button>':""
- ].filter(Boolean).join("");
- const buttons='<div class="so-action-row">'+primaryActions+'</div>'+
-   (statusActions?'<div class="so-action-row">'+statusActions+'</div>':"");
+ ].filter(Boolean).join("")+'</div>';
  return '<tr><td class="so-select-cell"><input type="checkbox" class="so-row-check" data-select-id="'+escapeHtml(o.id)+'" aria-label="Select order '+escapeHtml(o.id)+'"'+(selectedIds.has(o.id)?" checked":"")+'></td><td class="so-strong">'+escapeHtml(o.id)+'</td><td>'+escapeHtml(o.redeemedOrderId||"—")+'</td>'+
  '<td>'+escapeHtml(T.types[o.orderType]||o.orderType)+'</td><td>'+escapeHtml(o.benefitName||"—")+'</td>'+
  '<td>'+escapeHtml(o.userId)+'</td><td>'+escapeHtml(o.username||"—")+'</td>'+
@@ -594,7 +586,7 @@ function settingsHtml(){
     '<strong>'+escapeHtml(T.types[t])+'</strong>'+
     '<label class="so-toggle"><input class="so-policy-enabled" data-policy-toggle="'+t+'" type="checkbox"'+(p.enabled?' checked':'')+'><span class="so-toggle-track"></span></label></div>'+
     '<div class="so-policy-details"'+(p.enabled?'':' hidden')+'><label>Robot Webhook</label>'+
-    '<input class="so-policy-ref" data-policy-ref="'+t+'" type="text" value="'+escapeHtml(p.webhookRef)+'" placeholder="Enter Webhook URL" autocomplete="off"></div></div>';
+    '<input class="so-policy-ref" data-policy-ref="'+t+'" type="text" value="'+escapeHtml(p.webhookRef)+'" placeholder="Enter Webhook ID or URL" autocomplete="off"></div></div>';
    }).join("")+'</div>';
 }
 function openSettings(){
@@ -617,7 +609,7 @@ function saveSettings(){
   const enabled=card.querySelector("[data-policy-toggle]").checked;
   const ref=card.querySelector("[data-policy-ref]").value.trim();
   if(enabled&&!safeRef(ref)){
-   toast("Please enter a valid HTTPS webhook",true);
+   toast("Please enter Robot Webhook",true);
    card.querySelector(".so-policy-details").hidden=false;card.querySelector("[data-policy-ref]").focus();return;
   }
   next[type]={enabled,webhookRef:safeRef(ref)?ref:""};
@@ -655,22 +647,6 @@ function showTimeline(id,kind){
   '<div class="so-log-none">No Data</div>';
  openSmall(title,content);
 }
-function notify(id){
- const o=orders.find(x=>x.id===id);if(!o)return;
- openSmall("Notify Assignee",
- '<p style="line-height:1.8;color:#5a6879">Lark robot service is not connected. No message will be sent.</p>'+
- '<p style="line-height:1.8">Assigned To<strong>'+escapeHtml(o.assignedTo||"Unassigned")+'</strong></p>',[
-  {text:"Cancel",fn:closeSmall},
-  {text:"Record Attempt",primary:true,fn:()=>{
-   const operator=window.HonorAudit?.requestOperator(true);
-   if(!operator){toast("Please enter the overseas operator's English name",true);return}
-   closeSmall();const when=stamp();
-   const item={when,action:"Not Sent",desc:"Lark service not connected",by:operator};
-   const updated={...o,operatorEnglish:operator,updatedAt:when,notifications:[...(o.notifications||[]),item],history:[...(o.history||[]),{when,action:"Notify Assignee",desc:item.desc,by:item.by}]};
-   if(store(orders.map(x=>x.id===id?updated:x))){auditRecord("Notify Attempt",id,null,null,"Message not sent: no server integration");toast("Not Sent",true);}
-  }}
- ]);
-}
 $("soFilterType").innerHTML='<option value="">All</option>'+Object.entries(T.types).map(([v,l])=>'<option value="'+v+'">'+escapeHtml(l)+'</option>').join("");
 $("soFilterStatus").innerHTML='<option value="">All</option>'+Object.entries(T.statuses).map(([v,l])=>'<option value="'+v+'">'+escapeHtml(l)+'</option>').join("");
 $("soCountryList").innerHTML=C.map(([v])=>'<option value="'+escapeHtml(v)+'"></option>').join("");
@@ -702,9 +678,8 @@ $("soTableBody").onchange=e=>{
 $("soTableBody").onclick=e=>{
  const b=e.target.closest("[data-action]");if(!b)return;
  const {action,id}=b.dataset;
- if(action==="view"||action==="edit")openOrder(action,id);
+ if(action==="edit")openOrder(action,id);
  else if(action==="complete"||action==="return")setStatus(id,action);
- else if(action==="notify")notify(id);
 };
 $("soPrev").onclick=()=>{page--;render()};
 $("soNext").onclick=()=>{page++;render()};
