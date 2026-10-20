@@ -107,3 +107,36 @@
 /* Keep table headings and action controls within allocated columns. */
 .so-table td.so-actions-cell{white-space:normal;line-height:1.8}
 .so-table td.so-actions-cell .so-cell-action{display:inline-block;max-width:100%;white-space:nowrap}
+
+
+/* Selection, export tools and per-order-type notification settings */
+.so-toolbar-divider{width:1px;height:22px;flex:none;background:#e5ebf1;margin:0 3px}
+.so-search-footer{flex-wrap:wrap}
+.so-selected-count{margin-left:12px;font-size:12px;font-weight:500;color:#409eff}
+.so-select-col,.so-select-cell{width:44px;max-width:44px;min-width:44px;padding:7px!important;text-align:center!important}
+.so-select-col input,.so-select-cell input{width:15px;height:15px;vertical-align:middle;accent-color:#409eff;cursor:pointer}
+.so-table{min-width:2039px}
+.so-notification-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;color:#5c6978;font-size:12px}
+.so-notification-row>span:first-child{margin-right:auto}
+.so-notification-row .so-toggle{margin-left:auto}
+.so-toggle{display:inline-flex;align-items:center;position:relative;width:45px;height:24px;cursor:pointer;flex:none}
+.so-toggle input{opacity:0;position:absolute;inset:0;cursor:pointer}
+.so-toggle-track{width:45px;height:24px;display:block;border-radius:15px;background:#c5cbd4;position:relative;transition:background .15s}
+.so-toggle-track:before{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;background:white;border-radius:50%;box-shadow:0 1px 4px #17304726;transition:transform .15s}
+.so-toggle input:checked+.so-toggle-track{background:#409eff}
+.so-toggle input:checked+.so-toggle-track:before{transform:translateX(21px)}
+.so-toggle input:disabled+.so-toggle-track{opacity:.55;cursor:not-allowed}
+.so-toggle input:focus-visible+.so-toggle-track{outline:2px solid #a4d1ff;outline-offset:2px}
+.so-config-ref{margin-top:12px;border-top:1px solid #edf0f4;padding-top:12px;font-size:12px;color:#748295}
+.so-config-ref[hidden]{display:none}
+.so-config-ref strong{color:#409eff;font-weight:500;margin-left:5px}
+.so-policy-note{margin:0 0 13px}
+.so-policy-list{display:flex;flex-direction:column;gap:10px}
+.so-policy-card{border:1px solid #e6ebf2;border-radius:4px;background:#fff;padding:14px 16px}
+.so-policy-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.so-policy-top strong{font-weight:600;color:#455465;font-size:13px}
+.so-policy-details{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.so-policy-details[hidden]{display:none}
+.so-policy-details label{color:#606d7d;font-size:12px}
+.so-policy-ref{height:34px;border:1px solid #dce3eb;border-radius:3px;padding:0 11px;color:#566473;width:100%;font:inherit}
+.so-policy-ref:focus{outline:0;border-color:#409eff}
