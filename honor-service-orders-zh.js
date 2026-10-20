@@ -514,7 +514,7 @@ function fieldHtml(f,d,readonly){
   ctrl='<input class="so-input"'+attr+' type="'+escapeHtml(type)+'" value="'+escapeHtml(v)+'"'+(readonly?" disabled":"")+
     (type==="number"?' min="0" step="1"':"")+(f.list?' list="'+f.list+'"':"")+' placeholder="'+escapeHtml(ph)+'">';
  }
- return '<div class="so-control'+(f.wide||["nationality","accountNationality","availableCountries","displayRegion"].includes(k)?" wide":"")+'"><label class="so-control-label" for="so-edit-'+escapeHtml(k)+'">'+escapeHtml(f.l)+(f.req?'<span class="so-required">*</span>':"")+'</label>'+ctrl+(help?'<small class="so-hint">'+escapeHtml(help)+'</small>':"")+'</div>';
+ return '<div class="so-control'+(f.wide||["nationality","accountNationality","availableCountries","displayRegion"].includes(k)?" wide":"")+'"><label class="so-control-label" for="so-edit-'+escapeHtml(k)+'">'+escapeHtml(f.l)+(f.req?'<span class="so-required">*</span>':"")+'</label>'+ctrl+(help?'<small class="so-hint">'+escapeHtml(help)+'</small>':"")+(k==="endTime"?'<small id="soTimingHint" class="so-hint so-duration-hint"></small>':"")+'</div>';
 }
 function openOrder(mode,id){
  const existing=orders.find(x=>x.id===id);
@@ -530,7 +530,7 @@ function openOrder(mode,id){
    if(active&&active!=="Unknown")data.operatorEnglish=active;
  }
  if(data.notifyEnabled===undefined)data.notifyEnabled=false;
- editor={mode,id:id||null,data,before:existing?JSON.parse(JSON.stringify(existing)):null,changed:false};
+ editor={mode,id:id||null,data,before:existing?JSON.parse(JSON.stringify(existing)):null,changed:false,manualEndTime:!!data.endTime,pendingFiles:{}};
  $("soModal").classList.add("open");
  $("soModal").setAttribute("aria-hidden","false");
  paintOrder();
@@ -617,6 +617,22 @@ function loadReferenceImage(file){
  img.onerror=()=>{URL.revokeObjectURL(objectUrl);if(editor===ed){ed.imageProcessing=false;toast("Cannot read the selected image",true)}};
  img.src=objectUrl;
 }
+function localEndTime(start,type){
+ const hours=Number((String(type||"").match(/-(\d+)h$/)||[])[1]);
+ if(!start||!Number.isFinite(hours)||hours<=0)return "";
+ const ms=new Date(start).getTime();if(!Number.isFinite(ms))return "";
+ const d=new Date(ms+hours*3600000);
+ return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+}
+function updateDurationHint(){
+ if(!editor||editor.data.orderType!=="banner")return;
+ const expected=localEndTime(editor.data.startTime,editor.data.displayType),actual=editor.data.endTime;
+ const hint=document.getElementById("soTimingHint");if(!hint)return;
+ hint.textContent=!expected?"":!actual?"Suggested end: "+expected:
+   expected!==actual?"Duration differs from Type; confirm the display time. Suggested: "+expected:
+   "Display duration matches Type.";
+ hint.classList.toggle("warning",!!actual&&!!expected&&actual!==expected);
+}
 function collectForm(){
  if(!editor)return;
  $("soModalBody").querySelectorAll("[data-field]").forEach(n=>{if(n.disabled)return;editor.data[n.dataset.field]=n.value});
@@ -632,9 +648,12 @@ function paintOrder(){
  const head='<section class="so-section"><h3 class="so-section-title">Basic Information</h3><div class="so-field-grid">'+common.filter(f=>mode!=="add"||f.k!=="benefitName").map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  const specifics='<section class="so-section"><h3 class="so-section-title">'+escapeHtml(T.types[d.orderType])+'</h3><div class="so-field-grid">'+(byType[d.orderType]||[]).map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  const scheduleFields=[{k:"scheduleStart",l:"Start Date",kind:"date"},{k:"scheduleEnd",l:"End Date",kind:"date"}];
- const schedule='<section class="so-section so-schedule-section"><h3 class="so-section-title">Schedule</h3><div class="so-field-grid">'+scheduleFields.map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
+ const schedule='<section class="so-section so-schedule-section"><h3 class="so-section-title">Schedule</h3>'+
+  '<div class="so-field-grid">'+scheduleFields.map(f=>fieldHtml(f,d,readonly)).join("")+'</div>'+
+  '<small class="so-hint">Production schedule is separate from Banner/Splash display time.'+(["gift","ride"].includes(d.orderType)?' Typical delivery: 10 working days.':'')+'</small></section>';
  $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics+schedule;
  initFormRegionWidgets();
+ updateDurationHint();
  $("soModalBody").scrollTop=0;
  $("soModalFooter").innerHTML=(readonly?
   '<button class="so-button" type="button" data-foot="activity">Activity Log</button><button class="so-button" type="button" data-foot="history">Notification History</button><span class="so-spacer"></span><button class="so-button" type="button" data-foot="close">Close</button><button class="so-button primary" type="button" data-foot="edit">Edit</button>':
@@ -858,6 +877,12 @@ $("soModalBody").oninput=e=>{
  const input=e.target.closest("[data-field]");if(!input)return;
  editor.data[input.dataset.field]=input.value;editor.changed=true;
  if(input.dataset.field==="processingUI")showMention(input);
+ if(input.dataset.field==="endTime")editor.manualEndTime=!!input.value;
+ if(["displayType","startTime"].includes(input.dataset.field)&&editor.data.orderType==="banner"){
+  const expected=localEndTime(editor.data.startTime,editor.data.displayType);
+  if(expected&&!editor.manualEndTime){editor.data.endTime=expected;const end=$("so-edit-endTime");if(end)end.value=expected;}
+ }
+ if(["displayType","startTime","endTime"].includes(input.dataset.field))updateDurationHint();
  if(input.dataset.field==="orderType"){
   editor.data.notifyEnabled=!!readyPolicy(input.value);
   editor.data.notifyConfigRef="";
