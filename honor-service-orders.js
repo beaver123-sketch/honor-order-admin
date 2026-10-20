@@ -627,13 +627,29 @@ function localEndTime(start,type){
  const d=new Date(ms+hours*3600000);
  return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
 }
+function estimateWorkdays(start,count){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(start||"")))return "";
+ const d=new Date(start+"T12:00:00");if(Number.isNaN(d.getTime()))return "";
+ let remaining=count;
+ while(remaining>0){d.setDate(d.getDate()+1);if(d.getDay()!==0&&d.getDay()!==6)remaining--;}
+ return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+function updateScheduleEstimate(){
+ if(!editor)return;
+ const hint=document.getElementById("soScheduleEstimate");if(!hint)return;
+ const estimate=estimateWorkdays(editor.data.scheduleStart,10);
+ hint.textContent=["gift","ride"].includes(editor.data.orderType)&&estimate?
+  (window.HonorServiceZH?"按10个工作日估算完成日期："+estimate+"（未计法定节假日）":"Estimated completion after 10 business days: "+estimate+" (excluding public holidays)"):"";
+}
 function updateDurationHint(){
  if(!editor||editor.data.orderType!=="banner")return;
  const expected=localEndTime(editor.data.startTime,editor.data.displayType),actual=editor.data.endTime;
  const hint=document.getElementById("soTimingHint");if(!hint)return;
- hint.textContent=!expected?"":!actual?"Suggested end: "+expected:
-   expected!==actual?"Duration differs from Type; confirm the display time. Suggested: "+expected:
-   "Display duration matches Type.";
+ hint.textContent=!expected?"":!actual?
+   (window.HonorServiceZH?"建议结束时间："+expected:"Suggested end: "+expected):
+   expected!==actual?
+   (window.HonorServiceZH?"投放时长与类型不一致，请核实；建议结束时间："+expected:"Duration differs from Type; confirm the display time. Suggested: "+expected):
+   (window.HonorServiceZH?"投放时长与类型一致。":"Display duration matches Type.");
  hint.classList.toggle("warning",!!actual&&!!expected&&actual!==expected);
 }
 async function refreshLocalAttachments(){
@@ -676,11 +692,14 @@ function paintOrder(){
  const scheduleFields=[{k:"scheduleStart",l:"Start Date",kind:"date"},{k:"scheduleEnd",l:"End Date",kind:"date"}];
  const schedule='<section class="so-section so-schedule-section"><h3 class="so-section-title">Schedule</h3>'+
   '<div class="so-field-grid">'+scheduleFields.map(f=>fieldHtml(f,d,readonly)).join("")+'</div>'+
-  '<small class="so-hint">Production schedule is separate from Banner/Splash display time.'+(["gift","ride"].includes(d.orderType)?' Typical delivery: 10 working days.':'')+'</small></section>';
+  '<small class="so-hint">'+(window.HonorServiceZH?"制作排期与实际投放时间相互独立。":"Production schedule is separate from actual display time.")+
+   (["gift","ride"].includes(d.orderType)?(window.HonorServiceZH?" 设计制作参考10个工作日。":" Typical delivery: 10 working days."):"")+
+   '</small><small id="soScheduleEstimate" class="so-hint so-schedule-estimate"></small></section>';
  $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics+schedule;
  initFormRegionWidgets();
  refreshLocalAttachments();
  updateDurationHint();
+ updateScheduleEstimate();
  $("soModalBody").scrollTop=0;
  $("soModalFooter").innerHTML=(readonly?
   '<button class="so-button" type="button" data-foot="activity">Activity Log</button><button class="so-button" type="button" data-foot="history">Notification History</button><span class="so-spacer"></span><button class="so-button" type="button" data-foot="close">Close</button><button class="so-button primary" type="button" data-foot="edit">Edit</button>':
@@ -920,6 +939,7 @@ $("soModalBody").oninput=e=>{
   if(expected&&!editor.manualEndTime){editor.data.endTime=expected;const end=$("so-edit-endTime");if(end)end.value=expected;}
  }
  if(["displayType","startTime","endTime"].includes(input.dataset.field))updateDurationHint();
+ if(["scheduleStart","scheduleEnd"].includes(input.dataset.field))updateScheduleEstimate();
  if(input.dataset.field==="orderType"){
   editor.data.notifyEnabled=!!readyPolicy(input.value);
   editor.data.notifyConfigRef="";
