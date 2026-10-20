@@ -37,7 +37,7 @@ const raw=[
 ];
 const demoSummary=["更新定制座驾设计师及设计处理说明","完成荣誉权益订单","完成定制礼物订单","因权益资料不完整发起退回","调整 Banner 展示地区和开始时间","导出筛选后的 13 条荣誉订单","登记定制礼物申请","机器人接口未接入，通知未发送","批量退回已勾选的荣誉订单","账号解封订单退回补充核验资料","完成开屏展示定制订单","完成荣誉权益处理","调整各订单类型的默认通知配置","修正荣誉订单联系方式","新增定制座驾订单","退回订单至待处理队列","修改 Banner 展示文案","导出 25 条荣誉订单","修改定制礼物价格及有效期","对资料不全的荣誉订单执行批量退回","完成账号解封订单","导出所选的 4 条服务订单","完成荣誉权益订单","因缺少设计素材退回礼物订单","因套餐资料异常退回订单","安排定制礼物设计跟进","完成荣誉权益订单","新增 Banner及开屏订单","批量退回未履约的荣誉订单","记录通知尝试，消息未成功送达"];
 window.HONOR_DEMO_AUDIT_ENTRIES=raw.map((row,index)=>({
- id:"LOG-DEMO-"+String(index+1).padStart(4,"0"),
+ id:"71"+String(index+1).padStart(8,"0"),
  when:row[0],module:row[1],orderId:row[2],
  actor:row[3]+" (Demo)",action:row[4],
  detail:"【演示】"+demoSummary[index],
@@ -53,7 +53,7 @@ const A=window.HonorAudit;
 let page=1,limit=20,filters={};
 const moduleLabels={honor:"荣誉订单",service:"荣誉服务订单"};
 const actionLabels={Create:"新增",Edit:"编辑",Complete:"完成",Return:"退回","Bulk Return":"批量退回",Export:"导出","Notification Settings":"通知设置","Notify Attempt":"通知尝试"};
-const fieldNames={status:"订单状态",orderStatus:"订单状态",operator:"操作员工",operatorEnglish:"操作员工",assignedTo:"处理负责人",uiDesigner:"UI设计师",processingUI:"设计处理说明",displayRegion:"展示地区",startTime:"开始时间",giftPrice:"礼物价格",giftImage:"礼物图片",validDuration:"有效期",unbanStatus:"解封状态",wording:"展示文案",orderType:"订单类型",giftName:"礼物名称",rideName:"座驾名称",updatedAt:"更新时间",whatsapp:"联系方式",displayType:"展示类型"};
+const fieldNames={status:"订单状态",orderStatus:"订单状态",operator:"操作员工",operatorEnglish:"操作员工",assignedTo:"处理负责人",uiDesigner:"UI设计师",processingUI:"UI设计师",displayRegion:"展示地区",startTime:"开始时间",giftPrice:"礼物价格",giftImage:"礼物图片",validDuration:"有效期",unbanStatus:"解封状态",wording:"展示文案",orderType:"订单类型",giftName:"礼物名称",rideName:"座驾名称",updatedAt:"更新时间",whatsapp:"联系方式",displayType:"展示类型"};
 const labelAction=value=>actionLabels[value]||value;
 const translateDetail=value=>{
  const text=String(value||"");
@@ -76,11 +76,27 @@ const translateValue=value=>{
  "On":"开启","Off":"关闭","Unassigned":"未分配","Unknown":"未知"};
  return mapped[text]||text||"—";
 };
+// Historical prefixed IDs map deterministically to numbers without dropping old logs.
+function numericLogId(value){
+ const str=String(value||"");
+ if(/^\d+$/.test(str))return str;
+ const m=str.match(/^LOG-DEMO-(\d+)$/i);if(m)return "71"+m[1].padStart(8,"0");
+ let h=2166136261;for(const ch of str)h=Math.imul(h^ch.charCodeAt(0),16777619)>>>0;
+ return "72"+String(h).padStart(10,"0");
+}
+function numericServiceId(value){
+ const str=String(value||"");
+ if(!str||/^\d+$/.test(str))return str;
+ let m=str.match(/^HS-DEMO-(\d+)$/i);if(m)return "91"+m[1].padStart(8,"0");
+ m=str.match(/^HS-(\d{8})-(\d+)$/i);if(m)return m[1]+m[2].padStart(4,"0");
+ let h=2166136261;for(const ch of str)h=Math.imul(h^ch.charCodeAt(0),16777619)>>>0;
+ return "92"+String(h).padStart(10,"0");
+}
 const entries=()=>{
  const actual=A?A.read():[];
  const demo=Array.isArray(window.HONOR_DEMO_AUDIT_ENTRIES)?window.HONOR_DEMO_AUDIT_ENTRIES:[];
  const ids=new Set(actual.map(r=>r.id));
- return [...actual,...demo.filter(r=>!ids.has(r.id))].sort((a,b)=>String(b.when||"").localeCompare(String(a.when||"")));
+ return [...actual,...demo.filter(r=>!ids.has(r.id))].map(r=>({...r,id:numericLogId(r.id),orderId:r.module==="service"?numericServiceId(r.orderId):r.orderId})).sort((a,b)=>String(b.when||"").localeCompare(String(a.when||"")));
 };
 function filtered(){
  return entries().filter(r=>
