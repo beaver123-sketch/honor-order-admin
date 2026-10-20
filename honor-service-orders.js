@@ -17,6 +17,9 @@ const T={
  "splash-55h":"Splash-55h",
  "splash-72h":"Splash-72h"
 },
+ stages:{none:"Not Set",materials:"Collecting Materials",design:"UI Design",review:"Awaiting Approval",ready:"Ready to Launch",launched:"Launched"},
+ sources:{redeemed:"Redeemed",vip:"VIP",overseas:"OVERSEAS",other:"Other"},
+ durations:{"1 month":"1 month","2 months":"2 months","3 months":"3 months","6 months":"6 months"},
  giftTypes:{regular:"Regular",limited:"Limited"}
 };
 // Webhook URLs are sensitive: hold them only in page memory, never localStorage or order data.
@@ -79,13 +82,15 @@ const C=[
 ];
 const common=[
  {k:"orderType",l:"Order Type",req:1,kind:"select",opts:T.types},
- {k:"redeemedOrderId",l:"Redeemed Order ID"},
+ {k:"redeemedOrderId",l:"Redeemed Order ID",placeholder:"Digits only",inputmode:"numeric"},
  {k:"benefitName",l:"Benefit Name"},
- {k:"userId",l:"User ID",req:1},
+ {k:"userId",l:"User ID",inputmode:"numeric"},
  {k:"username",l:"Username"},
- {k:"nationality",l:"Nationality",req:1,list:"soCountryList"},
- {k:"redemptionTime",l:"Redemption Time",req:1,kind:"datetime-local"},
+ {k:"nationality",l:"Nationality",list:"soCountryList"},
+ {k:"redemptionTime",l:"Redemption Time",kind:"datetime-local"},
+ {k:"orderSource",l:"Order Source",kind:"select",opts:T.sources},
  {k:"orderStatus",l:"Order Status",req:1,kind:"select",opts:T.statuses},
+ {k:"processingStage",l:"Processing Stage",kind:"select",opts:T.stages},
  {k:"assignedTo",l:"Assigned To",placeholder:"Enter assignee name"},
  {k:"operatorEnglish",l:"Operator (English Name)",req:1,placeholder:"Enter overseas operator English name"},
  {k:"whatsapp",l:"WhatsApp"},
@@ -96,49 +101,49 @@ const byType={
   {k:"accountId",l:"Account ID",req:1},
   {k:"accountNationality",l:"Account Nationality",req:1,list:"soCountryList"},
   {k:"suspensionReason",l:"Suspension Reason",kind:"textarea"},
-  {k:"unbanStatus",l:"Unban Status",req:1,kind:"select",opts:T.unbanStatuses},
-  {k:"unbanNotes",l:"Notes",kind:"textarea",wide:1}
+  {k:"unbanStatus",l:"Unban Status",req:1,kind:"select",opts:T.unbanStatuses}
+
  ],
  banner:[
   {k:"displayType",l:"Type",req:1,kind:"select",opts:T.displayTypes},
-  {k:"displayRegion",l:"Display Region",req:1},
+  {k:"displayRegion",l:"Display Region"},
   {k:"configLink",l:"Config Link",kind:"text",placeholder:"Enter text"},
   {k:"color",l:"Color",kind:"text",placeholder:"Enter color name, code or description"},
   {k:"copy",l:"Copy",kind:"textarea"},
   {k:"wording",l:"Wording",kind:"textarea"},
-  {k:"image",l:"Image",kind:"file",accept:"image/*",wide:1},
-  {k:"startTime",l:"Start Time",req:1,kind:"datetime-local"},
-  {k:"endTime",l:"End Time",req:1,kind:"datetime-local"},
+  {k:"image",l:"Image",kind:"multi-file",accept:"image/*",wide:1,hint:"Multiple reference images; browser-only storage"},
+  {k:"startTime",l:"Start Time",kind:"datetime-local"},
+  {k:"endTime",l:"End Time",kind:"datetime-local"},
   {k:"finalDesign",l:"Final Design",kind:"file",accept:"image/*,.pdf",wide:1},
   {k:"processingUI",l:"UI Designer",kind:"mention",placeholder:"Type @ to search and select a UI designer",hint:"Assign one UI designer per order"},
-  {k:"groupLink",l:"Group Link",kind:"url"},
-  {k:"bannerNotes",l:"Notes",kind:"textarea",wide:1}
+  {k:"groupLink",l:"Group Link",kind:"text",placeholder:"WhatsApp link"},
+
  ],
  gift:[
-  {k:"honorWallId",l:"Honor Wall ID",req:1},
-  {k:"availableCountries",l:"Available Countries",req:1,placeholder:"Pakistan, Egypt",hint:"Separate multiple countries with commas"},
+  {k:"honorWallId",l:"Honor Wall ID"},
+  {k:"availableCountries",l:"Available Countries",placeholder:"Pakistan, Egypt",hint:"Separate multiple countries with commas"},
   {k:"giftType",l:"Gift Type",req:1,kind:"select",opts:T.giftTypes},
-  {k:"giftName",l:"Gift Name",req:1},
+  {k:"giftName",l:"Gift Name"},
   {k:"giftDescription",l:"Gift Description",kind:"textarea",hint:"Maximum 10 words"},
   {k:"giftImage",l:"Gift Image",kind:"file",accept:"image/*",wide:1},
   {k:"giftReferenceImage",l:"Gift Reference Image",kind:"image-upload",wide:1},
   {k:"giftVideo",l:"Gift Video",kind:"file",accept:"video/*",wide:1},
   {k:"processingUI",l:"UI Designer",kind:"mention",placeholder:"Type @ to search and select a UI designer",hint:"Assign one UI designer per order"},
-  {k:"giftPrice",l:"Gift Price",req:1,kind:"number",hint:"Regular ≥177,000 coins; Limited ≥600,000"},
-  {k:"validDuration",l:"Valid Duration",req:1,placeholder:"2 months"},
-  {k:"groupLink",l:"Group Link",kind:"url"},
-  {k:"giftNotes",l:"Notes",kind:"textarea",wide:1}
+  {k:"giftPrice",l:"Gift Price",kind:"number",hint:"Regular ≥177,000 coins; Limited ≥600,000"},
+  {k:"validDuration",l:"Valid Duration",kind:"select",opts:T.durations},
+  {k:"groupLink",l:"Group Link",kind:"text",placeholder:"WhatsApp link"},
+
  ],
  ride:[
-  {k:"honorWallId",l:"Honor Wall ID",req:1},
-  {k:"theme",l:"Theme",req:1},
+  {k:"honorWallId",l:"Honor Wall ID"},
+  {k:"theme",l:"Theme"},
   {k:"backgroundScene",l:"Background / Scene",kind:"textarea",wide:1},
-  {k:"rideName",l:"Ride Name",req:1},
+  {k:"rideName",l:"Ride Name"},
   {k:"referenceMedia",l:"Reference Image or Video",kind:"file",accept:"image/*,video/*",wide:1},
   {k:"designFiles",l:"Design Files",kind:"file",accept:"image/*,video/*,.pdf,.zip",wide:1},
   {k:"processingUI",l:"UI Designer",kind:"mention",placeholder:"Type @ to search and select a UI designer",hint:"Assign one UI designer per order"},
-  {k:"groupLink",l:"Group Link",kind:"url"},
-  {k:"rideNotes",l:"Notes",kind:"textarea",wide:1}
+  {k:"groupLink",l:"Group Link",kind:"text",placeholder:"WhatsApp link"},
+
  ]
 };
 const escapeHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -149,7 +154,22 @@ let orders=[];
 try{const x=JSON.parse(localStorage.getItem(KEY)||"[]");if(Array.isArray(x))orders=x}catch(_){}
 // First-load sample orders: merge by ID without replacing previously entered records.
 const DEMO_SEED_KEY="honor-service-demo-seeded-v1";
-const demoRows=Array.isArray(window.HONOR_SERVICE_DEMO_ORDERS)?window.HONOR_SERVICE_DEMO_ORDERS:[];
+// Preserve existing user records while assigning deterministic numeric IDs.
+function numericIdentifier(value,kind){
+ const raw=String(value??"").trim();if(!raw||/^\d+$/.test(raw))return raw;
+ let m=raw.match(/^HS-DEMO-(\d+)$/i);if(m)return "91"+m[1].padStart(8,"0");
+ m=raw.match(/^RD-DEMO-(\d+)$/i);if(m)return "81"+m[1].padStart(8,"0");
+ m=raw.match(/^HS-(\d{8})-(\d+)$/i);if(m)return m[1]+m[2].padStart(4,"0");
+ let h=2166136261;for(const ch of raw)h=Math.imul(h^ch.charCodeAt(0),16777619)>>>0;
+ return (kind==="redeemed"?"82":"92")+String(h).padStart(10,"0");
+}
+function normalizeOrder(row){return {...row,id:numericIdentifier(row.id,"service"),redeemedOrderId:numericIdentifier(row.redeemedOrderId,"redeemed")};}
+try{
+ const updated=orders.map(normalizeOrder);
+ if(updated.some((r,i)=>r.id!==orders[i].id||r.redeemedOrderId!==orders[i].redeemedOrderId))localStorage.setItem(KEY,JSON.stringify(updated));
+ orders=updated;
+}catch(_){}
+const demoRows=(Array.isArray(window.HONOR_SERVICE_DEMO_ORDERS)?window.HONOR_SERVICE_DEMO_ORDERS:[]).map(normalizeOrder);
 try{
  if(!localStorage.getItem(DEMO_SEED_KEY)&&demoRows.length){
   const ids=new Set(orders.map(o=>String(o.id)));
@@ -166,9 +186,9 @@ try{
 }
 let filters={},page=1,pageSize=20,editor=null;
 function defaultDraft(){
- return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:nowLocal(),
+ return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:"",orderSource:"redeemed",processingStage:"none",
   orderStatus:"pending",assignedTo:"",scheduleStart:"",scheduleEnd:"",giftReferenceImage:"",giftReferenceImageData:"",operatorEnglish:((window.HonorAudit?.actor()||"Unknown")==="Unknown"?"":window.HonorAudit.actor()),whatsapp:"",notes:"",benefitName:"",uiDesigner:"",processingUI:"",
-  unbanStatus:"pending",displayType:"banner-24h",giftType:"regular",giftPrice:"177000",
+  unbanStatus:"pending",displayType:"banner-24h",giftType:"regular",giftPrice:"177000",validDuration:"2 months",
   notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:"",
   history:[],notifications:[]};
 }
@@ -453,7 +473,7 @@ function fieldHtml(f,d,readonly){
  if(f.kind==="select"){
   const entries=Object.entries(f.opts);
   // Allow saved legacy Banner/Splash orders to retain their historical Type when editing.
-  if(k==="displayType"&&v&&!Object.prototype.hasOwnProperty.call(f.opts,String(v))){
+  if(v&&!Object.prototype.hasOwnProperty.call(f.opts,String(v))){
    entries.unshift([String(v),String(v)==="banner"?"Banner (legacy)":String(v)==="splash"?"Splash (legacy)":String(v)]);
   }
   let opts=entries.map(([key,label])=>'<option value="'+escapeHtml(key)+'"'+(key===String(v)?" selected":"")+'>'+escapeHtml(label)+'</option>').join("");
@@ -635,9 +655,8 @@ function check(d){
  return true;
 }
 function newId(){
- const base="HS-"+nowLocal().slice(0,10).replace(/-/g,"")+"-";
- let n=orders.reduce((max,o)=>String(o.id||"").startsWith(base)?Math.max(max,parseInt(String(o.id).slice(-4),10)||0):max,0)+1;
- return base+String(n).padStart(4,"0");
+ let id;do{id=String(Date.now())+String(Math.floor(Math.random()*1000)).padStart(3,"0");}
+ while(orders.some(o=>String(o.id)===id));return id;
 }
 function diff(a,b){
  if(!a)return "Created service order";
