@@ -55,6 +55,27 @@ const moduleLabels={honor:"荣誉订单",service:"荣誉服务订单"};
 const actionLabels={Create:"新增",Edit:"编辑",Complete:"完成",Return:"退回","Bulk Return":"批量退回",Export:"导出","Notification Settings":"通知设置","Notify Attempt":"通知尝试"};
 const fieldNames={status:"订单状态",orderStatus:"订单状态",operator:"操作员工",operatorEnglish:"操作员工",assignedTo:"处理负责人",uiDesigner:"UI设计师",processingUI:"设计处理说明",displayRegion:"展示地区",startTime:"开始时间",giftPrice:"礼物价格",giftImage:"礼物图片",validDuration:"有效期",unbanStatus:"解封状态",wording:"展示文案",orderType:"订单类型",giftName:"礼物名称",rideName:"座驾名称",updatedAt:"更新时间",whatsapp:"联系方式",displayType:"展示类型"};
 const labelAction=value=>actionLabels[value]||value;
+const translateDetail=value=>{
+ const text=String(value||"");
+ const labels={
+  "Created service order":"新增荣誉服务订单",
+  "Updated service order":"修改荣誉服务订单",
+  "Updated honor order status":"更新荣誉订单状态",
+  "Order status changed":"修改订单状态",
+  "Settings saved (Webhook URLs excluded)":"已保存通知配置（Webhook地址未写入日志）",
+  "Message not sent: no server integration":"通知服务未接入，消息未发送"
+ };
+ if(labels[text])return labels[text];
+ const exportMatch=text.match(/^Exported (\\d+) (?:selected or filtered )?orders?$/i);
+ if(exportMatch)return "导出 "+exportMatch[1]+" 条订单";
+ return text;
+};
+const translateValue=value=>{
+ const text=String(value??"");
+ const mapped={"Pending":"待处理","Processed":"已处理","Returned":"已退回","Returning":"退回中","In Progress":"处理中",
+ "On":"开启","Off":"关闭","Unassigned":"未分配","Unknown":"未知"};
+ return mapped[text]||text||"—";
+};
 const entries=()=>{
  const actual=A?A.read():[];
  const demo=Array.isArray(window.HONOR_DEMO_AUDIT_ENTRIES)?window.HONOR_DEMO_AUDIT_ENTRIES:[];
@@ -107,7 +128,7 @@ function show(id){
  $("auditModalSubtitle").textContent=labelAction(log.action)+" · "+log.when;
  const changes=Array.isArray(log.changes)?log.changes:[];
  const comparison=changes.length?
- changes.map(c=>'<tr><td>'+esc(fieldNames[c.field]||c.field)+'</td><td>'+esc(c.before||"—")+'</td><td>'+esc(c.after||"—")+'</td></tr>').join(""):
+ changes.map(c=>'<tr><td>'+esc(fieldNames[c.field]||c.field)+'</td><td>'+esc(translateValue(c.before))+'</td><td>'+esc(translateValue(c.after))+'</td></tr>').join(""):
  '<tr><td class="audit-empty" colspan="3">暂无字段变化</td></tr>';
  $("auditModalContent").innerHTML=
  '<div class="audit-meta">'+
@@ -115,7 +136,7 @@ function show(id){
  info("订单模块",moduleLabels[log.module]||log.module)+info("订单ID",log.orderId)+
  info("操作员工",log.actor||"Unknown")+info("操作类型",log.action)+
  '</div>'+
- '<div class="so-section"><h3 class="so-section-title">操作说明</h3><p class="audit-details-line">'+esc(log.detail||"—")+'</p>'+
+ '<div class="so-section"><h3 class="so-section-title">操作说明</h3><p class="audit-details-line">'+esc(translateDetail(log.detail)||"—")+'</p>'+
  '<h3 class="so-section-title">字段变化</h3><table class="audit-diff"><thead><tr><th>字段</th><th>修改前</th><th>修改后</th></tr></thead><tbody>'+comparison+'</tbody></table></div>';
  $("auditModal").classList.add("open");$("auditModal").setAttribute("aria-hidden","false");
 }
