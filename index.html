@@ -38,6 +38,22 @@
 .state-smart{width:161px}.state-smart .smart-pop{width:189px}
 .state-smart .smart-option{min-height:29px;padding-left:18px}
 .state-smart .smart-options{max-height:190px}
+
+/* Existing region selectors preserved; country choices now match the checkbox dropdown filter. */
+.honor-country-picker{position:relative;width:155px;flex:none}
+.honor-country-trigger{display:flex;align-items:center;justify-content:space-between;width:100%;height:28px;padding:0 9px;background:#fff;border-radius:3px;color:#667381;white-space:nowrap;overflow:hidden;gap:7px}
+.honor-country-trigger>span{margin-left:auto;color:#8ca3b7;font-size:13px}
+.honor-country-trigger.open{border-color:#409eff;color:#409eff}
+.honor-country-popup{display:none;position:absolute;top:calc(100% + 4px);left:0;width:275px;max-width:calc(100vw - 45px);max-height:318px;background:#fff;border:1px solid #dbe4ee;border-radius:4px;z-index:88;box-shadow:0 8px 24px #15375826;flex-direction:column;overflow:hidden}
+.honor-country-popup.open{display:flex}
+.honor-country-search{height:31px;width:calc(100% - 18px);margin:9px;font-size:12px;padding:0 10px}
+.honor-country-tools{display:flex;align-items:center;gap:12px;justify-content:flex-end;padding:6px 11px;border-top:1px solid #eef2f7;border-bottom:1px solid #eef2f7}
+.honor-country-tools button{border:0;background:none;color:#409eff;font-size:12px;padding:3px;cursor:pointer}
+.honor-country-options{overflow:auto;max-height:235px;padding:4px 0}
+.honor-country-item{display:flex;align-items:center;gap:9px;padding:7px 13px;cursor:pointer;color:#667381;white-space:nowrap}
+.honor-country-item:hover,.honor-country-item:has(input:checked){background:#edf6ff;color:#409eff}
+.honor-country-item input{width:14px;height:14px;margin:0;accent-color:#409eff}
+.honor-country-item[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -88,7 +104,15 @@
           <label class="region-choice"><input type="checkbox" data-region="虚拟四区">虚拟四区</label>
           <label class="region-choice"><input type="checkbox" data-region="越南区">越南区</label>
           <label class="region-choice"><input type="checkbox" data-region="印马区">印马区</label>
-          <input class="input country-search" id="countryFilter" placeholder="请输入国家">
+          <div class="honor-country-picker" id="honorCountryPicker">
+            <button type="button" class="input honor-country-trigger" id="honorCountryTrigger" aria-haspopup="true" aria-expanded="false">请选择国家 <span>⌄</span></button>
+            <input type="hidden" id="countryFilter">
+            <div class="honor-country-popup" id="honorCountryMenu">
+              <input class="input honor-country-search" type="search" id="honorCountrySearch" placeholder="搜索国家" autocomplete="off">
+              <div class="honor-country-tools"><button type="button" id="honorCountrySelectAll">全选</button><button type="button" id="honorCountryClear">清空</button></div>
+              <div class="honor-country-options" id="honorCountryOptions"></div>
+            </div>
+          </div>
           <button class="btn" id="chosenCountry">已选国家</button><button class="btn" id="clearCountry">取消已选</button>
         </div>
         <div class="filter-row">
@@ -131,7 +155,12 @@ function save(){try{localStorage.setItem(storageKey,JSON.stringify(rows))}catch(
 function notice(message,kind){var n=document.createElement("div");n.className="notice "+(kind||"success");n.textContent=message;document.body.appendChild(n);setTimeout(function(){n.remove()},2900)}
 function timeHTML(s){return esc(s||"--").replace(" ","<br>")}
 function benefitHTML(s){return esc(s).replace(" - ","<br>- ").replace(" 2 Months"," 2<br>Months").replace(" 24h","<br>24h")}
-function getFilters(){return {benefit:el("benefitFilter").value,uid:el("userIdFilter").value.trim(),status:el("statusFilter").value,country:el("countryFilter").value.trim(),start:el("dateStart").value,end:el("dateEnd").value,regions:Array.from(document.querySelectorAll("[data-region]:checked")).map(function(n){return n.getAttribute("data-region")})}}
+var honorCountries=["印度","沙特阿拉伯","巴基斯坦","印度尼西亚","菲律宾","越南","马来西亚","孟加拉国","尼泊尔","埃及","阿联酋","日本","新加坡","泰国","尼日利亚","不丹","台湾 (中国)","美国","英国"];
+function honorCountrySelected(){return Array.from(document.querySelectorAll("#honorCountryOptions input:checked")).map(function(x){return x.value})}
+function honorCountrySync(){var names=honorCountrySelected(),trigger=el("honorCountryTrigger");el("countryFilter").value=names.join(",");trigger.firstChild.textContent=!names.length?"请选择国家 ":names.length===1?names[0]+" ":"已选 "+names.length+" 个国家 "}
+function honorCountryOptionsRender(){var selection=honorCountrySelected();var list=[...new Set(honorCountries.concat(rows.map(function(r){return r.country}).filter(Boolean)))];el("honorCountryOptions").innerHTML=list.map(function(v){return '<label class="honor-country-item"><input type="checkbox" value="'+esc(v)+'"'+(selection.indexOf(v)>-1?" checked":"")+'><span>'+esc(v)+'</span></label>'}).join("");honorCountrySync()}
+function honorCountrySetAll(value){el("honorCountryOptions").querySelectorAll('input[type="checkbox"]').forEach(function(x){x.checked=value});honorCountrySync()}
+function getFilters(){return {benefit:el("benefitFilter").value,uid:el("userIdFilter").value.trim(),status:el("statusFilter").value,country:el("countryFilter").value.split(",").filter(Boolean),start:el("dateStart").value,end:el("dateEnd").value,regions:Array.from(document.querySelectorAll("[data-region]:checked")).map(function(n){return n.getAttribute("data-region")})}}
 
 var benefitList=[
 "PK Energy Gift (Daily Sales Limit: 5000)",
@@ -187,7 +216,7 @@ function renderActionButtons(r){
   return '<div class="inline-actions">'+acts.map(function(a){return '<button class="action-btn'+(a[2]?" red":"")+'" data-action="'+a[0]+'" data-id="'+esc(r.id)+'">'+a[1]+'</button>'}).join("")+'</div>';
 }
 
-function render(){var f=getFilters();shown=rows.filter(function(r){return (!f.benefit||r.benefit===f.benefit||((f.benefit==="定制礼物 - 2个月"||f.benefit==="荣誉卡 - 2个月")&&r.benefit==="Customized Gift - 2 Months")||(f.benefit==="开屏 - 24小时"&&r.benefit==="Open Screen - 24h"))&&(!f.uid||r.uid.indexOf(f.uid)>-1)&&(!f.status||r.status===f.status)&&(!f.country||r.country.indexOf(f.country)>-1)&&(!f.regions.length||f.regions.indexOf(r.region)>-1)&&(!f.start||r.created.slice(0,10)>=f.start)&&(!f.end||r.created.slice(0,10)<=f.end)});var per=+el("pageSize").value;var max=Math.max(1,Math.ceil(shown.length/per));page=Math.max(1,Math.min(page,max));var part=shown.slice((page-1)*per,page*per);el("recordCount").textContent="共 "+shown.length+" 条";el("totalRight").textContent="共 "+shown.length+" 条";el("pageNumber").value=page;el("prevPage").disabled=page<=1;el("nextPage").disabled=page>=max;
+function render(){var f=getFilters();shown=rows.filter(function(r){return (!f.benefit||r.benefit===f.benefit||((f.benefit==="定制礼物 - 2个月"||f.benefit==="荣誉卡 - 2个月")&&r.benefit==="Customized Gift - 2 Months")||(f.benefit==="开屏 - 24小时"&&r.benefit==="Open Screen - 24h"))&&(!f.uid||r.uid.indexOf(f.uid)>-1)&&(!f.status||r.status===f.status)&&(!f.country.length||f.country.indexOf(r.country)>-1)&&(!f.regions.length||f.regions.indexOf(r.region)>-1)&&(!f.start||r.created.slice(0,10)>=f.start)&&(!f.end||r.created.slice(0,10)<=f.end)});var per=+el("pageSize").value;var max=Math.max(1,Math.ceil(shown.length/per));page=Math.max(1,Math.min(page,max));var part=shown.slice((page-1)*per,page*per);el("recordCount").textContent="共 "+shown.length+" 条";el("totalRight").textContent="共 "+shown.length+" 条";el("pageNumber").value=page;el("prevPage").disabled=page<=1;el("nextPage").disabled=page>=max;
 el("orderRows").innerHTML=part.length?part.map(function(r){var stateClass=r.status==="已处理"?"status-completed":r.status==="已退回"?"status-returned":r.status==="退回中"?"status-pending-return":"";return '<tr><td>'+esc(r.id)+'</td><td class="benefit">'+benefitHTML(r.benefit)+'</td><td>'+r.qty+'</td><td>'+r.honor+'</td><td>'+r.coin+'</td><td>'+r.total+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.uid)+'</td><td class="username">'+esc(r.name)+'</td><td>'+r.level+'</td><td>'+esc(r.country)+'</td><td class="'+stateClass+'">'+esc(r.status)+'</td><td class="time-cell">'+timeHTML(r.created)+'</td><td class="'+(r.status==="待处理"?"waiting":"muted")+'">'+(r.status==="待处理"?esc(r.waiting):"--")+'</td><td class="time-cell">'+timeHTML(r.completed||"--")+'</td><td>'+esc(r.used||"")+'</td><td>'+esc(r.usedTime||"")+'</td><td></td><td class="time-cell">'+esc(r.whatsapp).replace(" ","<br>")+'</td><td>'+esc(honorOperatorLabel(r))+'</td><td>'+renderActionButtons(r)+'</td></tr>'}).join(""):'<tr class="empty-row"><td colspan="21">暂无数据</td></tr>'}
 // Simulated names only for the original eight demonstration orders; real edits override these.
 var honorDemoNames=["Maya Chen (Demo)","Olivia Tan (Demo)","Noah Lee (Demo)","Daniel Kim (Demo)","Maya Chen (Demo)","Daniel Kim (Demo)","Olivia Tan (Demo)","Noah Lee (Demo)"];
@@ -196,16 +225,16 @@ function honorOperatorLabel(r){
  var idx=seed.findIndex(function(x){return x.id===r.id});
  return idx>=0?honorDemoNames[idx]:"--";
 }
-function reset(){el("benefitFilter").value="";smartSelectors.benefit.sync();el("userIdFilter").value="";el("statusFilter").value="待处理";smartSelectors.status.sync();el("countryFilter").value="";el("dateStart").value="";el("dateEnd").value="";el("dateStart").type="text";el("dateEnd").type="text";document.querySelectorAll("[data-region],#allCountry").forEach(function(x){x.checked=false});page=1;render()}
+function reset(){el("benefitFilter").value="";smartSelectors.benefit.sync();el("userIdFilter").value="";el("statusFilter").value="待处理";smartSelectors.status.sync();honorCountrySetAll(false);el("countryFilter").value="";el("dateStart").value="";el("dateEnd").value="";el("dateStart").type="text";el("dateEnd").type="text";document.querySelectorAll("[data-region],#allCountry").forEach(function(x){x.checked=false});page=1;render()}
 function modal(title,body,ok,onConfirm){el("modalTitle").textContent=title;el("modalBody").innerHTML=body;el("modalOK").textContent=ok||"确定";dialogAction=onConfirm||null;el("overlay").classList.add("open")}
 function closeModal(){el("overlay").classList.remove("open");dialogAction=null}
 function changeStatus(id,status){var r=rows.find(function(x){return x.id===id});if(!r)return;var prev=r.status;if(status==="已处理"&&prev!=="待处理")return;if(status==="退回中"&&prev!=="待处理"&&prev!=="已处理")return;var operator=window.HonorAudit&&window.HonorAudit.requestOperator(true);if(!operator){notice("请输入海外操作员工的英文名","error");return}r.status=status;r.completed=status==="已处理"?new Date().toLocaleString("sv-SE",{hour12:false}):"";r.operator=operator;save();if(window.HonorAudit)window.HonorAudit.record({module:"honor",actor:operator,action:status==="已处理"?"Complete":"Return",orderId:id,before:{status:prev},after:{status:status,operator:operator},detail:"Updated honor order status"});render();notice("订单 "+id+" 已更新为「"+status+"」")}
 el("orderRows").addEventListener("click",function(e){var b=e.target.closest("[data-action]");if(!b)return;var id=b.getAttribute("data-id");var action=b.getAttribute("data-action");var status=action==="complete"?"已处理":"退回中";var current=rows.find(function(x){return x.id===id});if(!current)return;if(action==="complete"&&current.status!=="待处理")return;if(action==="return"&&current.status!=="待处理"&&current.status!=="已处理")return;modal(action==="complete"?"完成订单":"退回订单",'确认将订单 <b>'+esc(id)+'</b> 标记为「'+status+'」吗？<br><span class="hint">当前页面为交互演示，操作仅保存在本地浏览器。</span>',"确认",function(){changeStatus(id,status)})});
 el("modalClose").onclick=closeModal;el("modalCancel").onclick=closeModal;el("overlay").addEventListener("click",function(e){if(e.target===this)closeModal()});el("modalOK").onclick=function(){var fn=dialogAction;closeModal();if(fn)fn()};
-el("searchBtn").onclick=function(){page=1;render()};el("resetBtn").onclick=reset;el("userIdFilter").onkeydown=function(e){if(e.key==="Enter"){page=1;render()}};el("countryFilter").onkeydown=el("userIdFilter").onkeydown;el("pageSize").onchange=function(){page=1;render()};el("prevPage").onclick=function(){page--;render()};el("nextPage").onclick=function(){page++;render()};el("pageNumber").onchange=function(){page=Math.max(1,parseInt(this.value,10)||1);render()};
+el("searchBtn").onclick=function(){page=1;render()};el("resetBtn").onclick=reset;el("userIdFilter").onkeydown=function(e){if(e.key==="Enter"){page=1;render()}};el("pageSize").onchange=function(){page=1;render()};el("prevPage").onclick=function(){page--;render()};el("nextPage").onclick=function(){page++;render()};el("pageNumber").onchange=function(){page=Math.max(1,parseInt(this.value,10)||1);render()};
 document.querySelectorAll("[data-region]").forEach(function(c){c.onchange=function(){el("allCountry").checked=Array.from(document.querySelectorAll("[data-region]")).every(function(x){return x.checked});selected=Array.from(document.querySelectorAll("[data-region]:checked")).map(function(x){return x.getAttribute("data-region")})}});
 el("allCountry").onchange=function(){var v=this.checked;document.querySelectorAll("[data-region]").forEach(function(x){x.checked=v})};
-el("clearCountry").onclick=function(){document.querySelectorAll("[data-region],#allCountry").forEach(function(x){x.checked=false});el("countryFilter").value="";renderCountryTags();notice("已取消全部地区选择")};
+el("clearCountry").onclick=function(){document.querySelectorAll("[data-region],#allCountry").forEach(function(x){x.checked=false});honorCountrySetAll(false);el("countryFilter").value="";renderCountryTags();notice("已取消全部地区选择")};
 function renderCountryTags(){var list=Array.from(document.querySelectorAll("[data-region]:checked")).map(function(x){return x.getAttribute("data-region")});el("countryTags").innerHTML=list.length?list.map(function(name){return '<span class="country-tag">'+esc(name)+'<span data-remove="'+esc(name)+'">×</span></span>'}).join(""):'<div class="country-empty">暂未选择国家或地区</div>'}
 el("chosenCountry").onclick=function(){renderCountryTags();var rect=this.getBoundingClientRect();var p=el("countryPop");p.style.top=Math.min(rect.bottom+5,innerHeight-180)+"px";p.style.left=Math.min(rect.left,innerWidth-310)+"px";p.classList.toggle("open")};
 el("closeCountry").onclick=function(){el("countryPop").classList.remove("open")};el("countryTags").onclick=function(e){var name=e.target.getAttribute("data-remove");if(!name)return;document.querySelectorAll("[data-region]").forEach(function(x){if(x.getAttribute("data-region")===name)x.checked=false});el("allCountry").checked=false;renderCountryTags()};
@@ -220,6 +249,15 @@ document.querySelectorAll(".tab").forEach(function(n){n.onclick=function(){switc
 document.querySelectorAll(".nav-item").forEach(function(n){n.onclick=function(){if(this.getAttribute("href"))return;if(this.dataset.page==="荣誉订单"){switchTab("荣誉订单");document.querySelectorAll(".nav-item").forEach(function(y){y.classList.remove("active")});this.classList.add("active")}else{notice("本次演示仅还原「荣誉订单」页面")}}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();el("countryPop").classList.remove("open")}});
 initSmartSelect("benefit",benefitList,"");initSmartSelect("status",statusList,"待处理");
+honorCountryOptionsRender();
+el("honorCountryTrigger").onclick=function(e){e.stopPropagation();var open=el("honorCountryMenu").classList.toggle("open");this.classList.toggle("open",open);this.setAttribute("aria-expanded",String(open))};
+el("honorCountryMenu").onclick=function(e){e.stopPropagation()};
+el("honorCountryOptions").onchange=honorCountrySync;
+el("honorCountrySearch").oninput=function(){var term=this.value.trim().toLowerCase();document.querySelectorAll(".honor-country-item").forEach(function(x){x.hidden=!x.textContent.toLowerCase().includes(term)})};
+el("honorCountrySelectAll").onclick=function(){honorCountrySetAll(true)};
+el("honorCountryClear").onclick=function(){honorCountrySetAll(false)};
+document.addEventListener("click",function(e){if(!el("honorCountryPicker").contains(e.target)){el("honorCountryMenu").classList.remove("open");el("honorCountryTrigger").classList.remove("open");el("honorCountryTrigger").setAttribute("aria-expanded","false")}});
+
 render();
 })();
 </script>
