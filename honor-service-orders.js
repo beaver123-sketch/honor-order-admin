@@ -2,6 +2,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const KEY="honor-service-orders-v1";
+const POLICY_KEY="honor-service-notify-policies-v1";
 const T={
  title:"Honor Service Orders / 荣誉服务订单",
  all:"All / 全部",
@@ -11,6 +12,45 @@ const T={
  displayTypes:{banner:"Banner / 横幅",splash:"Splash / 开屏"},
  giftTypes:{regular:"Regular / 普通礼物",limited:"Limited / 限量礼物"}
 };
+// Store only non-secret server-side webhook identifiers, never webhook URLs in browser storage.
+const ORDER_TYPES=["unban","banner","gift","ride"];
+const safeRef=v=>/^[A-Za-z][A-Za-z0-9_-]{3,79}$/.test(String(v||""));
+function loadPolicies(){
+ const p=Object.fromEntries(ORDER_TYPES.map(t=>[t,{enabled:false,webhookRef:""}]));
+ try{
+  const saved=JSON.parse(localStorage.getItem(POLICY_KEY)||"{}");
+  ORDER_TYPES.forEach(t=>{
+   const item=saved[t]||{};
+   if(safeRef(item.webhookRef)){p[t]={enabled:!!item.enabled,webhookRef:String(item.webhookRef)}}
+  });
+ }catch(_){}
+ return p;
+}
+let policies=loadPolicies();
+const getPolicy=type=>policies[type]||{enabled:false,webhookRef:""};
+const readyPolicy=type=>{const p=getPolicy(type);return p.enabled&&safeRef(p.webhookRef)};
+const selectedIds=new Set();
+const CSV_HEADERS=["Service Order ID","Redeemed Order ID","Order Type","Benefit Name","User ID","Username","Nationality","Honor Wall ID","Order Status","Order Time","Assigned To","Updated Time","Actions"];
+const exportFields=o=>[o.id,o.redeemedOrderId||"",T.types[o.orderType]||o.orderType,o.benefitName||"",o.userId,o.username||"",countryLabel(o.nationality),o.honorWallId||"",T.statuses[o.orderStatus]||o.orderStatus,dateOut(o.createdAt),o.assignedTo||"",dateOut(o.updatedAt),""];
+function exportCSV(){
+ const visible=filtered();
+ const chosen=selectedIds.size?visible.filter(o=>selectedIds.has(o.id)):visible;
+ if(!chosen.length){toast("No orders to export / 没有可导出的订单",true);return}
+ const actual=[...document.querySelectorAll(".so-table thead th:not(.so-select-col)")].map(x=>x.textContent.trim());
+ if(actual.length!==13||actual.some((x,i)=>x!==CSV_HEADERS[i])){toast("Export headers not ready / 导出表头未就绪",true);return}
+ const sanitize=v=>{
+  let str=String(v??"");
+  if(/^[\s\x00-\x1F]*[=+@-]/.test(str))str="'"+str; // Excel CSV formula injection prevention.
+  return '"'+str.replace(/"/g,'""')+'"';
+ };
+ const csv="\ufeff"+[actual,...chosen.map(exportFields)].map(row=>row.map(sanitize).join(",")).join("\r\n");
+ const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
+ const a=document.createElement("a");
+ a.href=url;a.download="honor-service-orders-"+new Date().toISOString().slice(0,10)+".csv";
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+ toast("Exported "+chosen.length+" orders / 已导出 "+chosen.length+" 条订单");
+}
 const C=[
  ["Pakistan","巴基斯坦"],["India","印度"],["Saudi Arabia","沙特阿拉伯"],
  ["Egypt","埃及"],["Indonesia","印度尼西亚"],["Malaysia","马来西亚"],
@@ -90,6 +130,7 @@ function defaultDraft(){
  return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:nowLocal(),
   orderStatus:"pending",assignedTo:"",whatsapp:"",notes:"",benefitName:"",
   unbanStatus:"pending",displayType:"banner",giftType:"regular",giftPrice:"177000",
+  notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:getPolicy("unban").webhookRef,
   history:[],notifications:[]};
 }
 function toast(msg,bad){
@@ -132,7 +173,7 @@ function applyFilters(){
   nationalities:[...$("soNationMenu").querySelectorAll("input:checked")].map(i=>i.value.toLowerCase()),
   status:$("soFilterStatus").value,from:$("soFilterStart").value,to:$("soFilterEnd").value,assignee:$("soFilterAssignee").value
  };
- page=1;render();
+ selectedIds.clear();page=1;render();
 }
 function filtered(){
  return orders.filter(o=>
@@ -156,7 +197,7 @@ function tr(o){
   o.orderStatus==="pending"?'<button type="button" class="so-cell-action" data-action="complete" data-id="'+escapeHtml(o.id)+'">Complete / 完成</button>':"",
   (o.orderStatus==="pending"||o.orderStatus==="processed")?'<button type="button" class="so-cell-action warn" data-action="return" data-id="'+escapeHtml(o.id)+'">Return / 退回</button>':""
  ].join("");
- return '<tr><td class="so-strong">'+escapeHtml(o.id)+'</td><td>'+escapeHtml(o.redeemedOrderId||"—")+'</td>'+
+ return '<tr><td class="so-select-cell"><input type="checkbox" class="so-row-check" data-select-id="'+escapeHtml(o.id)+'" aria-label="Select order '+escapeHtml(o.id)+'"'+(selectedIds.has(o.id)?" checked":"")+'></td><td class="so-strong">'+escapeHtml(o.id)+'</td><td>'+escapeHtml(o.redeemedOrderId||"—")+'</td>'+
  '<td>'+escapeHtml(T.types[o.orderType]||o.orderType)+'</td><td>'+escapeHtml(o.benefitName||"—")+'</td>'+
  '<td>'+escapeHtml(o.userId)+'</td><td>'+escapeHtml(o.username||"—")+'</td>'+
  '<td>'+escapeHtml(countryLabel(o.nationality))+'</td><td>'+escapeHtml(o.honorWallId||"—")+'</td>'+
@@ -164,11 +205,20 @@ function tr(o){
  '<td>'+escapeHtml(o.assignedTo||"—")+'</td><td>'+escapeHtml(dateOut(o.updatedAt))+'</td>'+
  '<td class="so-actions-cell">'+buttons+'</td></tr>';
 }
+function updateSelectionUI(currentPage){
+ const items=currentPage||filtered().slice((page-1)*pageSize,page*pageSize);
+ const active=items.filter(o=>selectedIds.has(o.id)).length;
+ const head=$("soSelectAll");
+ if(head){head.checked=items.length>0&&active===items.length;head.indeterminate=active>0&&active<items.length;head.disabled=items.length===0}
+ const count=$("soSelectedCount");
+ if(count)count.textContent=selectedIds.size?selectedIds.size+" selected":"";
+}
 function render(){
  const matches=filtered(),count=matches.length,pages=Math.max(1,Math.ceil(count/pageSize));
  page=Math.max(1,Math.min(page,pages));
  const subset=matches.slice((page-1)*pageSize,page*pageSize);
- $("soTableBody").innerHTML=subset.length?subset.map(tr).join(""):'<tr><td colspan="13" class="so-empty">No Data / 暂无数据</td></tr>';
+ $("soTableBody").innerHTML=subset.length?subset.map(tr).join(""):'<tr><td colspan="14" class="so-empty">No Data / 暂无数据</td></tr>';
+ updateSelectionUI(subset);
  $("soCount").textContent="Total "+count+" / 共 "+count+" 条";
  $("soPage").textContent=String(page)+" / "+String(pages);
  $("soPageSummary").textContent="Total "+count+" records / 共 "+count+" 条";
@@ -200,6 +250,7 @@ function openOrder(mode,id){
  const existing=orders.find(x=>x.id===id);
  if(mode!=="add"&&!existing){toast("Order not found / 未找到订单",true);return}
  const data=mode==="add"?defaultDraft():JSON.parse(JSON.stringify(existing));
+ if(data.notifyEnabled===undefined)data.notifyEnabled=false;
  editor={mode,id:id||null,data,before:existing?JSON.parse(JSON.stringify(existing)):null,changed:false};
  $("soModal").classList.add("open");
  $("soModal").setAttribute("aria-hidden","false");
@@ -208,6 +259,18 @@ function openOrder(mode,id){
 function collectForm(){
  if(!editor)return;
  $("soModalBody").querySelectorAll("[data-field]").forEach(n=>{if(n.disabled)return;editor.data[n.dataset.field]=n.value});
+}
+function notificationForm(d,readonly){
+ const p=getPolicy(d.orderType);
+ const ready=readyPolicy(d.orderType);
+ const on=!!d.notifyEnabled&&ready;
+ return '<section class="so-section so-notification-order"><h3 class="so-section-title">Lark Notification / Lark机器人消息通知</h3>'+
+ '<div class="so-notification-row"><span>Send Lark Message / 是否推送群聊机器人消息</span>'+
+ '<label class="so-toggle"><input id="soPerOrderNotify" type="checkbox"'+(on?' checked':'')+(readonly||!ready?' disabled':'')+'><span class="so-toggle-track"></span></label>'+
+ '<span id="soNotifyState">'+(on?'On / 开启':'Off / 关闭')+'</span></div>'+
+ (ready?'<div class="so-config-ref" id="soOrderNotifyRef"'+(on?'':' hidden')+'>Default Webhook / 默认机器人：<strong>'+escapeHtml(p.webhookRef)+'</strong></div>':
+ '<div class="so-helper">Not configured / 尚未配置；请在 Notification Settings 配置。</div>')+
+ '</section>';
 }
 function paintOrder(){
  const ed=editor;if(!ed)return;
@@ -218,7 +281,7 @@ function paintOrder(){
  $("soTypeTag").textContent=T.types[d.orderType]||"—";
  const head='<section class="so-section"><h3 class="so-section-title">Basic Information / 基础信息</h3><div class="so-field-grid">'+common.map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  const specifics='<section class="so-section"><h3 class="so-section-title">'+escapeHtml(T.types[d.orderType])+'</h3><div class="so-field-grid">'+(byType[d.orderType]||[]).map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
- $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics;
+ $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics+notificationForm(d,readonly);
  $("soModalBody").scrollTop=0;
  $("soModalFooter").innerHTML=(readonly?
   '<button class="so-button" type="button" data-foot="activity">Activity Log / 操作记录</button><button class="so-button" type="button" data-foot="history">Notification History / 通知记录</button><span class="so-spacer"></span><button class="so-button" type="button" data-foot="close">Close / 关闭</button><button class="so-button primary" type="button" data-foot="edit">Edit / 编辑</button>':
@@ -259,11 +322,14 @@ function saveOrder(){
  collectForm();
  const ed=editor;if(!ed||!check(ed.data))return;
  const d=JSON.parse(JSON.stringify(ed.data));
+ d.notifyEnabled=!!d.notifyEnabled&&!!readyPolicy(d.orderType);
+ d.notifyConfigRef=d.notifyEnabled?getPolicy(d.orderType).webhookRef:"";
  if(ed.mode==="add"){
   d.id=newId();d.createdAt=stamp();d.updatedAt=d.createdAt;
   d.username=d.username||"";
   d.history=[{when:d.createdAt,action:"Add Order / 新增订单",by:"Local Operator / 本地操作",desc:"Created service order / 新增服务订单"}];
   d.notifications=[];
+  if(d.notifyEnabled)d.notifications.push({when:d.createdAt,action:"Not Sent / 未发送",by:"System / 系统",desc:"Webhook delivery unavailable in frontend preview / 前端版本尚未接入服务端推送"});
  }else{
   const change=diff(ed.before,d);d.createdAt=ed.before.createdAt;d.updatedAt=stamp();
   d.history=[...(ed.before.history||[]),{when:d.updatedAt,action:"Edit / 编辑",by:"Local Operator / 本地操作",desc:change}];
@@ -290,6 +356,47 @@ function setStatus(id,action){
    history:[...(o.history||[]),{when:stamp(),action:action==="complete"?"Complete / 完成":"Return / 退回",by:"Local Operator / 本地操作",desc:"Order Status / 订单状态: "+T.statuses[o.orderStatus]+" → "+T.statuses[next]}]};
   if(store(orders.map(x=>x.id===id?updated:x))){render();toast("Saved Successfully / 保存成功")}
  });
+}
+function settingsHtml(){
+ return '<p class="so-helper so-policy-note">Configure each order type once. New orders inherit this setting. Use server-side webhook identifiers; never paste real Webhook URLs here. / 每类订单独立配置一次，新增时自动继承。此处只填写服务端机器人标识，不填写真实Webhook链接。</p>'+
+  '<div class="so-policy-list">'+ORDER_TYPES.map(t=>{
+   const p=getPolicy(t);
+   return '<div class="so-policy-card" data-policy-type="'+t+'"><div class="so-policy-top">'+
+    '<strong>'+escapeHtml(T.types[t])+'</strong>'+
+    '<label class="so-toggle"><input class="so-policy-enabled" data-policy-toggle="'+t+'" type="checkbox"'+(p.enabled?' checked':'')+'><span class="so-toggle-track"></span></label></div>'+
+    '<div class="so-policy-details"'+(p.enabled?'':' hidden')+'><label>Webhook Config Key / 机器人配置标识</label>'+
+    '<input class="so-policy-ref" data-policy-ref="'+t+'" type="text" value="'+escapeHtml(p.webhookRef)+'" placeholder="e.g. lark_custom_gift" autocomplete="off" maxlength="80">'+
+    '<small class="so-helper">Server-side reference only / 仅填写服务端配置标识</small></div></div>';
+   }).join("")+'</div>';
+}
+function openSettings(){
+ openSmall("Notification Settings / 消息通知配置",settingsHtml(),[
+  {text:"Cancel / 取消",fn:closeSmall},
+  {text:"Save / 保存",primary:true,fn:saveSettings}
+ ]);
+ $("soSmallBody").onchange=e=>{
+  const chk=e.target.closest("[data-policy-toggle]");
+  if(chk){
+   const card=chk.closest(".so-policy-card");
+   card.querySelector(".so-policy-details").hidden=!chk.checked;
+  }
+ };
+}
+function saveSettings(){
+ const next={};
+ for(const type of ORDER_TYPES){
+  const card=$("soSmallBody").querySelector('[data-policy-type="'+type+'"]');
+  const enabled=card.querySelector("[data-policy-toggle]").checked;
+  const ref=card.querySelector("[data-policy-ref]").value.trim();
+  if(enabled&&!safeRef(ref)){
+   toast("Enter a valid Webhook Config Key for "+T.types[type]+" / 请填写有效的配置标识",true);
+   card.querySelector(".so-policy-details").hidden=false;card.querySelector("[data-policy-ref]").focus();return;
+  }
+  next[type]={enabled,webhookRef:safeRef(ref)?ref:""};
+ }
+ try{localStorage.setItem(POLICY_KEY,JSON.stringify(next));policies=next}
+ catch(_){toast("Unable to save settings / 无法保存设置",true);return}
+ closeSmall();toast("Saved Successfully / 保存成功");
 }
 function openSmall(title,body,actions){
  $("soSmallTitle").textContent=title;$("soSmallBody").innerHTML=body;
@@ -335,11 +442,24 @@ $("soFilterStatus").innerHTML='<option value="">All / 全部</option>'+Object.en
 $("soCountryList").innerHTML=C.map(([v])=>'<option value="'+escapeHtml(v)+'"></option>').join("");
 $("soFilterForm").addEventListener("submit",e=>{e.preventDefault();applyFilters()});
 $("soFilterReset").onclick=()=>{
- $("soFilterForm").reset();$("soNationMenu").querySelectorAll("input").forEach(i=>i.checked=false);
+ selectedIds.clear();$("soFilterForm").reset();$("soNationMenu").querySelectorAll("input").forEach(i=>i.checked=false);
  filters={};page=1;render();
 };
 $("soNationMenu").onchange=updateCountrySummary;
 $("soAddOrder").onclick=()=>openOrder("add");
+$("soExportOrders").onclick=exportCSV;
+$("soNotificationSettings").onclick=openSettings;
+$("soSelectAll").onchange=e=>{
+ const subset=filtered().slice((page-1)*pageSize,page*pageSize);
+ subset.forEach(o=>e.target.checked?selectedIds.add(o.id):selectedIds.delete(o.id));
+ render();
+};
+$("soTableBody").onchange=e=>{
+ const input=e.target.closest("[data-select-id]");
+ if(!input)return;
+ if(input.checked)selectedIds.add(input.dataset.selectId);else selectedIds.delete(input.dataset.selectId);
+ updateSelectionUI();
+};
 $("soTableBody").onclick=e=>{
  const b=e.target.closest("[data-action]");if(!b)return;
  const {action,id}=b.dataset;
@@ -353,6 +473,12 @@ $("soModalClose").onclick=()=>closeOrder(false);
 $("soModal").onclick=e=>{if(e.target===$("soModal"))closeOrder(false)};
 $("soModalBody").onchange=e=>{
  if(!editor||editor.mode==="view")return;
+ if(e.target.id==="soPerOrderNotify"){
+  editor.data.notifyEnabled=e.target.checked;
+  const state=$("soNotifyState");if(state)state.textContent=e.target.checked?"On / 开启":"Off / 关闭";
+  const box=$("soOrderNotifyRef");if(box)box.hidden=!e.target.checked;
+  return;
+ }
  const f=e.target.closest("[data-file-for]");
  if(f&&f.files?.length){
   const field=f.dataset.fileFor,inp=$("so-edit-"+field);
@@ -364,6 +490,8 @@ $("soModalBody").oninput=e=>{
  const input=e.target.closest("[data-field]");if(!input)return;
  editor.data[input.dataset.field]=input.value;editor.changed=true;
  if(input.dataset.field==="orderType"){
+  editor.data.notifyEnabled=!!readyPolicy(input.value);
+  editor.data.notifyConfigRef=getPolicy(input.value).webhookRef;
   paintOrder();return;
  }
  if(input.dataset.field==="giftType"&&editor.data.giftType==="limited"&&Number(editor.data.giftPrice)<600000){
