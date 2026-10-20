@@ -43,7 +43,7 @@ const operatorLabel=o=>{
 const zhType={unban:"账号解封",banner:"Banner及开屏",gift:"定制礼物",ride:"定制座驾"};
 const zhStatus={pending:"待处理",processed:"已处理",returned:"已退回",returning:"退回中"};
 const zhCountryLabel=v=>{const match=C.find(row=>row[0]===v);return match?match[1]:v||""};
-const zhBenefitName=v=>String(v||"").replace("Customized Ride - 2 Months","定制座驾 - 2个月").replace("Custom Gift - 2 Months","定制礼物 - 2个月").replace("Banner & Splash","Banner及开屏").replace("Account Unban","账号解封");
+const zhBenefitName=v=>String(v||"").replace("Customized Ride - 2 Months","定制座驾 - 2个月").replace("Custom Gift - 2 Months","定制礼物 - 2个月").replace("Custom Ride","定制座驾").replace("Custom Gift","定制礼物").replace("Banner & Splash","Banner及开屏").replace("Account Unban","账号解封");
 const exportFields=o=>[o.id,o.redeemedOrderId||"",zhType[o.orderType]||o.orderType,zhBenefitName(o.benefitName),o.userId,o.username||"",zhCountryLabel(o.nationality),o.honorWallId||"",zhStatus[o.orderStatus]||o.orderStatus,dateOut(o.createdAt),o.assignedTo||"",dateOut(o.updatedAt),operatorLabel(o),""];
 function exportCSV(){
  const visible=filtered();
