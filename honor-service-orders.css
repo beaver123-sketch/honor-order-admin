@@ -41,9 +41,9 @@
 .so-table-heading{font-size:13px;font-weight:700;color:#35404b}
 .so-count{font-size:12px;color:#8b97a6;font-weight:400;margin-left:10px}
 .so-table-scroller{padding:0 14px;overflow-x:auto;scrollbar-width:thin}
-.so-table{border-collapse:collapse;min-width:1780px;width:100%;table-layout:fixed;font-size:12px}
+.so-table{border-collapse:collapse;min-width:1995px;width:100%;table-layout:fixed;font-size:12px}
 .so-table th,.so-table td{border:1px solid #e9edf3;text-align:center;padding:10px 7px;line-height:1.5;vertical-align:middle}
-.so-table th{height:49px;font-weight:600;color:#8391a0;white-space:nowrap;background:#fdfefe}
+.so-table th{height:49px;font-weight:600;color:#8391a0;white-space:nowrap;background:#fdfefe;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;padding:10px 8px}
 .so-table td{min-height:58px;color:#667381;word-break:break-word}
 .so-table tbody tr:hover td{background:#f9fbff}
 .so-table td.so-strong{color:#409eff;font-weight:500}
@@ -106,3 +106,7 @@
 .so-date-range{display:flex;align-items:center;gap:8px;color:#9aa7b4}
 .so-date-range .so-input{flex:1;min-width:0;width:calc(50% - 10px)}
 @media(max-width:680px){.so-date-wide{grid-column:auto}}
+
+/* Keep table headings and action controls within allocated columns. */
+.so-table td.so-actions-cell{white-space:normal;line-height:1.8}
+.so-table td.so-actions-cell .so-cell-action{display:inline-block;max-width:100%;white-space:nowrap}
