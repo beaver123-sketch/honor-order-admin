@@ -59,7 +59,7 @@
    if(!input||!input.module||!input.action)return false;
    const created=new Date();
    const entry={
-     id:"LOG-"+created.getTime().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,7).toUpperCase(),
+     id:String(created.getTime())+String(Math.floor(Math.random()*100000)).padStart(5,"0"),
      when:created.toLocaleString("sv-SE",{hour12:false}),
      module:input.module==="honor"?"honor":"service",
      orderId:String(input.orderId||"").slice(0,80),
