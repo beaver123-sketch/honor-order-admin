@@ -368,13 +368,16 @@ function filtered(){
 }
 function statusHtml(v){return '<span class="so-pill '+escapeHtml(v)+'">'+escapeHtml(T.statuses[v]||v)+'</span>'}
 function tr(o){
- const buttons=[
-  '<button type="button" class="so-action-btn view" data-action="view" data-id="'+escapeHtml(o.id)+'">View</button>',
+ const primaryActions=[
   '<button type="button" class="so-action-btn edit" data-action="edit" data-id="'+escapeHtml(o.id)+'">Edit</button>',
-  '<button type="button" class="so-action-btn notify" data-action="notify" data-id="'+escapeHtml(o.id)+'">Notify Assignee</button>',
+  '<button type="button" class="so-action-btn notify" data-action="notify" data-id="'+escapeHtml(o.id)+'">Notify Assignee</button>'
+ ].join("");
+ const statusActions=[
   o.orderStatus==="pending"?'<button type="button" class="so-action-btn complete" data-action="complete" data-id="'+escapeHtml(o.id)+'">Complete</button>':"",
   (o.orderStatus==="pending"||o.orderStatus==="processed")?'<button type="button" class="so-action-btn return" data-action="return" data-id="'+escapeHtml(o.id)+'">Return</button>':""
- ].join("");
+ ].filter(Boolean).join("");
+ const buttons='<div class="so-action-row">'+primaryActions+'</div>'+
+   (statusActions?'<div class="so-action-row">'+statusActions+'</div>':"");
  return '<tr><td class="so-select-cell"><input type="checkbox" class="so-row-check" data-select-id="'+escapeHtml(o.id)+'" aria-label="Select order '+escapeHtml(o.id)+'"'+(selectedIds.has(o.id)?" checked":"")+'></td><td class="so-strong">'+escapeHtml(o.id)+'</td><td>'+escapeHtml(o.redeemedOrderId||"—")+'</td>'+
  '<td>'+escapeHtml(T.types[o.orderType]||o.orderType)+'</td><td>'+escapeHtml(o.benefitName||"—")+'</td>'+
  '<td>'+escapeHtml(o.userId)+'</td><td>'+escapeHtml(o.username||"—")+'</td>'+
