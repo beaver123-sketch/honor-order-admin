@@ -38,7 +38,7 @@ const CSV_HEADERS=["Service Order ID","Redeemed Order ID","Order Type","Benefit 
 const operatorLabel=o=>{
  if(o.operatorEnglish&&String(o.operatorEnglish).trim())return String(o.operatorEnglish);
  if(o.demo){
-  const matched=(String(o.id||"").match(/^HS-DEMO-(\\d+)$/)||[])[1];
+  const matched=(String(o.id||"").match(/^HS-DEMO-(\d+)$/)||[])[1];
   if(matched)return ["Maya Chen (Demo)","Olivia Tan (Demo)","Noah Lee (Demo)","Daniel Kim (Demo)"][(Number(matched)-1)%4];
  }
  return "";
@@ -208,14 +208,14 @@ function fieldCountries(f,v,readonly){
  if(readonly)return '<input class="so-input"'+attr+' disabled value="'+escapeHtml(selected.join(", "))+'">';
  const options=pickerChoices(v).map(([code,label])=>{
   const checked=selected.includes(code);
-  return '<label class="so-country-option"><input type="'+(multi?"checkbox":"radio")+
-   '" name="so-country-'+escapeHtml(k)+'" value="'+escapeHtml(code)+'" data-field-country="'+escapeHtml(k)+'"'+(checked?' checked':'')+'><span>'+escapeHtml(label)+'</span></label>';
+  return '<label class="so-country-option"><input type="checkbox"'+
+   ' name="so-country-'+escapeHtml(k)+'" value="'+escapeHtml(code)+'" data-field-country="'+escapeHtml(k)+'"'+(checked?' checked':'')+'><span>'+escapeHtml(label)+'</span></label>';
  }).join("");
  return '<div class="so-country-select" data-country-field="'+escapeHtml(k)+'" data-multiple="'+(multi?'true':'false')+'">'+
  '<input type="hidden"'+attr+' value="'+escapeHtml(String(v||""))+'">'+
  '<details class="so-nation-picker so-country-dropdown"><summary title="'+escapeHtml(selected.join(", "))+'">'+escapeHtml(summary)+'</summary>'+
  '<div class="so-nation-menu"><div class="so-country-search-wrap"><input type="search" class="so-country-search" placeholder="Search country" aria-label="Search country" autocomplete="off"></div>'+
- (multi?'<div class="so-country-tools"><button type="button" data-country-action="all">Select All</button><button type="button" data-country-action="clear">Clear</button></div>':'')+
+ '<div class="so-country-tools">'+(multi?'<button type="button" data-country-action="all">Select All</button>':'')+'<button type="button" data-country-action="clear">Clear</button></div>'+
  '<div class="so-country-list">'+options+'</div></div></details></div>';
 }
 function renderFilterCountryOptions(){
