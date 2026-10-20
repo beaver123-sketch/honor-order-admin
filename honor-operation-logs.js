@@ -5,7 +5,12 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const A=window.HonorAudit;
 let page=1,limit=20,filters={};
 const moduleLabels={honor:"Honor Orders",service:"Honor Service Orders"};
-const entries=()=>A?A.read():[];
+const entries=()=>{
+ const actual=A?A.read():[];
+ const demo=Array.isArray(window.HONOR_DEMO_AUDIT_ENTRIES)?window.HONOR_DEMO_AUDIT_ENTRIES:[];
+ const ids=new Set(actual.map(r=>r.id));
+ return [...actual,...demo.filter(r=>!ids.has(r.id))].sort((a,b)=>String(b.when||"").localeCompare(String(a.when||"")));
+};
 function filtered(){
  return entries().filter(r=>
  (!filters.module||r.module===filters.module)&&
