@@ -18,7 +18,18 @@ const safeRef=v=>{
  try{const u=new URL(String(v||""));return u.protocol==="https:"&&u.hostname.includes(".")&&!u.username&&!u.password}
  catch(_){return false}
 };
-function loadPolicies(){return Object.fromEntries(ORDER_TYPES.map(t=>[t,{enabled:false,webhookRef:""}]))}
+function loadPolicies(){
+ const initial=Object.fromEntries(ORDER_TYPES.map(t=>[t,{enabled:false,webhookRef:""}]));
+ try{
+  const stored=JSON.parse(localStorage.getItem(POLICY_KEY)||"{}");
+  ORDER_TYPES.forEach(t=>{
+   if(stored[t]&&typeof stored[t]==="object"){
+    initial[t]={enabled:!!stored[t].enabled,webhookRef:safeRef(stored[t].webhookRef)?String(stored[t].webhookRef):""};
+   }
+  });
+ }catch(_){}
+ return initial;
+}
 let policies=loadPolicies();
 const getPolicy=type=>policies[type]||{enabled:false,webhookRef:""};
 const readyPolicy=type=>{const p=getPolicy(type);return p.enabled&&safeRef(p.webhookRef)};
@@ -397,10 +408,12 @@ function saveSettings(){
   next[type]={enabled,webhookRef:safeRef(ref)?ref:""};
  }
  const before=Object.fromEntries(ORDER_TYPES.map(t=>[t,policies[t]?.enabled?"On":"Off"]));
+ try{localStorage.setItem(POLICY_KEY,JSON.stringify(next))}
+ catch(_){toast("Unable to save notification settings",true);return}
  policies=next;
  const after=Object.fromEntries(ORDER_TYPES.map(t=>[t,next[t].enabled?"On":"Off"]));
  if(window.HonorAudit)window.HonorAudit.record({module:"service",action:"Notification Settings",detail:"Settings saved (Webhook URLs excluded)",before,after});
- closeSmall();toast("Saved for this session");
+ closeSmall();toast("Notification settings saved");
 }
 function openSmall(title,body,actions){
  $("soSmallTitle").textContent=title;$("soSmallBody").innerHTML=body;
