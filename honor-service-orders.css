@@ -195,3 +195,44 @@
 .so-country-select .so-nation-picker[open]>summary{border-color:#409eff;box-shadow:0 0 0 1px #409eff1a}
 .so-country-select input[type=hidden]{display:none}
 @media(max-width:720px){.so-nation-picker .so-nation-menu{max-width:calc(100vw - 36px)}.so-action-buttons{gap:5px}.so-action-btn{height:28px;padding:0 8px}}
+
+
+/* Region-and-country selector: aligned with the original honor-order horizontal region chooser. */
+.so-region-filter-line{padding:0 16px 18px;display:flex;gap:17px;align-items:flex-start;min-width:0}
+.so-region-filter-label{flex:0 0 116px;padding-top:9px;color:#647487;font-size:12px;font-weight:500;white-space:nowrap}
+.so-region-widget{position:relative;flex:1;min-width:0;font-size:12px;color:#627184}
+.so-region-line{display:flex;gap:14px;align-items:flex-start;min-width:0;justify-content:space-between}
+.so-region-groups{min-width:0;display:flex;flex-wrap:wrap;gap:7px 15px;align-items:center;padding-top:4px;flex:1}
+.so-region-category{display:inline-flex;align-items:center;gap:4px;min-height:28px;white-space:nowrap;min-width:0}
+.so-region-category .so-region-arrow{border:none;background:transparent;color:#a4afbc;cursor:pointer;font-size:11px;padding:2px 3px;flex:none}
+.so-region-category .so-region-arrow.active{transform:rotate(90deg);color:#409eff}
+.so-region-check{display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:#617183;font-size:12px}
+.so-region-check input,.so-region-option input{appearance:none;margin:0;display:inline-block;height:15px;width:15px;flex:none;border:1px solid #d3dce8;border-radius:3px;background:#fff;cursor:pointer;position:relative}
+.so-region-check input:checked,.so-region-option input:checked{background:#409eff;border-color:#409eff}
+.so-region-check input:checked:after,.so-region-option input:checked:after{content:"✓";position:absolute;color:#fff;font-weight:bold;font-size:11px;top:-2px;left:2px}
+.so-region-category.partial .so-region-check input{border-color:#8fc3f8;background:#edf6ff}
+.so-region-tools{flex:none;display:flex;align-items:center;gap:6px;margin-left:auto}
+.so-region-search{width:168px;height:33px;border:1px solid #dae2eb;border-radius:3px;background:#fff;padding:0 10px;font:inherit;font-size:12px;outline:0}
+.so-region-search:focus{border-color:#409eff}
+.so-region-search::placeholder{color:#a7b3c0}
+.so-region-tool-btn{height:33px;border:1px solid #d7e1ec;background:#fff;color:#647185;border-radius:3px;padding:0 10px;cursor:pointer;white-space:nowrap;font:inherit;font-size:12px}
+.so-region-tool-btn:hover{color:#409eff;border-color:#9eccfa}
+.so-region-panel{position:absolute;top:calc(100% + 6px);right:0;width:min(100%,550px);z-index:125;background:#fff;border:1px solid #dce5ee;border-radius:4px;box-shadow:0 9px 28px #213a5925;overflow:hidden}
+.so-region-panel[hidden]{display:none}
+.so-region-panel-title{display:flex;align-items:center;gap:10px;font-weight:600;color:#46596f;padding:10px 14px;border-bottom:1px solid #e7edf3}
+.so-region-panel-title>span{font-size:11px;color:#96a5b5;font-weight:400}
+.so-region-panel-title>button{margin-left:auto;border:0;background:transparent;font-size:19px;line-height:1;color:#8a9aaa;cursor:pointer}
+.so-region-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:250px;overflow:auto;padding:6px}
+.so-region-option{display:flex;align-items:center;gap:8px;min-width:0;min-height:33px;padding:5px 8px;cursor:pointer;color:#546579}
+.so-region-option:hover{background:#f1f7ff}
+.so-region-option>span{overflow-wrap:anywhere}
+.so-region-no-result{grid-column:1/-1;text-align:center;color:#9caabc;padding:22px 10px}
+.so-region-form{min-width:0;width:100%}
+.so-region-form>input[type=hidden]{display:none}
+.so-region-form .so-region-groups{gap:6px 13px}
+.so-region-form .so-region-line{display:flex;align-items:flex-start;gap:10px}
+.so-region-form .so-region-search{width:160px}
+.so-region-form .so-region-tool-btn{padding:0 8px}
+@media(max-width:1520px){.so-region-line{flex-wrap:wrap}.so-region-tools{margin-left:0}.so-region-groups{flex-basis:100%}}
+@media(max-width:900px){.so-region-filter-line{display:block}.so-region-filter-label{display:block;padding:0 0 9px}.so-region-tools{flex-wrap:wrap}.so-region-panel{left:0;right:auto}}
+@media(max-width:550px){.so-region-tools{width:100%}.so-region-search{flex:1;min-width:110px}.so-region-choices{grid-template-columns:1fr}.so-region-panel{width:100%}}
