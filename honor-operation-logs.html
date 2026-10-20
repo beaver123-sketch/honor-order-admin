@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Operation Logs</title>
+<title>操作日志</title>
 <style>
 :root{--blue:#409eff;--blue-hover:#66b1ff;--nav:#001529;--nav-text:#adc8e1;--border:#e8edf3;--muted:#909399;--text:#606266}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,"Microsoft YaHei","PingFang SC",sans-serif;color:var(--text);font-size:12px;background:#f4f6f9}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}#app{height:100vh;display:flex;overflow:hidden}
@@ -65,54 +65,53 @@
   </div>
 </aside>
 <section class="workspace service-workspace">
-  <header class="topbar"><button class="hamburger" id="soSidebarToggle" aria-label="Toggle sidebar">☰</button><div class="breadcrumb"><span>▣&nbsp; Mall</span><span class="slash">/</span><span>Order Management</span><span class="slash">/</span><span class="end" id="crumbEnd">Operation Logs</span></div><div class="top-actions"><span class="profile"><svg width="13" height="14" viewBox="0 0 13 14"><circle cx="6.5" cy="4" r="3"/><path d="M.5 14c0-4 2-6 6-6s6 2 6 6"/></svg>Admin</span></div></header>
-  <nav class="tabs"><span class="tiny-arrow" aria-hidden="true">≪</span><a class="tab" href="./index.html" style="text-decoration:none">Honor Orders</a><a class="tab" href="./honor-service-orders.html" style="text-decoration:none">Honor Service Orders</a><button class="tab active">Operation Logs</button><div class="tab-spacer"></div><button class="tab-icon" type="button" title="Refresh" id="auditRefresh">⟳</button></nav>
+  <header class="topbar"><button class="hamburger" id="soSidebarToggle" aria-label="Toggle sidebar">☰</button><div class="breadcrumb"><span>▣&nbsp; Mall</span><span class="slash">/</span><span>Order Management</span><span class="slash">/</span><span class="end" id="crumbEnd">操作日志</span></div><div class="top-actions"><span class="profile"><svg width="13" height="14" viewBox="0 0 13 14"><circle cx="6.5" cy="4" r="3"/><path d="M.5 14c0-4 2-6 6-6s6 2 6 6"/></svg>Admin</span></div></header>
+  <nav class="tabs"><span class="tiny-arrow" aria-hidden="true">≪</span><a class="tab" href="./index.html" style="text-decoration:none">荣誉订单</a><a class="tab" href="./honor-service-orders.html" style="text-decoration:none">荣誉服务订单</a><button class="tab active">操作日志</button><div class="tab-spacer"></div><button class="tab-icon" type="button" title="Refresh" id="auditRefresh">⟳</button></nav>
   
 
 <main class="content so-content" id="auditMain">
  <section class="so-card">
-  <div class="so-card-title">Search Filters</div>
+  <div class="so-card-title">查询条件</div>
   <form id="auditFilterForm" autocomplete="off">
     <div class="so-filters audit-filter-fields">
-      <label class="so-control audit-field-search"><span class="so-control-label">Order Module</span>
-       <select id="auditFilterModule"><option value="">All</option><option value="honor">Honor Orders</option><option value="service">Honor Service Orders</option></select></label>
-      <label class="so-control audit-field-search"><span class="so-control-label">Order ID</span><input class="so-input" id="auditFilterOrderId" placeholder="Enter Order ID"></label>
-      <label class="so-control audit-field-search"><span class="so-control-label">Operator</span><input class="so-input" id="auditFilterActor" placeholder="Enter English name"></label>
-      <label class="so-control audit-field-search"><span class="so-control-label">Action Type</span>
-       <select id="auditFilterAction"><option value="">All</option><option>Create</option><option>Edit</option><option>Complete</option><option>Return</option><option>Bulk Return</option><option>Export</option><option>Notification Settings</option><option>Notify Attempt</option></select></label>
-      <div class="so-control audit-date"><span class="so-control-label">Operation Time</span><div class="audit-date-range">
-       <input type="date" class="so-input" id="auditFilterStart" aria-label="Start Date"><span>—</span>
-       <input type="date" class="so-input" id="auditFilterEnd" aria-label="End Date"></div></div>
+      <label class="so-control audit-field-search"><span class="so-control-label">订单模块</span>
+       <select id="auditFilterModule"><option value="">全部</option><option value="honor">荣誉订单</option><option value="service">荣誉服务订单</option></select></label>
+      <label class="so-control audit-field-search"><span class="so-control-label">订单ID</span><input class="so-input" id="auditFilterOrderId" placeholder="Enter 订单ID"></label>
+      <label class="so-control audit-field-search"><span class="so-control-label">操作员工</span><input class="so-input" id="auditFilterActor" placeholder="请输入英文名"></label>
+      <label class="so-control audit-field-search"><span class="so-control-label">操作类型</span>
+       <select id="auditFilterAction"><option value="">全部</option><option value="Create">新增</option><option value="Edit">编辑</option><option value="Complete">完成</option><option value="Return">退回</option><option value="Bulk Return">批量退回</option><option value="Export">导出</option><option value="Notification Settings">通知设置</option><option value="Notify Attempt">通知尝试</option></select></label>
+      <div class="so-control audit-date"><span class="so-control-label">操作时间</span><div class="audit-date-range">
+       <input type="date" class="so-input" id="auditFilterStart" aria-label="开始日期"><span>—</span>
+       <input type="date" class="so-input" id="auditFilterEnd" aria-label="结束日期"></div></div>
     </div>
     <div class="so-search-footer">
-     <button class="so-button primary" type="submit">Search</button>
-     <button class="so-button" type="button" id="auditReset">Reset</button>
+     <button class="so-button primary" type="submit">查询</button>
+     <button class="so-button" type="button" id="audit重置">重置</button>
     </div>
   </form>
  </section>
  <section class="so-card">
-  <div class="so-table-toolbar"><div class="audit-main-head"><div class="so-table-heading">Activity Log<span class="so-count" id="auditCount">Total 0</span></div></div></div>
-  <div class="audit-subtext" style="padding:0 15px 12px">Local demo activity only. Production audit logs require server-side storage and authenticated operator identity.</div>
+  <div class="so-table-toolbar"><div class="audit-main-head"><div class="so-table-heading">操作日志列表<span class="so-count" id="auditCount">共 0 条</span></div></div></div>
+  
   <div class="so-table-scroller">
   <table class="audit-table">
    <colgroup><col style="width:170px"><col style="width:165px"><col style="width:195px"><col style="width:150px"><col style="width:145px"><col style="width:155px"><col style="width:135px"></colgroup>
-   <thead><tr><th>Log ID</th><th>Operation Time</th><th>Order Module</th><th>Order ID</th><th>Operator</th><th>Action Type</th><th>Details</th></tr></thead>
-   <tbody id="auditRows"><tr><td class="audit-empty" colspan="7">No Data</td></tr></tbody>
+   <thead><tr><th>日志ID</th><th>操作时间</th><th>订单模块</th><th>订单ID</th><th>操作员工</th><th>操作类型</th><th>详情</th></tr></thead>
+   <tbody id="auditRows"><tr><td class="audit-empty" colspan="7">暂无数据</td></tr></tbody>
   </table>
   </div>
-  <div class="so-pagination"><button id="auditPrev" type="button" aria-label="Previous">‹</button><span id="auditPage">1 / 1</span><button id="auditNext" type="button" aria-label="Next">›</button><span class="so-page-info" id="auditPageSummary">Total 0 records</span></div>
+  <div class="so-pagination"><button id="auditPrev" type="button" aria-label="上一页">‹</button><span id="auditPage">1 / 1</span><button id="audit下一页" type="button" aria-label="下一页">›</button><span class="so-page-info" id="auditPageSummary">共 0 条</span></div>
  </section>
 </main>
 </section></div>
 <div class="so-overlay" id="auditModal" aria-hidden="true">
  <div class="so-dialog" role="dialog" aria-modal="true" aria-labelledby="auditModalHeading">
-  <div class="so-dialog-header"><div><h2 class="so-dialog-heading" id="auditModalHeading">Operation Details</h2><p class="so-dialog-subtitle" id="auditModalSubtitle"></p></div>
-   <button class="so-dialog-x" type="button" id="auditModalClose" aria-label="Close">×</button></div>
+  <div class="so-dialog-header"><div><h2 class="so-dialog-heading" id="auditModalHeading">Operation 详情</h2><p class="so-dialog-subtitle" id="auditModalSubtitle"></p></div>
+   <button class="so-dialog-x" type="button" id="auditModal关闭" aria-label="关闭">×</button></div>
   <div class="so-dialog-body" id="auditModalContent"></div>
-  <div class="so-dialog-footer"><button class="so-button primary" type="button" id="auditModalDone">Close</button></div>
+  <div class="so-dialog-footer"><button class="so-button primary" type="button" id="auditModalDone">关闭</button></div>
  </div>
 </div>
 <script src="./honor-audit-shared.js"></script>
-<script src="./honor-operation-logs-demo.js"></script>
 <script src="./honor-operation-logs.js"></script>
 </body></html>
