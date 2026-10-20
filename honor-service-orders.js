@@ -34,14 +34,14 @@ let policies=loadPolicies();
 const getPolicy=type=>policies[type]||{enabled:false,webhookRef:""};
 const readyPolicy=type=>{const p=getPolicy(type);return p.enabled&&safeRef(p.webhookRef)};
 const selectedIds=new Set();
-const CSV_HEADERS=["Service Order ID","Redeemed Order ID","Order Type","Benefit Name","User ID","Username","Nationality","Honor Wall ID","Order Status","Order Time","Assigned To","Updated Time","Actions"];
-const exportFields=o=>[o.id,o.redeemedOrderId||"",T.types[o.orderType]||o.orderType,o.benefitName||"",o.userId,o.username||"",countryLabel(o.nationality),o.honorWallId||"",T.statuses[o.orderStatus]||o.orderStatus,dateOut(o.createdAt),o.assignedTo||"",dateOut(o.updatedAt),""];
+const CSV_HEADERS=["Service Order ID","Redeemed Order ID","Order Type","Benefit Name","User ID","Username","Nationality","Honor Wall ID","Order Status","Order Time","Assigned To","Updated Time","Operator","Actions"];
+const exportFields=o=>[o.id,o.redeemedOrderId||"",T.types[o.orderType]||o.orderType,o.benefitName||"",o.userId,o.username||"",countryLabel(o.nationality),o.honorWallId||"",T.statuses[o.orderStatus]||o.orderStatus,dateOut(o.createdAt),o.assignedTo||"",dateOut(o.updatedAt),o.operatorEnglish||"",""];
 function exportCSV(){
  const visible=filtered();
  const chosen=selectedIds.size?visible.filter(o=>selectedIds.has(o.id)):visible;
  if(!chosen.length){toast("No orders to export",true);return}
  const actual=[...document.querySelectorAll(".so-table thead th:not(.so-select-col)")].map(x=>x.textContent.trim());
- if(actual.length!==13||actual.some((x,i)=>x!==CSV_HEADERS[i])){toast("Export headers not ready",true);return}
+ if(actual.length!==14||actual.some((x,i)=>x!==CSV_HEADERS[i])){toast("Export headers not ready",true);return}
  const sanitize=v=>{
   let str=String(v??"");
   if(/^[\s\x00-\x1F]*[=+@-]/.test(str))str="'"+str; // Excel CSV formula injection prevention.
@@ -75,6 +75,7 @@ const common=[
  {k:"redemptionTime",l:"Redemption Time",req:1,kind:"datetime-local"},
  {k:"orderStatus",l:"Order Status",req:1,kind:"select",opts:T.statuses},
  {k:"assignedTo",l:"Assigned To",list:"soAssigneeList"},
+ {k:"operatorEnglish",l:"Operator (English Name)",req:1,placeholder:"Enter overseas operator English name"},
  {k:"whatsapp",l:"WhatsApp"},
  {k:"notes",l:"Notes",kind:"textarea",wide:1}
 ];
@@ -97,6 +98,8 @@ const byType={
   {k:"startTime",l:"Start Time",req:1,kind:"datetime-local"},
   {k:"endTime",l:"End Time",req:1,kind:"datetime-local"},
   {k:"finalDesign",l:"Final Design",kind:"file",accept:"image/*,.pdf",wide:1},
+  {k:"uiDesigner",l:"UI Designer",list:"soDesignerList",placeholder:"e.g. @Luka YM GAO"},
+  {k:"processingUI",l:"Processing UI",kind:"textarea",wide:1,placeholder:"After collecting, notify @Jackson W YANG / @Luka YM GAO"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"bannerNotes",l:"Notes",kind:"textarea",wide:1}
  ],
@@ -108,6 +111,8 @@ const byType={
   {k:"giftDescription",l:"Gift Description",kind:"textarea",hint:"Maximum 10 words"},
   {k:"giftImage",l:"Gift Image",kind:"file",accept:"image/*",wide:1},
   {k:"giftVideo",l:"Gift Video",kind:"file",accept:"video/*",wide:1},
+  {k:"uiDesigner",l:"UI Designer",list:"soDesignerList",placeholder:"e.g. @Luka YM GAO"},
+  {k:"processingUI",l:"Processing UI",kind:"textarea",wide:1,placeholder:"After collecting, notify @Jackson W YANG / @Luka YM GAO"},
   {k:"giftPrice",l:"Gift Price",req:1,kind:"number",hint:"Regular ≥177,000 coins; Limited ≥600,000"},
   {k:"validDuration",l:"Valid Duration",req:1,placeholder:"2 months"},
   {k:"groupLink",l:"Group Link",kind:"url"},
@@ -120,6 +125,8 @@ const byType={
   {k:"rideName",l:"Ride Name",req:1},
   {k:"referenceMedia",l:"Reference Image or Video",kind:"file",accept:"image/*,video/*",wide:1},
   {k:"designFiles",l:"Design Files",kind:"file",accept:"image/*,video/*,.pdf,.zip",wide:1},
+  {k:"uiDesigner",l:"UI Designer",list:"soDesignerList",placeholder:"e.g. @Luka YM GAO"},
+  {k:"processingUI",l:"Processing UI",kind:"textarea",wide:1,placeholder:"After collecting, notify @Jackson W YANG / @Luka YM GAO"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"rideNotes",l:"Notes",kind:"textarea",wide:1}
  ]
@@ -150,7 +157,7 @@ try{
 let filters={},page=1,pageSize=20,editor=null;
 function defaultDraft(){
  return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:nowLocal(),
-  orderStatus:"pending",assignedTo:"",whatsapp:"",notes:"",benefitName:"",
+  orderStatus:"pending",assignedTo:"",operatorEnglish:((window.HonorAudit?.actor()||"Unknown")==="Unknown"?"":window.HonorAudit.actor()),whatsapp:"",notes:"",benefitName:"",uiDesigner:"",processingUI:"",
   unbanStatus:"pending",displayType:"banner",giftType:"regular",giftPrice:"177000",
   notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:"",
   history:[],notifications:[]};
@@ -285,6 +292,7 @@ function tr(o){
  '<td>'+escapeHtml(countryLabel(o.nationality))+'</td><td>'+escapeHtml(o.honorWallId||"—")+'</td>'+
  '<td>'+statusHtml(o.orderStatus)+'</td><td>'+escapeHtml(dateOut(o.createdAt))+'</td>'+
  '<td>'+escapeHtml(o.assignedTo||"—")+'</td><td>'+escapeHtml(dateOut(o.updatedAt))+'</td>'+
+ '<td>'+escapeHtml(o.operatorEnglish||"—")+'</td>'+
  '<td class="so-actions-cell"><div class="so-action-buttons">'+buttons+'</div></td></tr>';
 }
 function updateSelectionUI(currentPage){
@@ -299,7 +307,7 @@ function render(){
  const matches=filtered(),count=matches.length,pages=Math.max(1,Math.ceil(count/pageSize));
  page=Math.max(1,Math.min(page,pages));
  const subset=matches.slice((page-1)*pageSize,page*pageSize);
- $("soTableBody").innerHTML=subset.length?subset.map(tr).join(""):'<tr><td colspan="14" class="so-empty">No Data</td></tr>';
+ $("soTableBody").innerHTML=subset.length?subset.map(tr).join(""):'<tr><td colspan="15" class="so-empty">No Data</td></tr>';
  updateSelectionUI(subset);
  $("soCount").textContent="Total "+count;
  $("soPage").textContent=String(page)+" / "+String(pages);
@@ -334,6 +342,10 @@ function openOrder(mode,id){
  const existing=orders.find(x=>x.id===id);
  if(mode!=="add"&&!existing){toast("Order not found",true);return}
  const data=mode==="add"?defaultDraft():JSON.parse(JSON.stringify(existing));
+ if(mode==="edit"){
+   const active=window.HonorAudit?.actor();
+   if(active&&active!=="Unknown")data.operatorEnglish=active;
+ }
  if(data.notifyEnabled===undefined)data.notifyEnabled=false;
  editor={mode,id:id||null,data,before:existing?JSON.parse(JSON.stringify(existing)):null,changed:false};
  $("soModal").classList.add("open");
@@ -392,23 +404,25 @@ function diff(a,b){
  return changed.length?"Updated: "+changed.slice(0,8).join(", ")+(changed.length>8?" …":"")+"":"No field changes";
 }
 function auditRecord(action,orderId,before,after,detail){
- if(window.HonorAudit)window.HonorAudit.record({module:"service",action,orderId,before,after,detail});
+ if(window.HonorAudit)window.HonorAudit.record({module:"service",action,orderId,before,after,detail,actor:after?.operatorEnglish||window.HonorAudit.actor()});
 }
 function saveOrder(){
  collectForm();
  const ed=editor;if(!ed||!check(ed.data))return;
  const d=JSON.parse(JSON.stringify(ed.data));
+ d.operatorEnglish=String(d.operatorEnglish||"").trim();
+ if(window.HonorAudit?.setOperator)window.HonorAudit.setOperator(d.operatorEnglish);
  d.notifyEnabled=!!d.notifyEnabled&&!!readyPolicy(d.orderType);
  d.notifyConfigRef=d.notifyEnabled?"Configured":"";
  if(ed.mode==="add"){
   d.id=newId();d.createdAt=stamp();d.updatedAt=d.createdAt;
   d.username=d.username||"";
-  d.history=[{when:d.createdAt,action:"Add Order",by:"Local Operator",desc:"Created service order"}];
+  d.history=[{when:d.createdAt,action:"Add Order",by:d.operatorEnglish,desc:"Created service order"}];
   d.notifications=[];
   if(d.notifyEnabled)d.notifications.push({when:d.createdAt,action:"Not Sent",by:"System",desc:"Webhook delivery unavailable in frontend preview"});
  }else{
   const change=diff(ed.before,d);d.createdAt=ed.before.createdAt;d.updatedAt=stamp();
-  d.history=[...(ed.before.history||[]),{when:d.updatedAt,action:"Edit",by:"Local Operator",desc:change}];
+  d.history=[...(ed.before.history||[]),{when:d.updatedAt,action:"Edit",by:d.operatorEnglish,desc:change}];
   d.notifications=ed.before.notifications||[];
  }
  let next=ed.mode==="add"?[d,...orders]:orders.map(x=>x.id===d.id?d:x);
@@ -429,8 +443,11 @@ function setStatus(id,action){
  const next=action==="complete"?"processed":"returning";
  const title=action==="complete"?"Confirm Order Completion":"Confirm Return";
  ask(title,"Change status to "+T.statuses[next]+"?",()=>{
-  const updated={...o,orderStatus:next,updatedAt:stamp(),
-   history:[...(o.history||[]),{when:stamp(),action:action==="complete"?"Complete":"Return",by:"Local Operator",desc:"Order Status"+T.statuses[o.orderStatus]+" → "+T.statuses[next]}]};
+  const operator=window.HonorAudit?.requestOperator(true);
+  if(!operator){toast("Please enter the overseas operator's English name",true);return}
+  const when=stamp();
+  const updated={...o,orderStatus:next,operatorEnglish:operator,updatedAt:when,
+   history:[...(o.history||[]),{when,action:action==="complete"?"Complete":"Return",by:operator,desc:"Order Status: "+T.statuses[o.orderStatus]+" → "+T.statuses[next]}]};
   if(store(orders.map(x=>x.id===id?updated:x))){auditRecord(action==="complete"?"Complete":"Return",id,o,updated,"Order status changed");render();toast("Saved Successfully")}
  });
 }
@@ -509,9 +526,11 @@ function notify(id){
  '<p style="line-height:1.8">Assigned To<strong>'+escapeHtml(o.assignedTo||"Unassigned")+'</strong></p>',[
   {text:"Cancel",fn:closeSmall},
   {text:"Record Attempt",primary:true,fn:()=>{
+   const operator=window.HonorAudit?.requestOperator(true);
+   if(!operator){toast("Please enter the overseas operator's English name",true);return}
    closeSmall();const when=stamp();
-   const item={when,action:"Not Sent",desc:"Lark service not connected",by:"Local Operator"};
-   const updated={...o,notifications:[...(o.notifications||[]),item],history:[...(o.history||[]),{when,action:"Notify Assignee",desc:item.desc,by:item.by}]};
+   const item={when,action:"Not Sent",desc:"Lark service not connected",by:operator};
+   const updated={...o,operatorEnglish:operator,updatedAt:when,notifications:[...(o.notifications||[]),item],history:[...(o.history||[]),{when,action:"Notify Assignee",desc:item.desc,by:item.by}]};
    if(store(orders.map(x=>x.id===id?updated:x))){auditRecord("Notify Attempt",id,null,null,"Message not sent: no server integration");toast("Not Sent",true);}
   }}
  ]);
