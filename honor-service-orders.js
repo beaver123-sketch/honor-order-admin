@@ -324,7 +324,7 @@ function fieldHtml(f,d,readonly){
  }else if(["nationality","accountNationality","availableCountries","displayRegion"].includes(k)){
   ctrl=fieldCountries(f,v,readonly);
  }else if(f.kind==="textarea"){
-  ctrl='<textarea'+attr+(readonly?" disabled":"")+' placeholder="Please enter">'+escapeHtml(v)+'</textarea>';
+  ctrl='<textarea'+attr+(readonly?" disabled":"")+' placeholder="'+escapeHtml(f.placeholder||"Please enter")+'">'+escapeHtml(v)+'</textarea>';
  }else if(f.kind==="file"){
   ctrl='<div class="so-preview-box">'+(readonly?"":'<label class="so-button so-upload-label" for="so-file-'+escapeHtml(k)+'">Upload File</label><input id="so-file-'+escapeHtml(k)+'" data-file-for="'+escapeHtml(k)+'" type="file" accept="'+escapeHtml(f.accept||"*/*")+'" class="so-native-file">')+
     '<span class="so-media-name">'+(v?escapeHtml(v):"No file")+'</span>'+
