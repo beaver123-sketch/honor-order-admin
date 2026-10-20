@@ -115,7 +115,7 @@
 .so-selected-count{margin-left:12px;font-size:12px;font-weight:500;color:#409eff}
 .so-select-col,.so-select-cell{width:44px;max-width:44px;min-width:44px;padding:7px!important;text-align:center!important}
 .so-select-col input,.so-select-cell input{width:15px;height:15px;vertical-align:middle;accent-color:#409eff;cursor:pointer}
-.so-table{min-width:2039px}
+.so-table{min-width:2179px}
 .so-notification-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;color:#5c6978;font-size:12px}
 .so-notification-row>span:first-child{margin-right:auto}
 .so-notification-row .so-toggle{margin-left:auto}
