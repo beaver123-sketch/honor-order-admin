@@ -28,7 +28,7 @@ const terms={
 "Nationality":"用户国籍","Nationality / Region":"国家/地区","Honor Wall ID":"荣誉墙ID",
 "Order Status":"订单状态","Order Time":"订单时间","Assigned To":"处理负责人",
 "Updated Time":"更新时间","Operator":"操作员工","Actions":"操作",
-"Add Order":"新增订单","Export":"导出","Notification Settings":"消息通知配置",
+"Add Order":"新增订单","Enter Service Details":"录入服务信息","Export":"导出","Notification Settings":"消息通知配置",
 "All":"全部","No Data":"暂无数据","No orders to export":"没有可导出的订单",
 "Export headers not ready":"导出表头尚未就绪",
 "Account Unban":"账号解封","Order Source":"订单来源","Processing Stage":"处理阶段","Not Set":"未设置","Collecting Materials":"资料收集中","UI Design":"UI设计中","Awaiting Approval":"待用户确认","Ready to Launch":"待上线","Launched":"已上线","Redeemed":"商城兑换","VIP":"VIP","OVERSEAS":"海外订单","Other":"其他","Banner & Splash":"Banner及开屏","Custom Gift":"定制礼物","Custom Ride":"定制座驾",
@@ -126,7 +126,7 @@ const terms={
 "Banner - 24h":"Banner - 24小时"
 };
 const controls={
-"⌕ Search":"⌕ 查询","⟳ Reset":"⟳ 重置","＋ Add Order":"＋ 新增订单",
+"⌕ Search":"⌕ 查询","⟳ Reset":"⟳ 重置","＋ Add Order":"＋ 新增订单","＋ Enter Service Details":"＋ 录入服务信息",
 "⇩ Export":"⇩ 导出","⚙ Notification Settings":"⚙ 消息通知配置"
 };
 function translate(value,context){
