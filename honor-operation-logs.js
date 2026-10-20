@@ -66,7 +66,7 @@ const translateDetail=value=>{
   "Message not sent: no server integration":"通知服务未接入，消息未发送"
  };
  if(labels[text])return labels[text];
- const exportMatch=text.match(/^Exported (\\d+) (?:selected or filtered )?orders?$/i);
+ const exportMatch=text.match(/^Exported (\d+) (?:selected or filtered )?orders?$/i);
  if(exportMatch)return "导出 "+exportMatch[1]+" 条订单";
  return text;
 };
