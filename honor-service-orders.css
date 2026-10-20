@@ -99,3 +99,10 @@
 @media(max-width:1340px){.so-filters{grid-template-columns:repeat(3,minmax(180px,1fr))}.service-sidebar{width:185px}}
 @media(max-width:920px){.so-filters{grid-template-columns:repeat(2,minmax(165px,1fr))}.service-sidebar{width:155px}.service-sidebar .so-nav-current{font-size:10px}.so-dialog .so-field-grid{grid-template-columns:1fr}.so-control.wide{grid-column:auto}}
 @media(max-width:680px){.so-filters{grid-template-columns:1fr}.service-sidebar{width:118px}.service-sidebar .brand span{font-size:10px}.so-dialog,.so-dialog.narrow{width:calc(100vw - 14px);max-height:calc(100vh - 14px)}.so-overlay{padding:7px}.so-dialog-body{padding:13px}.so-dialog-header{padding:14px}.so-dialog-footer{padding:12px}.so-section{padding:12px}.so-dialog-footer{flex-wrap:wrap}}
+
+.so-native-file{display:none}
+.so-upload-label{height:30px;color:#409eff;background:#fff;white-space:nowrap}
+.so-date-wide{grid-column:span 2}
+.so-date-range{display:flex;align-items:center;gap:8px;color:#9aa7b4}
+.so-date-range .so-input{flex:1;min-width:0;width:calc(50% - 10px)}
+@media(max-width:680px){.so-date-wide{grid-column:auto}}
