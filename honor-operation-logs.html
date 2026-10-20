@@ -76,7 +76,7 @@
     <div class="so-filters audit-filter-fields">
       <label class="so-control audit-field-search"><span class="so-control-label">订单模块</span>
        <select id="auditFilterModule"><option value="">全部</option><option value="honor">荣誉订单</option><option value="service">荣誉服务订单</option></select></label>
-      <label class="so-control audit-field-search"><span class="so-control-label">订单ID</span><input class="so-input" id="auditFilterOrderId" placeholder="Enter 订单ID"></label>
+      <label class="so-control audit-field-search"><span class="so-control-label">订单ID</span><input class="so-input" id="auditFilterOrderId" placeholder="请输入订单ID"></label>
       <label class="so-control audit-field-search"><span class="so-control-label">操作员工</span><input class="so-input" id="auditFilterActor" placeholder="请输入英文名"></label>
       <label class="so-control audit-field-search"><span class="so-control-label">操作类型</span>
        <select id="auditFilterAction"><option value="">全部</option><option value="Create">新增</option><option value="Edit">编辑</option><option value="Complete">完成</option><option value="Return">退回</option><option value="Bulk Return">批量退回</option><option value="Export">导出</option><option value="Notification Settings">通知设置</option><option value="Notify Attempt">通知尝试</option></select></label>
@@ -86,7 +86,7 @@
     </div>
     <div class="so-search-footer">
      <button class="so-button primary" type="submit">查询</button>
-     <button class="so-button" type="button" id="audit重置">重置</button>
+     <button class="so-button" type="button" id="auditReset">重置</button>
     </div>
   </form>
  </section>
@@ -100,14 +100,14 @@
    <tbody id="auditRows"><tr><td class="audit-empty" colspan="7">暂无数据</td></tr></tbody>
   </table>
   </div>
-  <div class="so-pagination"><button id="auditPrev" type="button" aria-label="上一页">‹</button><span id="auditPage">1 / 1</span><button id="audit下一页" type="button" aria-label="下一页">›</button><span class="so-page-info" id="auditPageSummary">共 0 条</span></div>
+  <div class="so-pagination"><button id="auditPrev" type="button" aria-label="上一页">‹</button><span id="auditPage">1 / 1</span><button id="auditNext" type="button" aria-label="下一页">›</button><span class="so-page-info" id="auditPageSummary">共 0 条</span></div>
  </section>
 </main>
 </section></div>
 <div class="so-overlay" id="auditModal" aria-hidden="true">
  <div class="so-dialog" role="dialog" aria-modal="true" aria-labelledby="auditModalHeading">
-  <div class="so-dialog-header"><div><h2 class="so-dialog-heading" id="auditModalHeading">Operation 详情</h2><p class="so-dialog-subtitle" id="auditModalSubtitle"></p></div>
-   <button class="so-dialog-x" type="button" id="auditModal关闭" aria-label="关闭">×</button></div>
+  <div class="so-dialog-header"><div><h2 class="so-dialog-heading" id="auditModalHeading">操作详情</h2><p class="so-dialog-subtitle" id="auditModalSubtitle"></p></div>
+   <button class="so-dialog-x" type="button" id="auditModalClose" aria-label="关闭">×</button></div>
   <div class="so-dialog-body" id="auditModalContent"></div>
   <div class="so-dialog-footer"><button class="so-button primary" type="button" id="auditModalDone">关闭</button></div>
  </div>
