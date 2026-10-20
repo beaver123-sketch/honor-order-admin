@@ -12,20 +12,13 @@ const T={
  displayTypes:{banner:"Banner / 横幅",splash:"Splash / 开屏"},
  giftTypes:{regular:"Regular / 普通礼物",limited:"Limited / 限量礼物"}
 };
-// Store only non-secret server-side webhook identifiers, never webhook URLs in browser storage.
+// Webhook URLs are sensitive: hold them only in page memory, never localStorage or order data.
 const ORDER_TYPES=["unban","banner","gift","ride"];
-const safeRef=v=>/^[A-Za-z][A-Za-z0-9_-]{3,79}$/.test(String(v||""));
-function loadPolicies(){
- const p=Object.fromEntries(ORDER_TYPES.map(t=>[t,{enabled:false,webhookRef:""}]));
- try{
-  const saved=JSON.parse(localStorage.getItem(POLICY_KEY)||"{}");
-  ORDER_TYPES.forEach(t=>{
-   const item=saved[t]||{};
-   if(safeRef(item.webhookRef)){p[t]={enabled:!!item.enabled,webhookRef:String(item.webhookRef)}}
-  });
- }catch(_){}
- return p;
-}
+const safeRef=v=>{
+ try{const u=new URL(String(v||""));return u.protocol==="https:"&&u.hostname.includes(".")&&!u.username&&!u.password}
+ catch(_){return false}
+};
+function loadPolicies(){return Object.fromEntries(ORDER_TYPES.map(t=>[t,{enabled:false,webhookRef:""}]))}
 let policies=loadPolicies();
 const getPolicy=type=>policies[type]||{enabled:false,webhookRef:""};
 const readyPolicy=type=>{const p=getPolicy(type);return p.enabled&&safeRef(p.webhookRef)};
@@ -130,7 +123,7 @@ function defaultDraft(){
  return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:nowLocal(),
   orderStatus:"pending",assignedTo:"",whatsapp:"",notes:"",benefitName:"",
   unbanStatus:"pending",displayType:"banner",giftType:"regular",giftPrice:"177000",
-  notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:getPolicy("unban").webhookRef,
+  notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:"",
   history:[],notifications:[]};
 }
 function toast(msg,bad){
@@ -268,7 +261,7 @@ function notificationForm(d,readonly){
  '<div class="so-notification-row"><span>Send Lark Message / 是否推送群聊机器人消息</span>'+
  '<label class="so-toggle"><input id="soPerOrderNotify" type="checkbox"'+(on?' checked':'')+(readonly||!ready?' disabled':'')+'><span class="so-toggle-track"></span></label>'+
  '<span id="soNotifyState">'+(on?'On / 开启':'Off / 关闭')+'</span></div>'+
- (ready?'<div class="so-config-ref" id="soOrderNotifyRef"'+(on?'':' hidden')+'>Default Webhook / 默认机器人：<strong>'+escapeHtml(p.webhookRef)+'</strong></div>':
+ (ready?'<div class="so-config-ref" id="soOrderNotifyRef"'+(on?'':' hidden')+'>Webhook: <strong>Configured / 已配置</strong></div>':
  '<div class="so-helper">Not configured / 尚未配置；请在 Notification Settings 配置。</div>')+
  '</section>';
 }
@@ -323,7 +316,7 @@ function saveOrder(){
  const ed=editor;if(!ed||!check(ed.data))return;
  const d=JSON.parse(JSON.stringify(ed.data));
  d.notifyEnabled=!!d.notifyEnabled&&!!readyPolicy(d.orderType);
- d.notifyConfigRef=d.notifyEnabled?getPolicy(d.orderType).webhookRef:"";
+ d.notifyConfigRef=d.notifyEnabled?"Configured":"";
  if(ed.mode==="add"){
   d.id=newId();d.createdAt=stamp();d.updatedAt=d.createdAt;
   d.username=d.username||"";
@@ -358,15 +351,13 @@ function setStatus(id,action){
  });
 }
 function settingsHtml(){
- return '<p class="so-helper so-policy-note">Configure each order type once. New orders inherit this setting. Use server-side webhook identifiers; never paste real Webhook URLs here. / 每类订单独立配置一次，新增时自动继承。此处只填写服务端机器人标识，不填写真实Webhook链接。</p>'+
-  '<div class="so-policy-list">'+ORDER_TYPES.map(t=>{
+ return '<div class="so-policy-list">'+ORDER_TYPES.map(t=>{
    const p=getPolicy(t);
    return '<div class="so-policy-card" data-policy-type="'+t+'"><div class="so-policy-top">'+
     '<strong>'+escapeHtml(T.types[t])+'</strong>'+
     '<label class="so-toggle"><input class="so-policy-enabled" data-policy-toggle="'+t+'" type="checkbox"'+(p.enabled?' checked':'')+'><span class="so-toggle-track"></span></label></div>'+
-    '<div class="so-policy-details"'+(p.enabled?'':' hidden')+'><label>Webhook Config Key / 机器人配置标识</label>'+
-    '<input class="so-policy-ref" data-policy-ref="'+t+'" type="text" value="'+escapeHtml(p.webhookRef)+'" placeholder="e.g. lark_custom_gift" autocomplete="off" maxlength="80">'+
-    '<small class="so-helper">Server-side reference only / 仅填写服务端配置标识</small></div></div>';
+    '<div class="so-policy-details"'+(p.enabled?'':' hidden')+'><label>配置机器人 webhook</label>'+
+    '<input class="so-policy-ref" data-policy-ref="'+t+'" type="password" value="'+escapeHtml(p.webhookRef)+'" placeholder="请输入" autocomplete="off"></div></div>';
    }).join("")+'</div>';
 }
 function openSettings(){
@@ -389,14 +380,13 @@ function saveSettings(){
   const enabled=card.querySelector("[data-policy-toggle]").checked;
   const ref=card.querySelector("[data-policy-ref]").value.trim();
   if(enabled&&!safeRef(ref)){
-   toast("Enter a valid Webhook Config Key for "+T.types[type]+" / 请填写有效的配置标识",true);
+   toast("Please enter a valid HTTPS webhook / 请输入有效的 HTTPS Webhook 地址",true);
    card.querySelector(".so-policy-details").hidden=false;card.querySelector("[data-policy-ref]").focus();return;
   }
   next[type]={enabled,webhookRef:safeRef(ref)?ref:""};
  }
- try{localStorage.setItem(POLICY_KEY,JSON.stringify(next));policies=next}
- catch(_){toast("Unable to save settings / 无法保存设置",true);return}
- closeSmall();toast("Saved Successfully / 保存成功");
+ policies=next;
+ closeSmall();toast("Saved for this session / 当前会话配置已保存");
 }
 function openSmall(title,body,actions){
  $("soSmallTitle").textContent=title;$("soSmallBody").innerHTML=body;
@@ -491,7 +481,7 @@ $("soModalBody").oninput=e=>{
  editor.data[input.dataset.field]=input.value;editor.changed=true;
  if(input.dataset.field==="orderType"){
   editor.data.notifyEnabled=!!readyPolicy(input.value);
-  editor.data.notifyConfigRef=getPolicy(input.value).webhookRef;
+  editor.data.notifyConfigRef="";
   paintOrder();return;
  }
  if(input.dataset.field==="giftType"&&editor.data.giftType==="limited"&&Number(editor.data.giftPrice)<600000){
