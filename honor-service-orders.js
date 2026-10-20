@@ -268,46 +268,85 @@ function renderFilterCountryOptions(){
 }
 function fillCountries(){renderFilterCountryOptions()}
 function updateCountrySummary(){return}
+function closeRegionPanel(widget){
+ const panel=widget?.querySelector(".so-region-panel");
+ if(!panel)return;
+ panel.hidden=true;
+ panel.dataset.active="";
+ widget.classList.remove("is-open");
+ widget.querySelectorAll(".so-region-arrow").forEach(b=>b.classList.remove("active"));
+}
 function regionOpenPanel(widget,kind,query){
  const panel=widget.querySelector(".so-region-panel");
  if(!panel)return;
- const closeIfOpen=panel.dataset.active===kind&&!panel.hidden&&kind!=="search";
- if(closeIfOpen){panel.hidden=true;panel.dataset.active="";return}
+ // Search updates should never toggle or close an already open panel.
+ if(kind!=="search"&&panel.dataset.active===kind&&!panel.hidden){
+  closeRegionPanel(widget);
+  return;
+ }
  panel.dataset.active=kind;
  panel.innerHTML=regionPanelHtml(widget,kind,query);
  panel.hidden=false;
+ widget.classList.add("is-open");
  widget.querySelectorAll(".so-region-arrow").forEach(b=>b.classList.toggle("active",b.dataset.regionOpen===kind));
+}
+function syncRegionWidget(widget){
+ const selected=getRegionSelection(widget),single=widget.dataset.mode==="single";
+ widget.querySelectorAll("[data-region-group-check]").forEach(checkbox=>{
+  const values=listForRegion(checkbox.dataset.regionGroupCheck);
+  const count=values.filter(value=>selected.includes(value)).length;
+  checkbox.checked=values.length>0&&(single?count>0:count===values.length);
+  checkbox.indeterminate=!single&&count>0&&count<values.length;
+  checkbox.closest(".so-region-category")?.classList.toggle("partial",!single&&count>0&&count<values.length);
+ });
+ const show=widget.querySelector("[data-region-show]");
+ if(show)show.textContent="Show Selected"+(selected.length?" ("+selected.length+")":"");
+ const panel=widget.querySelector(".so-region-panel");
+ if(panel&&!panel.hidden){
+  const kind=panel.dataset.active;
+  if(kind==="selected"){
+   // Refresh the selected list only, keeping the category panel state intact.
+   panel.innerHTML=regionPanelHtml(widget,"selected","");
+  }else{
+   panel.querySelectorAll("[data-region-country]").forEach(input=>input.checked=selected.includes(input.dataset.regionCountry));
+  }
+ }
 }
 function applyRegionSelection(widget,values,openKey){
  const selected=[...new Set(values)].filter(Boolean);
- const single=widget.dataset.mode==="single";
- const normalized=single?selected.slice(0,1):selected;
+ const normalized=widget.dataset.mode==="single"?selected.slice(0,1):selected;
+ widget.dataset.selected=JSON.stringify(normalized);
  const field=widget.dataset.regionField;
- const searchBefore=widget.querySelector(".so-region-search")?.value||"";
- renderRegionWidget(widget,normalized);
  if(field){
   const hidden=widget.parentElement.querySelector('[data-field="'+field+'"]');
-  if(hidden){hidden.value=normalized.join(", ");if(editor){editor.data[field]=hidden.value;editor.changed=true}}
+  if(hidden){
+   const next=normalized.join(", ");
+   hidden.value=next;
+   if(editor){editor.data[field]=next;editor.changed=true}
+  }
  }
- if(openKey){
-  regionOpenPanel(widget,openKey,searchBefore);
-  const input=widget.querySelector(".so-region-search");if(input)input.value=searchBefore;
- }
+ syncRegionWidget(widget);
+ // A single-country choice is complete after picking one country.
+ if(widget.dataset.mode==="single"&&normalized.length)closeRegionPanel(widget);
 }
 function regionClick(widget,e){
  const control=e.target.closest("[data-region-open],[data-region-show],[data-region-clear],[data-region-close]");
  if(!control)return;
- if(control.dataset.regionOpen){
-  regionOpenPanel(widget,control.dataset.regionOpen);return
+ if(control.hasAttribute("data-region-open")){
+  regionOpenPanel(widget,control.dataset.regionOpen);return;
  }
- if(control.dataset.regionShow){
-  regionOpenPanel(widget,"selected");return
+ if(control.hasAttribute("data-region-show")){
+  regionOpenPanel(widget,"selected");return;
  }
- if(control.hasAttribute("data-regionClear")){
-  applyRegionSelection(widget,[]);return
+ if(control.hasAttribute("data-region-clear")){
+  applyRegionSelection(widget,[]);
+  const search=widget.querySelector(".so-region-search");
+  if(search)search.value="";
+  closeRegionPanel(widget);
+  return;
  }
- if(control.hasAttribute("data-regionClose")){
-  const panel=widget.querySelector(".so-region-panel");if(panel){panel.hidden=true;panel.dataset.active=""}
+ if(control.hasAttribute("data-region-close")){
+  closeRegionPanel(widget);
  }
 }
 function regionChange(widget,e){
@@ -325,13 +364,17 @@ function regionChange(widget,e){
  }else if(input.hasAttribute("data-region-country")){
   const value=input.dataset.regionCountry;
   const next=widget.dataset.mode==="single"?(input.checked?[value]:[]):(input.checked?selected.concat(value):selected.filter(x=>x!==value));
-  const kind=widget.querySelector(".so-region-panel")?.dataset.active||"selected";
-  applyRegionSelection(widget,next,widget.dataset.mode==="single"?null:kind);
- }else return;
+  applyRegionSelection(widget,next);
+ }
 }
 function regionSearch(widget,e){
  if(!e.target.matches(".so-region-search"))return;
  const query=e.target.value;
+ if(!query.trim()){
+  const panel=widget.querySelector(".so-region-panel");
+  if(panel?.dataset.active==="search")closeRegionPanel(widget);
+  return;
+ }
  regionOpenPanel(widget,"search",query);
 }
 function assignees(){
@@ -636,6 +679,7 @@ $("soFilterReset").onclick=()=>{
  selectedIds.clear();$("soFilterForm").reset();
  const region=$("soFilterRegions");
  applyRegionSelection(region,[]);
+ closeRegionPanel(region);
  filters={};page=1;render();
 };
 $("soFilterRegions").addEventListener("click",e=>regionClick($("soFilterRegions"),e));
@@ -695,6 +739,11 @@ $("soModalBody").onclick=e=>{
  const widget=e.target.closest(".so-region-widget");
  if(widget)regionClick(widget,e);
 };
+document.addEventListener("pointerdown",e=>{
+ document.querySelectorAll(".so-region-widget.is-open").forEach(widget=>{
+  if(!widget.contains(e.target))closeRegionPanel(widget);
+ });
+});
 $("soModalFooter").onclick=e=>{
  const b=e.target.closest("[data-foot]");if(!b||!editor)return;
  const action=b.dataset.foot;
@@ -707,6 +756,12 @@ $("soSmallClose").onclick=closeSmall;
 $("soSmallOverlay").onclick=e=>{if(e.target===$("soSmallOverlay"))closeSmall()};
 document.addEventListener("keydown",e=>{
  if(e.key!=="Escape")return;
+ const visibleRegions=[...document.querySelectorAll(".so-region-widget.is-open")];
+ if(visibleRegions.length){
+  visibleRegions.forEach(closeRegionPanel);
+  e.preventDefault();
+  return;
+ }
  if($("soSmallOverlay").classList.contains("open")){closeSmall();return}
  if($("soModal").classList.contains("open"))closeOrder(false);
 });
