@@ -149,3 +149,49 @@
 .so-list-actions .so-button{height:32px;border-radius:4px;font-size:12px}
 .so-list-actions .so-button.primary{padding:0 18px;font-weight:600}
 @media(max-width:1000px){.so-table-toolbar{align-items:flex-start;flex-direction:column}.so-list-actions{margin-left:0;justify-content:flex-start}}
+
+
+/* Action controls: recognizable by role, with full borders and subtle backgrounds */
+.so-action-buttons{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;max-width:100%}
+.so-action-btn{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;height:28px;min-width:53px;padding:0 10px;border-radius:4px;border:1px solid transparent;font:500 11px/1.1 inherit;cursor:pointer;transition:background-color .15s,border-color .15s,transform .15s;box-shadow:none}
+.so-action-btn:hover{transform:translateY(-1px)}
+.so-action-btn:focus-visible{outline:2px solid #a7d3ff;outline-offset:2px}
+.so-action-btn.view{color:#62748a;background:#f5f7fb;border-color:#d8e1eb}
+.so-action-btn.view:hover{background:#edf2f7;border-color:#b9c8d7}
+.so-action-btn.edit{color:#2587e8;background:#ecf5ff;border-color:#b6d9ff}
+.so-action-btn.edit:hover{background:#dceeff;border-color:#8cc5ff}
+.so-action-btn.notify{color:#8064c6;background:#f5f1ff;border-color:#d9c9f6}
+.so-action-btn.notify:hover{background:#ece4ff;border-color:#bba7ed}
+.so-action-btn.complete{color:#fff;background:#55b982;border-color:#55b982}
+.so-action-btn.complete:hover{background:#42a96f;border-color:#42a96f}
+.so-action-btn.return{color:#fff;background:#f56c6c;border-color:#f56c6c}
+.so-action-btn.return:hover{background:#ec5252;border-color:#ec5252}
+.so-table td.so-actions-cell{white-space:normal;vertical-align:middle;padding:8px 6px}
+.so-table td.so-actions-cell .so-action-btn{white-space:nowrap;max-width:100%}
+
+/* Country controls - a single searchable multi/single-picker style across filters and forms */
+.so-country-select{position:relative;width:100%;min-width:0}
+.so-country-dropdown{width:100%;min-width:0}
+.so-country-dropdown>summary{min-height:34px;height:34px;font-size:12px}
+.so-nation-picker>summary{font-size:12px;gap:6px;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.so-nation-picker>summary:after{content:"⌄";color:#94a4b5;flex:none;margin-left:auto;font-size:14px}
+.so-nation-picker[open]>summary:after{content:"⌃";color:#409eff}
+.so-nation-picker .so-nation-menu{z-index:85;width:max(100%,290px);max-width:min(365px,calc(100vw - 42px));max-height:320px;overflow:hidden;display:flex;flex-direction:column;padding:0;top:calc(100% + 5px);box-shadow:0 10px 24px #18385721}
+.so-country-search-wrap{padding:10px 10px 8px;flex:none;border-bottom:1px solid #edf1f6}
+.so-country-search{width:100%;height:31px;border:1px solid #dfe6ef;border-radius:4px;padding:0 10px;color:#596a7b;background:white;font:inherit;font-size:12px;outline:0}
+.so-country-search:focus{border-color:#409eff}
+.so-country-search::placeholder{color:#aab6c3}
+.so-country-tools{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding:8px 10px;border-bottom:1px solid #eef1f5}
+.so-country-tools button{font:inherit;font-size:11px;border:0;background:none;color:#409eff;cursor:pointer;padding:2px 3px}
+.so-country-tools button:hover{text-decoration:underline}
+.so-country-list{padding:4px 0;overflow:auto;min-height:0;max-height:232px}
+.so-nation-menu .so-country-option{display:flex;align-items:center;gap:9px;margin:0;padding:7px 12px;width:100%;white-space:normal;font-size:12px;color:#526273;cursor:pointer}
+.so-nation-menu .so-country-option:hover{background:#f4f9ff}
+.so-nation-menu .so-country-option:has(input:checked){background:#eef6ff;color:#328eea}
+.so-nation-menu .so-country-option[hidden]{display:none!important}
+.so-nation-menu .so-country-option input{margin:0;flex:none;width:14px;height:14px;accent-color:#409eff}
+.so-nation-menu .so-country-option span{overflow:hidden;text-overflow:ellipsis}
+.so-country-select .so-nation-picker>summary{border-color:#dce3eb}
+.so-country-select .so-nation-picker[open]>summary{border-color:#409eff;box-shadow:0 0 0 1px #409eff1a}
+.so-country-select input[type=hidden]{display:none}
+@media(max-width:720px){.so-nation-picker .so-nation-menu{max-width:calc(100vw - 36px)}.so-action-buttons{gap:5px}.so-action-btn{height:28px;padding:0 8px}}
