@@ -516,6 +516,11 @@ function openOrder(mode,id){
  const existing=orders.find(x=>x.id===id);
  if(mode!=="add"&&!existing){toast("Order not found",true);return}
  const data=mode==="add"?defaultDraft():JSON.parse(JSON.stringify(existing));
+ // Merge old per-category Notes into the one shared Notes editor without deleting archived fields.
+ if(existing){
+  const extras=["unbanNotes","bannerNotes","giftNotes","rideNotes"].map(k=>String(existing[k]||"").trim()).filter(Boolean);
+  for(const x of extras){if(!String(data.notes||"").includes(x))data.notes=(String(data.notes||"").trim()?String(data.notes).trim()+"\n":"")+x;}
+ }
  if(mode==="edit"){
    const active=window.HonorAudit?.actor();
    if(active&&active!=="Unknown")data.operatorEnglish=active;
@@ -635,25 +640,34 @@ function fail(msg){
  const n=$("soFormError");n.textContent=msg;n.classList.add("visible");n.scrollIntoView({block:"nearest",behavior:"smooth"});toast(msg,true);return false
 }
 function check(d){
- for(const f of [...common,...(byType[d.orderType]||[])]){
-  if(f.req&&!String(d[f.k]??"").trim())return fail("Please complete "+f.l+"");
- }
  if(!Object.keys(T.types).includes(d.orderType))return fail("Please select a valid order type");
  if(!Object.keys(T.statuses).includes(d.orderStatus))return fail("Please select a valid status");
+ for(const f of [...common,...(byType[d.orderType]||[])]){
+  if(f.req&&!String(d[f.k]??"").trim())return fail("Please complete "+f.l);
+ }
+ if(d.redeemedOrderId&&!/^\d+$/.test(String(d.redeemedOrderId)))return fail("Redeemed Order ID must contain digits only");
  if(d.orderType==="gift"){
-  const price=Number(d.giftPrice),min=d.giftType==="limited"?600000:177000;
-  if(!Number.isFinite(price)||price<min)return fail("Gift Price must be at least "+min.toLocaleString()+" coins");
-  const desc=String(d.giftDescription||"").trim();
-  if(desc&&desc.split(/\s+/).length>10)return fail("Gift description must be within 10 words");
+  const price=String(d.giftPrice??"").trim();
+  if(price){
+   const amount=Number(price),minimum=d.giftType==="limited"?600000:177000;
+   // Historical low-price records remain editable at their original price.
+   const original=editor?.before;
+   const grandfathered=editor?.mode==="edit"&&original&&String(original.giftPrice??"")===price;
+   if((!Number.isFinite(amount)||amount<minimum)&&!grandfathered)return fail("Gift Price is below the current minimum");
+  }
+  const description=String(d.giftDescription||"").trim();
+  const unchanged=editor?.mode==="edit"&&String(editor?.before?.giftDescription||"").trim()===description;
+  if(description&&description.split(/\s+/).length>10&&!unchanged)return fail("Gift description must be within 10 words");
   if(!Object.keys(T.giftTypes).includes(d.giftType))return fail("Invalid gift type");
  }
  if(d.orderType==="banner"){
-  if(d.endTime<=d.startTime)return fail("End Time must be after Start Time");
+  if(d.startTime&&d.endTime&&d.endTime<=d.startTime)return fail("End Time must be after Start Time");
+  if(d.processingStage==="launched"&&(!d.startTime||!d.endTime))return fail("Please set actual display start and end times before marking as Launched");
  }
- if(!!d.scheduleStart!==!!d.scheduleEnd)return fail("Please select both schedule dates");
  if(d.scheduleStart&&d.scheduleEnd&&d.scheduleEnd<d.scheduleStart)return fail("Schedule end date cannot be earlier than start date");
  return true;
 }
+
 function newId(){
  let id;do{id=String(Date.now())+String(Math.floor(Math.random()*1000)).padStart(3,"0");}
  while(orders.some(o=>String(o.id)===id));return id;
@@ -845,7 +859,7 @@ $("soModalBody").oninput=e=>{
   editor.data.notifyConfigRef="";
   paintOrder();return;
  }
- if(input.dataset.field==="giftType"&&editor.data.giftType==="limited"&&Number(editor.data.giftPrice)<600000){
+ if(input.dataset.field==="giftType"&&editor.data.giftType==="limited"&&Number(editor.data.giftPrice)<600000&&editor.mode==="add"){
   editor.data.giftPrice="600000";const price=$("so-edit-giftPrice");if(price)price.value="600000";
  }
 };
