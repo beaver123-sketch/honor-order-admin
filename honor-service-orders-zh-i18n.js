@@ -51,6 +51,8 @@ const terms={
 "Enter assignee name":"请输入处理负责人姓名",
 "Type @ to mention a UI designer, then add follow-up notes":"输入 @ 搜索UI设计师，随后可填写跟进说明",
 "Type @ to select a UI designer":"输入 @ 搜索并选择UI设计师",
+"Type @ to search and select a UI designer":"输入 @ 搜索并选择具体的UI设计师",
+"Assign one UI designer per order":"每笔订单填写一位UI设计师",
 "Type @ to select a designer":"输入 @ 选择设计师",
 "Upload Reference Image":"上传礼物参考图","Remove":"移除",
 "No file selected":"未选择图片",
