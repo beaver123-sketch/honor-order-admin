@@ -23,7 +23,9 @@ const C=[
 const common=[
  {k:"orderType",l:"Order Type / 订单类型",req:1,kind:"select",opts:T.types},
  {k:"redeemedOrderId",l:"Redeemed Order ID / 关联兑换订单ID"},
+ {k:"benefitName",l:"Benefit Name / 权益名称"},
  {k:"userId",l:"User ID / 用户ID",req:1},
+ {k:"username",l:"Username / 用户昵称"},
  {k:"nationality",l:"Nationality / 用户国籍",req:1,list:"soCountryList"},
  {k:"redemptionTime",l:"Redemption Time / 兑换时间",req:1,kind:"datetime-local"},
  {k:"orderStatus",l:"Order Status / 订单状态",req:1,kind:"select",opts:T.statuses},
@@ -150,6 +152,7 @@ function tr(o){
  const buttons=[
   '<button type="button" class="so-cell-action" data-action="view" data-id="'+escapeHtml(o.id)+'">View / 查看</button>',
   '<button type="button" class="so-cell-action" data-action="edit" data-id="'+escapeHtml(o.id)+'">Edit / 编辑</button>',
+  '<button type="button" class="so-cell-action" data-action="notify" data-id="'+escapeHtml(o.id)+'">Notify Assignee / 通知处理人员</button>',
   o.orderStatus==="pending"?'<button type="button" class="so-cell-action" data-action="complete" data-id="'+escapeHtml(o.id)+'">Complete / 完成</button>':"",
   (o.orderStatus==="pending"||o.orderStatus==="processed")?'<button type="button" class="so-cell-action warn" data-action="return" data-id="'+escapeHtml(o.id)+'">Return / 退回</button>':""
  ].join("");
@@ -183,7 +186,8 @@ function fieldHtml(f,d,readonly){
  }else if(f.kind==="file"){
   ctrl='<div class="so-preview-box">'+(readonly?"":'<input data-file-for="'+escapeHtml(k)+'" type="file" accept="'+escapeHtml(f.accept||"*/*")+'">')+
     '<span class="so-media-name">'+(v?escapeHtml(v):"No file / 暂无文件")+'</span>'+
-    '<input class="so-input"'+attr+' type="text"'+(readonly?" disabled":"")+' value="'+escapeHtml(v)+'" placeholder="File URL / 文件链接"></div>';
+    '<input class="so-input"'+attr+' type="text"'+(readonly?" disabled":"")+' value="'+escapeHtml(v)+'" placeholder="File URL / 文件链接">'+
+    (/^https?:\/\//i.test(String(v))?'<a class="so-cell-action" href="'+escapeHtml(v)+'" target="_blank" rel="noopener noreferrer">Download File / 下载文件 ↗</a>':"")+'</div>';
   help="File name or link only; no server upload / 仅保存文件名或链接，不上传服务器";
  }else{
   const type=f.kind||"text",ph=f.placeholder||"Please enter / 请输入";
@@ -341,6 +345,7 @@ $("soTableBody").onclick=e=>{
  const {action,id}=b.dataset;
  if(action==="view"||action==="edit")openOrder(action,id);
  else if(action==="complete"||action==="return")setStatus(id,action);
+ else if(action==="notify")notify(id);
 };
 $("soPrev").onclick=()=>{page--;render()};
 $("soNext").onclick=()=>{page++;render()};
