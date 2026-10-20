@@ -1,0 +1,28 @@
+
+/* Dedicated unified activity log screen; original order screens unaffected. */
+.audit-filter-fields{grid-template-columns:repeat(4,minmax(170px,1fr))}
+.audit-date{grid-column:span 2}
+.audit-date-range{display:flex;gap:8px;align-items:center}
+.audit-date-range input{flex:1;min-width:0}
+.audit-date-range span{color:#9ba6b2}
+.audit-table{min-width:1260px;width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.audit-table th,.audit-table td{border:1px solid #e9edf3;padding:10px;vertical-align:middle;text-align:left;color:#647181;line-height:1.55}
+.audit-table th{font-weight:600;background:#fafbfd;color:#7e8d9e;white-space:nowrap}
+.audit-table tbody tr:hover{background:#f8fbff}
+.audit-table .audit-empty{text-align:center;height:140px;color:#a2adb7}
+.audit-tag{display:inline-flex;border:1px solid #dce8f7;background:#f2f8ff;color:#368eeb;border-radius:3px;padding:3px 6px;white-space:nowrap}
+.audit-subtext{font-size:11px;color:#9ca7b4;margin-top:5px;line-height:1.65}
+.audit-table .audit-center{text-align:center}
+.audit-main-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.audit-details-line{margin-bottom:15px;line-height:1.8;color:#647080}
+.audit-diff{width:100%;border-collapse:collapse;table-layout:fixed}
+.audit-diff th,.audit-diff td{padding:11px 10px;border:1px solid #e5eaf2;word-wrap:break-word;vertical-align:top;text-align:left}
+.audit-diff th{font-size:12px;color:#718296;background:#f7f9fc}
+.audit-diff td{font-size:12px;color:#526272;background:#fff}
+.audit-diff .audit-empty{text-align:center;padding:35px;color:#a5b0bb}
+.audit-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px;background:#fff;border:1px solid #e8edf3;padding:16px;margin-bottom:14px;border-radius:4px}
+.audit-meta strong{display:block;color:#8a97a6;font-size:11px;font-weight:500;margin-bottom:5px}
+.audit-meta span{font-size:12px;color:#4a5a6b;overflow-wrap:anywhere}
+.audit-field-search .so-control-label{white-space:normal}
+@media(max-width:1100px){.audit-filter-fields{grid-template-columns:repeat(2,minmax(180px,1fr))}}
+@media(max-width:680px){.audit-filter-fields{grid-template-columns:1fr}.audit-date{grid-column:auto}.audit-meta{grid-template-columns:1fr}.audit-diff th,.audit-diff td{padding:7px}}
