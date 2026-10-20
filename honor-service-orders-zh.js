@@ -489,6 +489,12 @@ function fieldHtml(f,d,readonly){
     (readonly?' disabled':'')+' value="'+escapeHtml(v)+'"'+
     ' placeholder="'+escapeHtml(f.placeholder||"Type @ to select a designer")+'">'+
     (readonly?'':'<div class="so-mention-menu" hidden role="listbox"></div>')+'</div>';
+ }else if(f.kind==="multi-file"){
+  ctrl='<div class="so-preview-box">'+
+   (readonly?'':'<label class="so-button so-upload-label" for="so-file-'+escapeHtml(k)+'">Choose Images</label>'+
+     '<input id="so-file-'+escapeHtml(k)+'" data-file-for="'+escapeHtml(k)+'" type="file" accept="image/*" multiple class="so-native-file">')+
+   '<input class="so-input"'+attr+' type="text"'+(readonly?' disabled':'')+' value="'+escapeHtml(v)+'" placeholder="File names or image links">'+
+   '<div class="so-attachment-list" data-attachment-field="'+escapeHtml(k)+'"></div></div>';
  }else if(f.kind==="image-upload"){
   const preview=String(d.giftReferenceImageData||"");
   const safePreview=/^data:image\/(?:jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(preview)?preview:"";
@@ -507,7 +513,8 @@ function fieldHtml(f,d,readonly){
   ctrl='<div class="so-preview-box">'+(readonly?"":'<label class="so-button so-upload-label" for="so-file-'+escapeHtml(k)+'">Upload File</label><input id="so-file-'+escapeHtml(k)+'" data-file-for="'+escapeHtml(k)+'" type="file" accept="'+escapeHtml(f.accept||"*/*")+'" class="so-native-file">')+
     '<span class="so-media-name">'+(v?escapeHtml(v):"No file")+'</span>'+
     '<input class="so-input"'+attr+' type="text"'+(readonly?" disabled":"")+' value="'+escapeHtml(v)+'" placeholder="File URL">'+
-    (/^https?:\/\//i.test(String(v))?'<a class="so-cell-action" href="'+escapeHtml(v)+'" target="_blank" rel="noopener noreferrer">Download File</a>':"")+'</div>';
+    (/^https?:\/\//i.test(String(v))?'<a class="so-cell-action" href="'+escapeHtml(v)+'" target="_blank" rel="noopener noreferrer">Download File</a>':"")+
+    '<div class="so-attachment-list" data-attachment-field="'+escapeHtml(k)+'"></div></div>';
   help="File name or link only; no server upload";
  }else{
   const type=f.kind||"text",ph=f.placeholder||"Please enter";
@@ -633,6 +640,29 @@ function updateDurationHint(){
    "Display duration matches Type.";
  hint.classList.toggle("warning",!!actual&&!!expected&&actual!==expected);
 }
+async function refreshLocalAttachments(){
+ if(!editor||!editor.id||!window.HonorServiceLocalMedia)return;
+ const current=editor;
+ try{
+  const items=await window.HonorServiceLocalMedia.list(KEY,current.id);
+  if(editor!==current)return;
+  $("soModalBody").querySelectorAll("[data-attachment-field]").forEach(box=>{
+   box.innerHTML=items.filter(f=>f.field===box.dataset.attachmentField).map(f=>
+    '<button type="button" class="so-attachment-action" data-local-attachment="'+escapeHtml(f.field)+
+    '" data-local-file="'+escapeHtml(f.name)+'">'+escapeHtml(f.name)+'</button>').join("");
+  });
+ }catch(_){}
+}
+async function openLocalAttachment(button){
+ if(!editor||!window.HonorServiceLocalMedia)return;
+ try{
+  const blob=await window.HonorServiceLocalMedia.read(KEY,editor.id,button.dataset.localAttachment,button.dataset.localFile);
+  if(!blob)throw Error("missing");
+  const uri=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=uri;a.download=button.dataset.localFile;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(uri),2000);
+ }catch(_){toast("Local attachment unavailable in this browser",true)}
+}
 function collectForm(){
  if(!editor)return;
  $("soModalBody").querySelectorAll("[data-field]").forEach(n=>{if(n.disabled)return;editor.data[n.dataset.field]=n.value});
@@ -653,6 +683,7 @@ function paintOrder(){
   '<small class="so-hint">Production schedule is separate from Banner/Splash display time.'+(["gift","ride"].includes(d.orderType)?' Typical delivery: 10 working days.':'')+'</small></section>';
  $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics+schedule;
  initFormRegionWidgets();
+ refreshLocalAttachments();
  updateDurationHint();
  $("soModalBody").scrollTop=0;
  $("soModalFooter").innerHTML=(readonly?
@@ -728,6 +759,11 @@ function saveOrder(){
  }
  let next=ed.mode==="add"?[d,...orders]:orders.map(x=>x.id===d.id?d:x);
  if(!store(next))return;
+ if(window.HonorServiceLocalMedia){
+  for(const [field,files] of Object.entries(ed.pendingFiles||{})){
+   window.HonorServiceLocalMedia.save(KEY,d.id,field,files).catch(()=>toast("Local attachment storage failed",true));
+  }
+ }
  auditRecord(ed.mode==="add"?"Create":"Edit",d.id,ed.before,d,ed.mode==="add"?"Created service order":"Updated service order");
  closeOrder(true);render();toast("Saved Successfully");
 }
@@ -867,7 +903,12 @@ $("soModalBody").onchange=e=>{
  const f=e.target.closest("[data-file-for]");
  if(f&&f.files?.length){
   const field=f.dataset.fileFor,inp=$("so-edit-"+field);
-  if(inp){inp.value=f.files[0].name;editor.data[field]=f.files[0].name;editor.changed=true}
+  const chosen=Array.from(f.files),names=chosen.map(file=>file.name).join(", ");
+  if(inp){
+   inp.value=f.multiple&&inp.value?inp.value+", "+names:names;
+   editor.data[field]=inp.value;editor.changed=true;
+   editor.pendingFiles[field]=[...(editor.pendingFiles[field]||[]),...chosen];
+  }
  }
 };
 $("soModalBody").oninput=e=>{
@@ -893,6 +934,8 @@ $("soModalBody").oninput=e=>{
  }
 };
 $("soModalBody").onclick=e=>{
+ const media=e.target.closest("[data-local-attachment]");
+ if(media){openLocalAttachment(media);return;}
  const mention=e.target.closest("[data-mention-name]");
  if(mention){chooseMention(mention);return;}
  const clear=e.target.closest("[data-gift-ref-clear]");
