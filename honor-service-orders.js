@@ -42,6 +42,7 @@ function exportCSV(){
  a.href=url;a.download="honor-service-orders-"+new Date().toISOString().slice(0,10)+".csv";
  document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ auditRecord("Export","",null,null,"Exported "+chosen.length+" selected or filtered orders");
  toast("Exported "+chosen.length+" orders");
 }
 const C=[
@@ -270,18 +271,7 @@ function collectForm(){
  if(!editor)return;
  $("soModalBody").querySelectorAll("[data-field]").forEach(n=>{if(n.disabled)return;editor.data[n.dataset.field]=n.value});
 }
-function notificationForm(d,readonly){
- const p=getPolicy(d.orderType);
- const ready=readyPolicy(d.orderType);
- const on=!!d.notifyEnabled&&ready;
- return '<section class="so-section so-notification-order"><h3 class="so-section-title">Lark Notification</h3>'+
- '<div class="so-notification-row"><span>Send Lark Message</span>'+
- '<label class="so-toggle"><input id="soPerOrderNotify" type="checkbox"'+(on?' checked':'')+(readonly||!ready?' disabled':'')+'><span class="so-toggle-track"></span></label>'+
- '<span id="soNotifyState">'+(on?'On':'Off')+'</span></div>'+
- (ready?'<div class="so-config-ref" id="soOrderNotifyRef"'+(on?'':' hidden')+'>Webhook: <strong>Configured</strong></div>':
- '<div class="so-helper">Not configured</div>')+
- '</section>';
-}
+
 function paintOrder(){
  const ed=editor;if(!ed)return;
  const mode=ed.mode,d=ed.data,readonly=mode==="view";
@@ -291,7 +281,7 @@ function paintOrder(){
  $("soTypeTag").textContent=T.types[d.orderType]||"—";
  const head='<section class="so-section"><h3 class="so-section-title">Basic Information</h3><div class="so-field-grid">'+common.map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  const specifics='<section class="so-section"><h3 class="so-section-title">'+escapeHtml(T.types[d.orderType])+'</h3><div class="so-field-grid">'+(byType[d.orderType]||[]).map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
- $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics+notificationForm(d,readonly);
+ $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics;
  $("soModalBody").scrollTop=0;
  $("soModalFooter").innerHTML=(readonly?
   '<button class="so-button" type="button" data-foot="activity">Activity Log</button><button class="so-button" type="button" data-foot="history">Notification History</button><span class="so-spacer"></span><button class="so-button" type="button" data-foot="close">Close</button><button class="so-button primary" type="button" data-foot="edit">Edit</button>':
@@ -328,6 +318,9 @@ function diff(a,b){
  const changed=[...common,...(byType[b.orderType]||[])].filter(x=>String(a[x.k]??"")!==String(b[x.k]??"")).map(x=>x.l);
  return changed.length?"Updated: "+changed.slice(0,8).join(", ")+(changed.length>8?" …":"")+"":"No field changes";
 }
+function auditRecord(action,orderId,before,after,detail){
+ if(window.HonorAudit)window.HonorAudit.record({module:"service",action,orderId,before,after,detail});
+}
 function saveOrder(){
  collectForm();
  const ed=editor;if(!ed||!check(ed.data))return;
@@ -347,6 +340,7 @@ function saveOrder(){
  }
  let next=ed.mode==="add"?[d,...orders]:orders.map(x=>x.id===d.id?d:x);
  if(!store(next))return;
+ auditRecord(ed.mode==="add"?"Create":"Edit",d.id,ed.before,d,ed.mode==="add"?"Created service order":"Updated service order");
  closeOrder(true);render();toast("Saved Successfully");
 }
 function closeOrder(force){
@@ -364,7 +358,7 @@ function setStatus(id,action){
  ask(title,"Change status to "+T.statuses[next]+"?",()=>{
   const updated={...o,orderStatus:next,updatedAt:stamp(),
    history:[...(o.history||[]),{when:stamp(),action:action==="complete"?"Complete":"Return",by:"Local Operator",desc:"Order Status"+T.statuses[o.orderStatus]+" → "+T.statuses[next]}]};
-  if(store(orders.map(x=>x.id===id?updated:x))){render();toast("Saved Successfully")}
+  if(store(orders.map(x=>x.id===id?updated:x))){auditRecord(action==="complete"?"Complete":"Return",id,o,updated,"Order status changed");render();toast("Saved Successfully")}
  });
 }
 function settingsHtml(){
@@ -374,7 +368,7 @@ function settingsHtml(){
     '<strong>'+escapeHtml(T.types[t])+'</strong>'+
     '<label class="so-toggle"><input class="so-policy-enabled" data-policy-toggle="'+t+'" type="checkbox"'+(p.enabled?' checked':'')+'><span class="so-toggle-track"></span></label></div>'+
     '<div class="so-policy-details"'+(p.enabled?'':' hidden')+'><label>Robot Webhook</label>'+
-    '<input class="so-policy-ref" data-policy-ref="'+t+'" type="password" value="'+escapeHtml(p.webhookRef)+'" placeholder="Enter Webhook URL" autocomplete="off"></div></div>';
+    '<input class="so-policy-ref" data-policy-ref="'+t+'" type="text" value="'+escapeHtml(p.webhookRef)+'" placeholder="Enter Webhook URL" autocomplete="off"></div></div>';
    }).join("")+'</div>';
 }
 function openSettings(){
@@ -402,7 +396,10 @@ function saveSettings(){
   }
   next[type]={enabled,webhookRef:safeRef(ref)?ref:""};
  }
+ const before=Object.fromEntries(ORDER_TYPES.map(t=>[t,policies[t]?.enabled?"On":"Off"]));
  policies=next;
+ const after=Object.fromEntries(ORDER_TYPES.map(t=>[t,next[t].enabled?"On":"Off"]));
+ if(window.HonorAudit)window.HonorAudit.record({module:"service",action:"Notification Settings",detail:"Settings saved (Webhook URLs excluded)",before,after});
  closeSmall();toast("Saved for this session");
 }
 function openSmall(title,body,actions){
@@ -440,7 +437,7 @@ function notify(id){
    closeSmall();const when=stamp();
    const item={when,action:"Not Sent",desc:"Lark service not connected",by:"Local Operator"};
    const updated={...o,notifications:[...(o.notifications||[]),item],history:[...(o.history||[]),{when,action:"Notify Assignee",desc:item.desc,by:item.by}]};
-   if(store(orders.map(x=>x.id===id?updated:x)))toast("Not Sent",true);
+   if(store(orders.map(x=>x.id===id?updated:x))){auditRecord("Notify Attempt",id,null,null,"Message not sent: no server integration");toast("Not Sent",true);}
   }}
  ]);
 }
@@ -480,12 +477,6 @@ $("soModalClose").onclick=()=>closeOrder(false);
 $("soModal").onclick=e=>{if(e.target===$("soModal"))closeOrder(false)};
 $("soModalBody").onchange=e=>{
  if(!editor||editor.mode==="view")return;
- if(e.target.id==="soPerOrderNotify"){
-  editor.data.notifyEnabled=e.target.checked;
-  const state=$("soNotifyState");if(state)state.textContent=e.target.checked?"On":"Off";
-  const box=$("soOrderNotifyRef");if(box)box.hidden=!e.target.checked;
-  return;
- }
  const f=e.target.closest("[data-file-for]");
  if(f&&f.files?.length){
   const field=f.dataset.fileFor,inp=$("so-edit-"+field);
