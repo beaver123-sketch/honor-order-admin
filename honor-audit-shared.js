@@ -11,9 +11,30 @@
    if(typeof v==="object"){try{return JSON.stringify(v).slice(0,220)}catch(_){return "[Object]"}}
    return String(v).slice(0,220);
  };
+ const OPERATOR_KEY="honor-admin-overseas-operator-v1";
  function actor(){
-   // Do not mistake the assignee for the operator.
-   return String(window.HonorCurrentOperatorEnglish||"").trim()||"Unknown";
+   // The operator is the employee performing the action, not the assigned owner.
+   let stored="";
+   try{stored=localStorage.getItem(OPERATOR_KEY)||""}catch(_){}
+   return String(window.HonorCurrentOperatorEnglish||stored||"").trim()||"Unknown";
+ }
+ function setOperator(name){
+   const value=String(name||"").trim();
+   if(!value||value.length>80||!/[A-Za-z]/.test(value))return false;
+   window.HonorCurrentOperatorEnglish=value;
+   try{localStorage.setItem(OPERATOR_KEY,value)}catch(_){}
+   return true;
+ }
+ function requestOperator(alwaysConfirm){
+   const previous=actor()==="Unknown"?"":actor();
+   if(!alwaysConfirm&&previous)return previous;
+   const typed=window.prompt("Overseas Operator (English Name):",previous);
+   if(typed===null)return null;
+   if(!setOperator(typed)){
+    window.alert("Please enter a valid employee English name.");
+    return null;
+   }
+   return actor();
  }
  function relevant(source){
    const out={};
@@ -50,5 +71,5 @@
    try{localStorage.setItem(KEY,JSON.stringify([entry,...read()].slice(0,LIMIT)));return true}
    catch(_){return false}
  }
- window.HonorAudit={record,read,differences,actor};
+ window.HonorAudit={record,read,differences,actor,setOperator,requestOperator};
 })();
