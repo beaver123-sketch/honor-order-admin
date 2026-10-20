@@ -244,7 +244,7 @@
 
 /* UI designer @mention search in Processing UI (shared by English and Chinese forms). */
 .so-mention-wrap{position:relative;min-width:0;width:100%}
-.so-mention-wrap>textarea{width:100%;min-height:95px;display:block}
+.so-mention-wrap>input.so-input{width:100%;min-height:34px;height:34px;display:block}
 .so-mention-menu{position:absolute;z-index:210;left:0;right:0;top:calc(100% + 3px);background:#fff;border:1px solid #cfdcec;border-radius:4px;box-shadow:0 8px 24px rgba(30,52,85,.17);padding:5px 0;max-height:180px;overflow-y:auto}
 .so-mention-menu[hidden]{display:none}
 .so-mention-choice{display:block;text-align:left;padding:9px 13px;border:0;background:#fff;color:#4c5e73;font:inherit;font-size:12px;cursor:pointer;width:100%;white-space:nowrap}
