@@ -153,7 +153,7 @@
 
 /* Action controls: recognizable by role, with full borders and subtle backgrounds */
 .so-action-buttons{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;max-width:100%}
-.so-action-btn{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;height:28px;min-width:53px;padding:0 10px;border-radius:4px;border:1px solid transparent;font:500 11px/1.1 inherit;cursor:pointer;transition:background-color .15s,border-color .15s,transform .15s;box-shadow:none}
+.so-action-btn{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;height:28px;min-width:53px;padding:0 10px;border-radius:4px;border:1px solid transparent;font-family:inherit;font-weight:600;font-size:11px;line-height:1.1;cursor:pointer;transition:background-color .15s,border-color .15s,transform .15s;box-shadow:none}
 .so-action-btn:hover{transform:translateY(-1px)}
 .so-action-btn:focus-visible{outline:2px solid #a7d3ff;outline-offset:2px}
 .so-action-btn.view{color:#62748a;background:#f5f7fb;border-color:#d8e1eb}
