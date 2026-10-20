@@ -38,10 +38,10 @@ function makeBase(kind,date,nation,name,status,index){
  const time=date+" "+String(10+(index%9)).padStart(2,"0")+":25:00";
  const iso=time.replace(" ","T").slice(0,16);
  const base={
-  id:"HS-DEMO-"+yy,
+  id:"91"+yy.padStart(8,"0"),
   demo:true,
   orderType:kind,
-  redeemedOrderId:"RD-DEMO-"+yy,
+  redeemedOrderId:"81"+yy.padStart(8,"0"),
   userId:String(91000000+index*59),
   username:"Demo User "+String(index).padStart(2,"0"),
   operatorEnglish:["Maya Chen (Demo)","Olivia Tan (Demo)","Noah Lee (Demo)","Daniel Kim (Demo)"][(index-1)%4],
