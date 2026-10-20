@@ -184,7 +184,7 @@ function fieldHtml(f,d,readonly){
  }else if(f.kind==="textarea"){
   ctrl='<textarea'+attr+(readonly?" disabled":"")+' placeholder="Please enter / 请输入">'+escapeHtml(v)+'</textarea>';
  }else if(f.kind==="file"){
-  ctrl='<div class="so-preview-box">'+(readonly?"":'<input data-file-for="'+escapeHtml(k)+'" type="file" accept="'+escapeHtml(f.accept||"*/*")+'">')+
+  ctrl='<div class="so-preview-box">'+(readonly?"":'<label class="so-button so-upload-label" for="so-file-'+escapeHtml(k)+'">Upload File / 上传文件</label><input id="so-file-'+escapeHtml(k)+'" data-file-for="'+escapeHtml(k)+'" type="file" accept="'+escapeHtml(f.accept||"*/*")+'" class="so-native-file">')+
     '<span class="so-media-name">'+(v?escapeHtml(v):"No file / 暂无文件")+'</span>'+
     '<input class="so-input"'+attr+' type="text"'+(readonly?" disabled":"")+' value="'+escapeHtml(v)+'" placeholder="File URL / 文件链接">'+
     (/^https?:\/\//i.test(String(v))?'<a class="so-cell-action" href="'+escapeHtml(v)+'" target="_blank" rel="noopener noreferrer">Download File / 下载文件 ↗</a>':"")+'</div>';
