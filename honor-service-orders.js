@@ -630,20 +630,14 @@ $("soFilterStatus").innerHTML='<option value="">All</option>'+Object.entries(T.s
 $("soCountryList").innerHTML=C.map(([v])=>'<option value="'+escapeHtml(v)+'"></option>').join("");
 $("soFilterForm").addEventListener("submit",e=>{e.preventDefault();applyFilters()});
 $("soFilterReset").onclick=()=>{
- selectedIds.clear();$("soFilterForm").reset();$("soNationMenu").querySelectorAll('input[type="checkbox"]').forEach(i=>i.checked=false);
+ selectedIds.clear();$("soFilterForm").reset();
+ const region=$("soFilterRegions");
+ applyRegionSelection(region,[]);
  filters={};page=1;render();
 };
-$("soNationMenu").onchange=updateCountrySummary;
-$("soNationMenu").onclick=e=>{
- const b=e.target.closest("[data-filter-country-action]");
- if(!b)return;
- const all=b.dataset.filterCountryAction==="all";
- $("soNationMenu").querySelectorAll('input[type="checkbox"]').forEach(i=>i.checked=all);
- updateCountrySummary();
-};
-$("soNationMenu").oninput=e=>{
- if(e.target.matches(".so-country-search"))searchCountryMenu($("soNationMenu"),e.target.value);
-};
+$("soFilterRegions").addEventListener("click",e=>regionClick($("soFilterRegions"),e));
+$("soFilterRegions").addEventListener("change",e=>regionChange($("soFilterRegions"),e));
+$("soFilterRegions").addEventListener("input",e=>regionSearch($("soFilterRegions"),e));
 $("soAddOrder").onclick=()=>openOrder("add");
 $("soExportOrders").onclick=exportCSV;
 $("soNotificationSettings").onclick=openSettings;
@@ -671,15 +665,8 @@ $("soModalClose").onclick=()=>closeOrder(false);
 $("soModal").onclick=e=>{if(e.target===$("soModal"))closeOrder(false)};
 $("soModalBody").onchange=e=>{
  if(!editor||editor.mode==="view")return;
- const selected=e.target.closest("[data-field-country]");
- if(selected){
-  const root=selected.closest(".so-country-select");
-  if(root&&root.dataset.multiple!=="true"){
-   root.querySelectorAll("[data-field-country]").forEach(i=>{if(i!==selected)i.checked=false});
-  }
-  if(root)setCountryChoices(root);
-  return;
- }
+ const widget=e.target.closest(".so-region-widget");
+ if(widget){regionChange(widget,e);return;}
  const f=e.target.closest("[data-file-for]");
  if(f&&f.files?.length){
   const field=f.dataset.fileFor,inp=$("so-edit-"+field);
@@ -688,10 +675,8 @@ $("soModalBody").onchange=e=>{
 };
 $("soModalBody").oninput=e=>{
  if(!editor||editor.mode==="view")return;
- if(e.target.matches(".so-country-search")){
-  const menu=e.target.closest(".so-nation-menu");if(menu)searchCountryMenu(menu,e.target.value);
-  return;
- }
+ const region=e.target.closest(".so-region-widget");
+ if(region){regionSearch(region,e);return;}
  const input=e.target.closest("[data-field]");if(!input)return;
  editor.data[input.dataset.field]=input.value;editor.changed=true;
  if(input.dataset.field==="orderType"){
@@ -704,16 +689,9 @@ $("soModalBody").oninput=e=>{
  }
 };
 $("soModalBody").onclick=e=>{
- const btn=e.target.closest("[data-country-action]");
- if(!btn||!editor||editor.mode==="view")return;
- const root=btn.closest(".so-country-select");
- if(root)setCountryChoices(root,btn.dataset.countryAction);
+ const widget=e.target.closest(".so-region-widget");
+ if(widget)regionClick(widget,e);
 };
-document.addEventListener("click",e=>{
- document.querySelectorAll("details.so-nation-picker[open]").forEach(d=>{
-  if(!d.contains(e.target))d.open=false;
- });
-});
 $("soModalFooter").onclick=e=>{
  const b=e.target.closest("[data-foot]");if(!b||!editor)return;
  const action=b.dataset.foot;
