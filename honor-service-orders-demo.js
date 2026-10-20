@@ -44,6 +44,7 @@ function makeBase(kind,date,nation,name,status,index){
   redeemedOrderId:"RD-DEMO-"+yy,
   userId:String(91000000+index*59),
   username:"Demo User "+String(index).padStart(2,"0"),
+  operatorEnglish:["Maya Chen (Demo)","Olivia Tan (Demo)","Noah Lee (Demo)","Daniel Kim (Demo)"][(index-1)%4],
   nationality:nation,
   redemptionTime:iso,
   orderStatus:status,
