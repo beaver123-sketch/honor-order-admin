@@ -495,7 +495,7 @@ function paintOrder(){
  $("soModalTitle").textContent=heading;
  $("soModalSubtitle").textContent=readonly?"View":"All required fields marked *";
  $("soTypeTag").textContent=T.types[d.orderType]||"—";
- const head='<section class="so-section"><h3 class="so-section-title">Basic Information</h3><div class="so-field-grid">'+common.map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
+ const head='<section class="so-section"><h3 class="so-section-title">Basic Information</h3><div class="so-field-grid">'+common.filter(f=>mode!=="add"||f.k!=="benefitName").map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  const specifics='<section class="so-section"><h3 class="so-section-title">'+escapeHtml(T.types[d.orderType])+'</h3><div class="so-field-grid">'+(byType[d.orderType]||[]).map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics;
  initFormRegionWidgets();
@@ -547,6 +547,8 @@ function saveOrder(){
  d.notifyEnabled=!!d.notifyEnabled&&!!readyPolicy(d.orderType);
  d.notifyConfigRef=d.notifyEnabled?"Configured":"";
  if(ed.mode==="add"){
+  // Benefit name is derived from the selected order type; no manual entry on creation.
+  d.benefitName=T.types[d.orderType]||"";
   d.id=newId();d.createdAt=stamp();d.updatedAt=d.createdAt;
   d.username=d.username||"";
   d.history=[{when:d.createdAt,action:"Add Order",by:d.operatorEnglish,desc:"Created service order"}];
