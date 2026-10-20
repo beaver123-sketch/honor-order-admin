@@ -179,79 +179,160 @@ function store(next){
  catch(e){toast("Unable to save locally",true);return false}
 }
 function countryLabel(v){const found=C.find(c=>c[0].toLowerCase()===String(v||"").toLowerCase());return found?found[0]:v||"—"}
+const REGION_GROUPS=[
+ {id:"all",title:"All Key",countries:null},
+ {id:"south",title:"South Asia",countries:["Pakistan","India","Bangladesh","Nepal","Bhutan","Sri Lanka","Maldives"]},
+ {id:"philippines",title:"Philippines",countries:["Philippines"]},
+ {id:"russian",title:"Russian-speaking",countries:["Ukraine","Russia","Kazakhstan","Uzbekistan","Belarus"]},
+ {id:"latam",title:"South America",countries:["Brazil","Argentina","Chile","Colombia","Peru"]},
+ {id:"western",title:"Europe & US",countries:["United States","United Kingdom","Ireland","France","Germany","Canada"]},
+ {id:"africa",title:"Africa",countries:["Nigeria","Egypt","Morocco","South Africa","Kenya"]},
+ {id:"middleeast",title:"Middle East",countries:["Saudi Arabia","United Arab Emirates","Qatar","Oman","Kuwait","Bahrain"]},
+ {id:"virtual",title:"Virtual Area",countries:[]},
+ {id:"vietnam",title:"Vietnam",countries:["Vietnam"]},
+ {id:"indomalay",title:"India & Malaysia",countries:["India","Indonesia","Malaysia","Singapore"]}
+];
 function countries(){
- const seen=new Map(C.map(([en])=>[en,en]));
+ const names=new Set(C.map(c=>c[0]));
+ REGION_GROUPS.forEach(g=>(g.countries||[]).forEach(n=>names.add(n)));
  orders.forEach(o=>{
-  for(const v of [o.nationality,o.accountNationality,o.displayRegion,...String(o.availableCountries||"").split(",")]){
-   const item=String(v||"").trim();
-   if(item&&!seen.has(item))seen.set(item,item);
+  for(const value of [o.nationality,o.accountNationality,o.displayRegion,...String(o.availableCountries||"").split(",")]){
+   const name=String(value||"").trim();if(name)names.add(name);
   }
  });
- return [...seen].sort((a,b)=>a[0].localeCompare(b[0]));
-}
-function pickerChoices(current){
- const list=countries();
- for(const value of String(current||"").split(",").map(x=>x.trim()).filter(Boolean)){
-  if(!list.some(([key])=>key===value))list.push([value,value]);
- }
- return list.sort((a,b)=>a[0].localeCompare(b[0]));
+ return [...names].sort((a,b)=>a.localeCompare(b));
 }
 function pickerSummary(values,placeholder){
- const arr=values.filter(Boolean);
- return arr.length===0?placeholder:arr.length===1?arr[0]:arr.length+" countries selected";
+ return values.length===0?placeholder:values.length===1?values[0]:values.length+" selected";
+}
+function getRegionSelection(widget){
+ try{return [...new Set(JSON.parse(widget.dataset.selected||"[]"))].filter(Boolean)}
+ catch(_){return []}
+}
+function listForRegion(regionId){
+ if(regionId==="all")return countries();
+ const group=REGION_GROUPS.find(g=>g.id===regionId);
+ return group?(group.countries||[]):[];
+}
+function regionPanelHtml(widget,kind,query){
+ const selected=getRegionSelection(widget);
+ const title=kind==="search"?"Search Results":kind==="selected"?"Selected Countries":(REGION_GROUPS.find(g=>g.id===kind)?.title||"Countries");
+ const q=String(query||"").toLowerCase().trim();
+ const all=kind==="search"?countries():kind==="selected"?selected:listForRegion(kind);
+ const list=all.filter(country=>!q||country.toLowerCase().includes(q));
+ const controls=list.map(country=>'<label class="so-region-option"><input type="checkbox" data-region-country="'+escapeHtml(country)+'"'+(selected.includes(country)?' checked':'')+'><span>'+escapeHtml(country)+'</span></label>').join("");
+ return '<div class="so-region-panel-title">'+escapeHtml(title)+' <span>'+list.length+'</span><button type="button" data-region-close="true">×</button></div>'+
+ '<div class="so-region-choices">'+(controls||'<div class="so-region-no-result">No countries available</div>')+'</div>';
+}
+function regionInner(widget){
+ const selected=getRegionSelection(widget),single=widget.dataset.mode==="single";
+ const regions=REGION_GROUPS.map(g=>{
+   const values=listForRegion(g.id);
+   const marked=values.length>0&&values.every(c=>selected.includes(c));
+   const partial=!marked&&values.some(c=>selected.includes(c));
+   return '<div class="so-region-category'+(partial?' partial':'')+'">'+
+    '<button class="so-region-arrow" type="button" data-region-open="'+g.id+'" aria-label="Expand '+escapeHtml(g.title)+'">▸</button>'+
+    '<label class="so-region-check"><input type="checkbox" data-region-group-check="'+g.id+'"'+(marked?' checked':'')+
+      (single||!values.length?' data-single="true"':'')+'><span>'+escapeHtml(g.title)+'</span></label></div>';
+ }).join("");
+ return '<div class="so-region-line">'+
+  '<div class="so-region-groups">'+regions+'</div>'+
+  '<div class="so-region-tools"><input class="so-region-search" type="search" placeholder="Search country" autocomplete="off" aria-label="Search country">'+
+  '<button type="button" class="so-region-tool-btn" data-region-show="selected">Show Selected'+(selected.length?' ('+selected.length+')':'')+'</button>'+
+  '<button type="button" class="so-region-tool-btn" data-region-clear="true">Clear Selection</button></div></div>'+
+  '<div class="so-region-panel" hidden></div>';
+}
+function renderRegionWidget(widget,selection){
+ const selected=selection===undefined?getRegionSelection(widget):selection;
+ widget.dataset.selected=JSON.stringify(selected);
+ widget.innerHTML=regionInner(widget);
 }
 function fieldCountries(f,v,readonly){
- const k=f.k,multi=k==="availableCountries";
- const selected=String(v||"").split(",").map(x=>x.trim()).filter(Boolean);
- const summary=pickerSummary(selected,multi?"Select countries":"Select country");
+ const k=f.k,multi=k==="availableCountries"||k==="displayRegion";
+ const selections=String(v||"").split(",").map(x=>x.trim()).filter(Boolean);
  const attr=' data-field="'+escapeHtml(k)+'" id="so-edit-'+escapeHtml(k)+'"';
- if(readonly)return '<input class="so-input"'+attr+' disabled value="'+escapeHtml(selected.join(", "))+'">';
- const options=pickerChoices(v).map(([code,label])=>{
-  const checked=selected.includes(code);
-  return '<label class="so-country-option"><input type="checkbox"'+
-   ' name="so-country-'+escapeHtml(k)+'" value="'+escapeHtml(code)+'" data-field-country="'+escapeHtml(k)+'"'+(checked?' checked':'')+'><span>'+escapeHtml(label)+'</span></label>';
- }).join("");
- return '<div class="so-country-select" data-country-field="'+escapeHtml(k)+'" data-multiple="'+(multi?'true':'false')+'">'+
- '<input type="hidden"'+attr+' value="'+escapeHtml(String(v||""))+'">'+
- '<details class="so-nation-picker so-country-dropdown"><summary title="'+escapeHtml(selected.join(", "))+'">'+escapeHtml(summary)+'</summary>'+
- '<div class="so-nation-menu"><div class="so-country-search-wrap"><input type="search" class="so-country-search" placeholder="Search country" aria-label="Search country" autocomplete="off"></div>'+
- '<div class="so-country-tools">'+(multi?'<button type="button" data-country-action="all">Select All</button>':'')+'<button type="button" data-country-action="clear">Clear</button></div>'+
- '<div class="so-country-list">'+options+'</div></div></details></div>';
+ if(readonly)return '<input class="so-input"'+attr+' disabled value="'+escapeHtml(selections.join(", "))+'">';
+ // The data-selected attribute keeps selections between nested group changes without changing form serialization.
+ const region='<div class="so-region-widget" data-mode="'+(multi?'multi':'single')+'" data-region-field="'+escapeHtml(k)+
+  '" data-selected="'+escapeHtml(JSON.stringify(selections))+'"></div>';
+ return '<div class="so-region-form">'+
+  '<input type="hidden"'+attr+' value="'+escapeHtml(v)+'">'+
+  region+'</div>';
+}
+function initFormRegionWidgets(){
+ $("soModalBody").querySelectorAll('.so-region-widget[data-region-field]').forEach(w=>renderRegionWidget(w));
 }
 function renderFilterCountryOptions(){
- const menu=$("soNationMenu"),oldSelections=new Set([...menu.querySelectorAll('input[type="checkbox"]:checked')].map(n=>n.value));
- const items=countries().map(([value,label])=>
- '<label class="so-country-option"><input type="checkbox" name="so-filter-countries" value="'+escapeHtml(value)+'"'+(oldSelections.has(value)?" checked":"")+'><span>'+escapeHtml(label)+'</span></label>'
- ).join("");
- menu.innerHTML='<div class="so-country-search-wrap"><input type="search" class="so-country-search" placeholder="Search country" aria-label="Search country" autocomplete="off"></div>'+
- '<div class="so-country-tools"><button type="button" data-filter-country-action="all">Select All</button><button type="button" data-filter-country-action="clear">Clear</button></div>'+
- '<div class="so-country-list">'+items+'</div>';
- updateCountrySummary();
+ const widget=$("soFilterRegions");
+ if(widget)renderRegionWidget(widget);
 }
 function fillCountries(){renderFilterCountryOptions()}
-function updateCountrySummary(){
- const values=[...$("soNationMenu").querySelectorAll('input[type="checkbox"]:checked')].map(i=>i.value);
- $("soNationSummary").textContent=pickerSummary(values,"All");
- $("soNationSummary").title=values.join(", ");
+function updateCountrySummary(){return}
+function regionOpenPanel(widget,kind,query){
+ const panel=widget.querySelector(".so-region-panel");
+ if(!panel)return;
+ const closeIfOpen=panel.dataset.active===kind&&!panel.hidden&&kind!=="search";
+ if(closeIfOpen){panel.hidden=true;panel.dataset.active="";return}
+ panel.dataset.active=kind;
+ panel.innerHTML=regionPanelHtml(widget,kind,query);
+ panel.hidden=false;
+ widget.querySelectorAll(".so-region-arrow").forEach(b=>b.classList.toggle("active",b.dataset.regionOpen===kind));
 }
-function searchCountryMenu(menu,query){
- const q=String(query||"").toLocaleLowerCase().trim();
- menu.querySelectorAll(".so-country-option").forEach(row=>{
-  row.hidden=!!q&&!row.textContent.toLocaleLowerCase().includes(q);
- });
+function applyRegionSelection(widget,values,openKey){
+ const selected=[...new Set(values)].filter(Boolean);
+ const single=widget.dataset.mode==="single";
+ const normalized=single?selected.slice(0,1):selected;
+ const field=widget.dataset.regionField;
+ const searchBefore=widget.querySelector(".so-region-search")?.value||"";
+ renderRegionWidget(widget,normalized);
+ if(field){
+  const hidden=widget.parentElement.querySelector('[data-field="'+field+'"]');
+  if(hidden){hidden.value=normalized.join(", ");if(editor){editor.data[field]=hidden.value;editor.changed=true}}
+ }
+ if(openKey){
+  regionOpenPanel(widget,openKey,searchBefore);
+  const input=widget.querySelector(".so-region-search");if(input)input.value=searchBefore;
+ }
 }
-function setCountryChoices(root,choice){
- const isMulti=root.dataset.multiple==="true",inputs=[...root.querySelectorAll("[data-field-country]")];
- if(choice==="all")inputs.forEach(i=>i.checked=true);
- if(choice==="clear")inputs.forEach(i=>i.checked=false);
- const chosen=inputs.filter(i=>i.checked).map(i=>i.value);
- const value=isMulti?chosen.join(", "):(chosen[0]||"");
- const k=root.dataset.countryField;
- const hidden=root.querySelector('[data-field="'+k+'"]');
- hidden.value=value;
- if(editor){editor.data[k]=value;editor.changed=true}
- const summary=root.querySelector("summary");summary.textContent=pickerSummary(chosen,isMulti?"Select countries":"Select country");summary.title=value;
- if(!isMulti)root.querySelector("details").open=false;
+function regionClick(widget,e){
+ const control=e.target.closest("[data-region-open],[data-region-show],[data-region-clear],[data-region-close]");
+ if(!control)return;
+ if(control.dataset.regionOpen){
+  regionOpenPanel(widget,control.dataset.regionOpen);return
+ }
+ if(control.dataset.regionShow){
+  regionOpenPanel(widget,"selected");return
+ }
+ if(control.hasAttribute("data-regionClear")){
+  applyRegionSelection(widget,[]);return
+ }
+ if(control.hasAttribute("data-regionClose")){
+  const panel=widget.querySelector(".so-region-panel");if(panel){panel.hidden=true;panel.dataset.active=""}
+ }
+}
+function regionChange(widget,e){
+ const input=e.target;
+ const selected=getRegionSelection(widget);
+ if(input.hasAttribute("data-region-group-check")){
+  const kind=input.dataset.regionGroupCheck,values=listForRegion(kind);
+  if(widget.dataset.mode==="single"||values.length===0){
+   input.checked=!input.checked;
+   regionOpenPanel(widget,kind);
+   return;
+  }
+  const next=input.checked?[...new Set(selected.concat(values))]:selected.filter(x=>!values.includes(x));
+  applyRegionSelection(widget,next);
+ }else if(input.hasAttribute("data-region-country")){
+  const value=input.dataset.regionCountry;
+  const next=widget.dataset.mode==="single"?(input.checked?[value]:[]):(input.checked?selected.concat(value):selected.filter(x=>x!==value));
+  const kind=widget.querySelector(".so-region-panel")?.dataset.active||"selected";
+  applyRegionSelection(widget,next,widget.dataset.mode==="single"?null:kind);
+ }else return;
+}
+function regionSearch(widget,e){
+ if(!e.target.matches(".so-region-search"))return;
+ const query=e.target.value;
+ regionOpenPanel(widget,"search",query);
 }
 function assignees(){
  const names=[...new Set(orders.map(o=>o.assignedTo).filter(Boolean))];
@@ -267,7 +348,7 @@ function applyFilters(){
   redeemedId:$("soFilterRedeemedId").value.trim().toLowerCase(),
   type:$("soFilterType").value,
   uid:$("soFilterUid").value.trim().toLowerCase(),
-  nationalities:[...$("soNationMenu").querySelectorAll("input:checked")].map(i=>i.value.toLowerCase()),
+  nationalities:getRegionSelection($("soFilterRegions")).map(i=>i.toLowerCase()),
   status:$("soFilterStatus").value,from:$("soFilterStart").value,to:$("soFilterEnd").value,assignee:$("soFilterAssignee").value
  };
  selectedIds.clear();page=1;render();
@@ -344,7 +425,7 @@ function fieldHtml(f,d,readonly){
   ctrl='<input class="so-input"'+attr+' type="'+escapeHtml(type)+'" value="'+escapeHtml(v)+'"'+(readonly?" disabled":"")+
     (type==="number"?' min="0" step="1"':"")+(f.list?' list="'+f.list+'"':"")+' placeholder="'+escapeHtml(ph)+'">';
  }
- return '<div class="so-control'+(f.wide?" wide":"")+'"><label class="so-control-label" for="so-edit-'+escapeHtml(k)+'">'+escapeHtml(f.l)+(f.req?'<span class="so-required">*</span>':"")+'</label>'+ctrl+(help?'<small class="so-hint">'+escapeHtml(help)+'</small>':"")+'</div>';
+ return '<div class="so-control'+(f.wide||["nationality","accountNationality","availableCountries","displayRegion"].includes(k)?" wide":"")+'"><label class="so-control-label" for="so-edit-'+escapeHtml(k)+'">'+escapeHtml(f.l)+(f.req?'<span class="so-required">*</span>':"")+'</label>'+ctrl+(help?'<small class="so-hint">'+escapeHtml(help)+'</small>':"")+'</div>';
 }
 function openOrder(mode,id){
  const existing=orders.find(x=>x.id===id);
@@ -375,6 +456,7 @@ function paintOrder(){
  const head='<section class="so-section"><h3 class="so-section-title">Basic Information</h3><div class="so-field-grid">'+common.map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  const specifics='<section class="so-section"><h3 class="so-section-title">'+escapeHtml(T.types[d.orderType])+'</h3><div class="so-field-grid">'+(byType[d.orderType]||[]).map(f=>fieldHtml(f,d,readonly)).join("")+'</div></section>';
  $("soModalBody").innerHTML='<div class="so-validation" id="soFormError"></div>'+head+specifics;
+ initFormRegionWidgets();
  $("soModalBody").scrollTop=0;
  $("soModalFooter").innerHTML=(readonly?
   '<button class="so-button" type="button" data-foot="activity">Activity Log</button><button class="so-button" type="button" data-foot="history">Notification History</button><span class="so-spacer"></span><button class="so-button" type="button" data-foot="close">Close</button><button class="so-button primary" type="button" data-foot="edit">Edit</button>':
