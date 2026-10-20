@@ -9,7 +9,14 @@ const T={
  types:{unban:"Account Unban",banner:"Banner & Splash",gift:"Custom Gift",ride:"Custom Ride"},
  statuses:{pending:"Pending",processed:"Processed",returned:"Returned",returning:"Returning"},
  unbanStatuses:{pending:"Pending",progress:"In Progress",unbanned:"Unbanned",failed:"Failed"},
- displayTypes:{banner:"Banner",splash:"Splash"},
+ displayTypes:{
+ "banner-24h":"Banner-24h",
+ "banner-48h":"Banner-48h",
+ "splash-24h":"Splash-24h",
+ "splash-48h":"Splash-48h",
+ "splash-55h":"Splash-55h",
+ "splash-72h":"Splash-72h"
+},
  giftTypes:{regular:"Regular",limited:"Limited"}
 };
 // Webhook URLs are sensitive: hold them only in page memory, never localStorage or order data.
@@ -97,10 +104,10 @@ const byType={
   {k:"unbanNotes",l:"Notes",kind:"textarea",wide:1}
  ],
  banner:[
-  {k:"displayType",l:"Display Type",req:1,kind:"select",opts:T.displayTypes},
+  {k:"displayType",l:"Type",req:1,kind:"select",opts:T.displayTypes},
   {k:"displayRegion",l:"Display Region",req:1},
-  {k:"configLink",l:"Config Link",kind:"url"},
-  {k:"color",l:"Color",placeholder:"#RRGGBB"},
+  {k:"configLink",l:"Config Link",kind:"text",placeholder:"Enter text"},
+  {k:"color",l:"Color",kind:"text",placeholder:"Enter color name, code or description"},
   {k:"copy",l:"Copy",kind:"textarea"},
   {k:"wording",l:"Wording",kind:"textarea"},
   {k:"image",l:"Image",kind:"file",accept:"image/*",wide:1},
@@ -165,7 +172,7 @@ let filters={},page=1,pageSize=20,editor=null;
 function defaultDraft(){
  return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:nowLocal(),
   orderStatus:"pending",assignedTo:"",scheduleStart:"",scheduleEnd:"",giftReferenceImage:"",giftReferenceImageData:"",operatorEnglish:((window.HonorAudit?.actor()||"Unknown")==="Unknown"?"":window.HonorAudit.actor()),whatsapp:"",notes:"",benefitName:"",uiDesigner:"",processingUI:"",
-  unbanStatus:"pending",displayType:"banner",giftType:"regular",giftPrice:"177000",
+  unbanStatus:"pending",displayType:"banner-24h",giftType:"regular",giftPrice:"177000",
   notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:"",
   history:[],notifications:[]};
 }
@@ -448,7 +455,12 @@ function fieldHtml(f,d,readonly){
  const k=f.k,v=d[k]??"",attr=' data-field="'+escapeHtml(k)+'" id="so-edit-'+escapeHtml(k)+'"';
  let ctrl="",help=f.hint||"";
  if(f.kind==="select"){
-  let opts=Object.entries(f.opts).map(([key,label])=>'<option value="'+escapeHtml(key)+'"'+(key===String(v)?" selected":"")+'>'+escapeHtml(label)+'</option>').join("");
+  const entries=Object.entries(f.opts);
+  // Allow saved legacy Banner/Splash orders to retain their historical Type when editing.
+  if(k==="displayType"&&v&&!Object.prototype.hasOwnProperty.call(f.opts,String(v))){
+   entries.unshift([String(v),String(v)==="banner"?"Banner (legacy)":String(v)==="splash"?"Splash (legacy)":String(v)]);
+  }
+  let opts=entries.map(([key,label])=>'<option value="'+escapeHtml(key)+'"'+(key===String(v)?" selected":"")+'>'+escapeHtml(label)+'</option>').join("");
   ctrl='<select'+attr+(readonly||k==="orderType"&&editor.mode!=="add"?" disabled":"")+'>'+opts+'</select>';
  }else if(["nationality","accountNationality","availableCountries","displayRegion"].includes(k)){
   ctrl=fieldCountries(f,v,readonly);
