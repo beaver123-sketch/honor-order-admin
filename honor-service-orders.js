@@ -35,7 +35,15 @@ const getPolicy=type=>policies[type]||{enabled:false,webhookRef:""};
 const readyPolicy=type=>{const p=getPolicy(type);return p.enabled&&safeRef(p.webhookRef)};
 const selectedIds=new Set();
 const CSV_HEADERS=["Service Order ID","Redeemed Order ID","Order Type","Benefit Name","User ID","Username","Nationality","Honor Wall ID","Order Status","Order Time","Assigned To","Updated Time","Operator","Actions"];
-const exportFields=o=>[o.id,o.redeemedOrderId||"",T.types[o.orderType]||o.orderType,o.benefitName||"",o.userId,o.username||"",countryLabel(o.nationality),o.honorWallId||"",T.statuses[o.orderStatus]||o.orderStatus,dateOut(o.createdAt),o.assignedTo||"",dateOut(o.updatedAt),o.operatorEnglish||"",""];
+const operatorLabel=o=>{
+ if(o.operatorEnglish&&String(o.operatorEnglish).trim())return String(o.operatorEnglish);
+ if(o.demo){
+  const matched=(String(o.id||"").match(/^HS-DEMO-(\\d+)$/)||[])[1];
+  if(matched)return ["Maya Chen (Demo)","Olivia Tan (Demo)","Noah Lee (Demo)","Daniel Kim (Demo)"][(Number(matched)-1)%4];
+ }
+ return "";
+};
+const exportFields=o=>[o.id,o.redeemedOrderId||"",T.types[o.orderType]||o.orderType,o.benefitName||"",o.userId,o.username||"",countryLabel(o.nationality),o.honorWallId||"",T.statuses[o.orderStatus]||o.orderStatus,dateOut(o.createdAt),o.assignedTo||"",dateOut(o.updatedAt),operatorLabel(o),""];
 function exportCSV(){
  const visible=filtered();
  const chosen=selectedIds.size?visible.filter(o=>selectedIds.has(o.id)):visible;
@@ -292,7 +300,7 @@ function tr(o){
  '<td>'+escapeHtml(countryLabel(o.nationality))+'</td><td>'+escapeHtml(o.honorWallId||"—")+'</td>'+
  '<td>'+statusHtml(o.orderStatus)+'</td><td>'+escapeHtml(dateOut(o.createdAt))+'</td>'+
  '<td>'+escapeHtml(o.assignedTo||"—")+'</td><td>'+escapeHtml(dateOut(o.updatedAt))+'</td>'+
- '<td>'+escapeHtml(o.operatorEnglish||"—")+'</td>'+
+ '<td>'+escapeHtml(operatorLabel(o)||"—")+'</td>'+
  '<td class="so-actions-cell"><div class="so-action-buttons">'+buttons+'</div></td></tr>';
 }
 function updateSelectionUI(currentPage){
