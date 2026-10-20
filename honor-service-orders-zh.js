@@ -109,7 +109,7 @@ const byType={
 
  ],
  banner:[
-  {k:"displayType",l:"Type",req:1,kind:"select",opts:T.displayTypes},
+  {k:"displayType",l:"Type",req:1,kind:"type-multi",opts:T.displayTypes,wide:1},
   {k:"displayRegion",l:"Display Region"},
   {k:"configLink",l:"Config Link",kind:"text",placeholder:"Enter text"},
   {k:"color",l:"Color",kind:"text",placeholder:"Enter color name, code or description"},
@@ -192,7 +192,7 @@ let filters={},page=1,pageSize=20,editor=null;
 function defaultDraft(){
  return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:"",orderSource:"redeemed",processingStage:"none",
   orderStatus:"pending",assignedTo:"",scheduleStart:"",scheduleEnd:"",giftReferenceImage:"",giftReferenceImageData:"",operatorEnglish:((window.HonorAudit?.actor()||"Unknown")==="Unknown"?"":window.HonorAudit.actor()),whatsapp:"",notes:"",benefitName:"",uiDesigner:"",processingUI:"",
-  unbanStatus:"pending",displayType:"banner-24h",giftType:"regular",giftPrice:"177000",validDuration:"2 months",
+  unbanStatus:"pending",displayType:"",giftType:"regular",giftPrice:"177000",validDuration:"2 months",
   notifyEnabled:!!readyPolicy("unban"),notifyConfigRef:"",
   history:[],notifications:[]};
 }
@@ -471,10 +471,52 @@ function render(){
  $("soPrev").disabled=page<=1;$("soNext").disabled=page>=pages;
  fillCountries();assignees();
 }
+function typeValues(input){
+ const values=String(input??"").split(",").map(value=>value.trim()).filter(Boolean);
+ return [...new Set(values)];
+}
+function typeMultiHtml(f,value,readonly){
+ const selections=typeValues(value);
+ const choices=Object.entries(f.opts);
+ // Preserve legacy Banner / Splash type values on existing orders.
+ selections.filter(v=>!Object.prototype.hasOwnProperty.call(f.opts,v)).forEach(v=>
+   choices.push([v,v==="banner"?"Banner (legacy)":v==="splash"?"Splash (legacy)":v])
+ );
+ const TCN=!!window.HonorServiceZH;
+ const available=choices.map(([key,label])=>'<label class="so-type-choice"><input type="checkbox" data-type-choice="'+escapeHtml(key)+'"'+
+   (selections.includes(key)?" checked":"")+(readonly?" disabled":"")+'><span>'+escapeHtml(label)+'</span></label>').join("");
+ const chosen=selections.map(v=>'<span class="so-type-tag">'+escapeHtml(f.opts[v]||v)+
+   (readonly?'':'<button type="button" data-type-remove="'+escapeHtml(v)+'" aria-label="'+(TCN?"移除 ":"Remove ")+escapeHtml(v)+'">×</button>')+'</span>').join("");
+ return '<div class="so-type-picker">'+
+  '<input type="hidden" id="so-edit-displayType" data-field="displayType" value="'+escapeHtml(selections.join(","))+'">'+
+  '<div class="so-type-choices"><div class="so-type-pane-head">'+(TCN?"可选类型":"Available Types")+'</div>'+
+   '<div class="so-type-choice-list">'+available+'</div></div>'+
+  '<div class="so-type-selected"><div class="so-type-pane-head">'+(TCN?"已选类型":"Selected Types")+
+    ' <span class="so-type-count">'+selections.length+'</span></div>'+
+   '<div class="so-type-tags">'+(chosen||'<span class="so-type-placeholder">'+(TCN?"请选择左侧类型":"Select one or more types on the left")+'</span>')+'</div></div>'+
+  '</div>';
+}
+function setTypeSelection(values){
+ if(!editor)return;
+ const uniq=[...new Set(values)].filter(Boolean);
+ editor.data.displayType=uniq.join(",");editor.changed=true;
+ const old=editor.data.endTime;
+ const expected=localEndTime(editor.data.startTime,editor.data.displayType);
+ // A multi-type service record has a shared time window; never guess its end time.
+ if(!editor.manualEndTime){
+   editor.data.endTime=expected||"";
+   const end=$("so-edit-endTime");if(end)end.value=editor.data.endTime;
+ }
+ const picker=$("soModalBody").querySelector(".so-type-picker");
+ if(picker)picker.outerHTML=typeMultiHtml({opts:T.displayTypes},editor.data.displayType,false);
+ updateDurationHint();
+}
 function fieldHtml(f,d,readonly){
  const k=f.k,v=d[k]??"",attr=' data-field="'+escapeHtml(k)+'" id="so-edit-'+escapeHtml(k)+'"';
  let ctrl="",help=f.hint||"";
- if(f.kind==="select"){
+ if(f.kind==="type-multi"){
+  ctrl=typeMultiHtml(f,v,readonly);
+ }else if(f.kind==="select"){
   const entries=Object.entries(f.opts);
   // Allow saved legacy Banner/Splash orders to retain their historical Type when editing.
   if(v&&!Object.prototype.hasOwnProperty.call(f.opts,String(v))){
@@ -625,7 +667,9 @@ function loadReferenceImage(file){
  img.src=objectUrl;
 }
 function localEndTime(start,type){
- const hours=Number((String(type||"").match(/-(\d+)h$/)||[])[1]);
+ const selected=typeValues(type);
+ if(selected.length!==1)return "";
+ const hours=Number((selected[0].match(/-(\d+)h$/)||[])[1]);
  if(!start||!Number.isFinite(hours)||hours<=0)return "";
  const ms=new Date(start).getTime();if(!Number.isFinite(ms))return "";
  const d=new Date(ms+hours*3600000);
@@ -647,8 +691,13 @@ function updateScheduleEstimate(){
 }
 function updateDurationHint(){
  if(!editor||editor.data.orderType!=="banner")return;
+ const picked=typeValues(editor.data.displayType);
  const expected=localEndTime(editor.data.startTime,editor.data.displayType),actual=editor.data.endTime;
  const hint=document.getElementById("soTimingHint");if(!hint)return;
+ if(picked.length>1){
+  hint.textContent=window.HonorServiceZH?"已多选类型：所有选中项共用同一投放时间，请手动确认开始和结束时间。":"Multiple types selected: one shared display window applies. Set and confirm start/end times manually.";
+  hint.classList.remove("warning");return;
+ }
  hint.textContent=!expected?"":!actual?
    (window.HonorServiceZH?"建议结束时间："+expected:"Suggested end: "+expected):
    expected!==actual?
@@ -687,7 +736,7 @@ function collectForm(){
 function paintOrder(){
  const ed=editor;if(!ed)return;
  const mode=ed.mode,d=ed.data,readonly=mode==="view";
- const heading=mode==="add"?"Add Order":mode==="edit"?"Edit"+d.id:"Order Details"+d.id;
+ const heading=mode==="add"?(window.HonorServiceZH?"录入服务信息":"Enter Service Details"):mode==="edit"?"Edit"+d.id:"Order Details"+d.id;
  $("soModalTitle").textContent=heading;
  $("soModalSubtitle").textContent=readonly?"View":"All required fields marked *";
  $("soTypeTag").textContent=T.types[d.orderType]||"—";
@@ -915,6 +964,13 @@ $("soModalClose").onclick=()=>closeOrder(false);
 $("soModal").onclick=e=>{if(e.target===$("soModal"))closeOrder(false)};
 $("soModalBody").onchange=e=>{
  if(!editor||editor.mode==="view")return;
+ const typeChoice=e.target.closest("[data-type-choice]");
+ if(typeChoice){
+  const value=typeChoice.dataset.typeChoice;
+  const current=typeValues(editor.data.displayType);
+  const next=typeChoice.checked?[...current,value]:current.filter(x=>x!==value);
+  setTypeSelection(next);return;
+ }
  const widget=e.target.closest(".so-region-widget");
  if(widget){regionChange(widget,e);return;}
  const giftFile=e.target.closest("[data-gift-ref-upload]");
@@ -954,6 +1010,11 @@ $("soModalBody").oninput=e=>{
  }
 };
 $("soModalBody").onclick=e=>{
+ const typeRemove=e.target.closest("[data-type-remove]");
+ if(typeRemove){
+  if(editor&&editor.mode!=="view")setTypeSelection(typeValues(editor.data.displayType).filter(v=>v!==typeRemove.dataset.typeRemove));
+  return;
+ }
  const media=e.target.closest("[data-local-attachment]");
  if(media){openLocalAttachment(media);return;}
  const mention=e.target.closest("[data-mention-name]");
