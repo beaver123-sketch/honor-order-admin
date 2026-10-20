@@ -107,7 +107,7 @@ const byType={
   {k:"startTime",l:"Start Time",req:1,kind:"datetime-local"},
   {k:"endTime",l:"End Time",req:1,kind:"datetime-local"},
   {k:"finalDesign",l:"Final Design",kind:"file",accept:"image/*,.pdf",wide:1},
-  {k:"processingUI",l:"Processing UI",kind:"mention",wide:1,placeholder:"Type @ to mention a UI designer, then add follow-up notes"},
+  {k:"processingUI",l:"Processing UI (UI Designer)",kind:"mention",placeholder:"Type @ to select a UI designer"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"bannerNotes",l:"Notes",kind:"textarea",wide:1}
  ],
@@ -120,7 +120,7 @@ const byType={
   {k:"giftImage",l:"Gift Image",kind:"file",accept:"image/*",wide:1},
   {k:"giftReferenceImage",l:"Gift Reference Image",kind:"image-upload",wide:1},
   {k:"giftVideo",l:"Gift Video",kind:"file",accept:"video/*",wide:1},
-  {k:"processingUI",l:"Processing UI",kind:"mention",wide:1,placeholder:"Type @ to mention a UI designer, then add follow-up notes"},
+  {k:"processingUI",l:"Processing UI (UI Designer)",kind:"mention",placeholder:"Type @ to select a UI designer"},
   {k:"giftPrice",l:"Gift Price",req:1,kind:"number",hint:"Regular ≥177,000 coins; Limited ≥600,000"},
   {k:"validDuration",l:"Valid Duration",req:1,placeholder:"2 months"},
   {k:"groupLink",l:"Group Link",kind:"url"},
@@ -133,7 +133,7 @@ const byType={
   {k:"rideName",l:"Ride Name",req:1},
   {k:"referenceMedia",l:"Reference Image or Video",kind:"file",accept:"image/*,video/*",wide:1},
   {k:"designFiles",l:"Design Files",kind:"file",accept:"image/*,video/*,.pdf,.zip",wide:1},
-  {k:"processingUI",l:"Processing UI",kind:"mention",wide:1,placeholder:"Type @ to mention a UI designer, then add follow-up notes"},
+  {k:"processingUI",l:"Processing UI (UI Designer)",kind:"mention",placeholder:"Type @ to select a UI designer"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"rideNotes",l:"Notes",kind:"textarea",wide:1}
  ]
@@ -453,8 +453,9 @@ function fieldHtml(f,d,readonly){
  }else if(["nationality","accountNationality","availableCountries","displayRegion"].includes(k)){
   ctrl=fieldCountries(f,v,readonly);
  }else if(f.kind==="mention"){
-  ctrl='<div class="so-mention-wrap"><textarea'+attr+(readonly?' disabled':'')+
-    ' placeholder="'+escapeHtml(f.placeholder||"Type @ to select a designer")+'">'+escapeHtml(v)+'</textarea>'+
+  ctrl='<div class="so-mention-wrap"><input class="so-input" type="text"'+attr+
+    (readonly?' disabled':'')+' value="'+escapeHtml(v)+'"'+
+    ' placeholder="'+escapeHtml(f.placeholder||"Type @ to select a designer")+'">'+
     (readonly?'':'<div class="so-mention-menu" hidden role="listbox"></div>')+'</div>';
  }else if(f.kind==="image-upload"){
   const preview=String(d.giftReferenceImageData||"");
@@ -524,7 +525,7 @@ function showMention(input){
  menu.hidden=false;
 }
 function chooseMention(button){
- const root=button.closest(".so-mention-wrap"),input=root?.querySelector("textarea[data-field=processingUI]");
+ const root=button.closest(".so-mention-wrap"),input=root?.querySelector("input[data-field=processingUI]");
  if(!input||!editor)return;
  const menu=root.querySelector(".so-mention-menu");
  const start=Number(menu.dataset.start),end=Number(menu.dataset.end);
