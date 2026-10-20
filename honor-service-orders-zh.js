@@ -509,7 +509,7 @@ function fail(msg){
 }
 function check(d){
  for(const f of [...common,...(byType[d.orderType]||[])]){
-  if(f.req&&!String(d[f.k]??"").trim())return fail("Please complete "+f.l+"");
+  if(f.req&&!String(d[f.k]??"").trim())return fail("请填写："+(window.HonorServiceZH?.translate(f.l)||f.l));
  }
  if(!Object.keys(T.types).includes(d.orderType))return fail("请选择有效的订单类型");
  if(!Object.keys(T.statuses).includes(d.orderStatus))return fail("请选择有效的订单状态");
@@ -576,7 +576,7 @@ function setStatus(id,action){
  const title=action==="complete"?"Confirm Order Completion":"Confirm Return";
  ask(title,"Change status to "+T.statuses[next]+"?",()=>{
   const operator=window.HonorAudit?.requestOperator(true);
-  if(!operator){toast("Please enter the overseas operator's English name",true);return}
+  if(!operator){toast("请输入海外操作员工英文名",true);return}
   const when=stamp();
   const updated={...o,orderStatus:next,operatorEnglish:operator,updatedAt:when,
    history:[...(o.history||[]),{when,action:action==="complete"?"Complete":"Return",by:operator,desc:"Order Status: "+T.statuses[o.orderStatus]+" → "+T.statuses[next]}]};
