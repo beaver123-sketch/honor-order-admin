@@ -140,3 +140,12 @@
 .so-policy-details label{color:#606d7d;font-size:12px}
 .so-policy-ref{height:34px;border:1px solid #dce3eb;border-radius:3px;padding:0 11px;color:#566473;width:100%;font:inherit}
 .so-policy-ref:focus{outline:0;border-color:#409eff}
+
+/* Layout only: keep search actions with filters and management actions with the list. */
+.so-search-footer{justify-content:flex-end;gap:10px}
+.so-table-toolbar{padding:12px 16px;gap:18px;min-height:62px;flex-wrap:wrap}
+.so-table-heading{white-space:nowrap}
+.so-list-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;justify-content:flex-end}
+.so-list-actions .so-button{height:32px;border-radius:4px;font-size:12px}
+.so-list-actions .so-button.primary{padding:0 18px;font-weight:600}
+@media(max-width:1000px){.so-table-toolbar{align-items:flex-start;flex-direction:column}.so-list-actions{margin-left:0;justify-content:flex-start}}
