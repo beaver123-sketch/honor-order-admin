@@ -87,7 +87,6 @@ function filtered(){
  (!filters.module||r.module===filters.module)&&
  (!filters.orderId||String(r.orderId||"").toLowerCase().includes(filters.orderId))&&
  (!filters.actor||String(r.actor||"").toLowerCase().includes(filters.actor))&&
- (!filters.action||r.action===filters.action)&&
  (!filters.start||String(r.when).slice(0,10)>=filters.start)&&
  (!filters.end||String(r.when).slice(0,10)<=filters.end));
 }
@@ -96,7 +95,6 @@ function apply(){
   module:$("auditFilterModule").value,
   orderId:$("auditFilterOrderId").value.trim().toLowerCase(),
   actor:$("auditFilterActor").value.trim().toLowerCase(),
-  action:$("auditFilterAction").value,
   start:$("auditFilterStart").value,
   end:$("auditFilterEnd").value
  };
