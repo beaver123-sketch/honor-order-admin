@@ -103,7 +103,7 @@ const byType={
   {k:"startTime",l:"Start Time",req:1,kind:"datetime-local"},
   {k:"endTime",l:"End Time",req:1,kind:"datetime-local"},
   {k:"finalDesign",l:"Final Design",kind:"file",accept:"image/*,.pdf",wide:1},
-  {k:"processingUI",l:"Processing UI (UI Designer)",kind:"mention",placeholder:"Type @ to select a UI designer"},
+  {k:"processingUI",l:"UI Designer",kind:"mention",placeholder:"Type @ to search and select a UI designer",hint:"Assign one UI designer per order"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"bannerNotes",l:"Notes",kind:"textarea",wide:1}
  ],
@@ -116,7 +116,7 @@ const byType={
   {k:"giftImage",l:"Gift Image",kind:"file",accept:"image/*",wide:1},
   {k:"giftReferenceImage",l:"Gift Reference Image",kind:"image-upload",wide:1},
   {k:"giftVideo",l:"Gift Video",kind:"file",accept:"video/*",wide:1},
-  {k:"processingUI",l:"Processing UI (UI Designer)",kind:"mention",placeholder:"Type @ to select a UI designer"},
+  {k:"processingUI",l:"UI Designer",kind:"mention",placeholder:"Type @ to search and select a UI designer",hint:"Assign one UI designer per order"},
   {k:"giftPrice",l:"Gift Price",req:1,kind:"number",hint:"Regular ≥177,000 coins; Limited ≥600,000"},
   {k:"validDuration",l:"Valid Duration",req:1,placeholder:"2 months"},
   {k:"groupLink",l:"Group Link",kind:"url"},
@@ -129,7 +129,7 @@ const byType={
   {k:"rideName",l:"Ride Name",req:1},
   {k:"referenceMedia",l:"Reference Image or Video",kind:"file",accept:"image/*,video/*",wide:1},
   {k:"designFiles",l:"Design Files",kind:"file",accept:"image/*,video/*,.pdf,.zip",wide:1},
-  {k:"processingUI",l:"Processing UI (UI Designer)",kind:"mention",placeholder:"Type @ to select a UI designer"},
+  {k:"processingUI",l:"UI Designer",kind:"mention",placeholder:"Type @ to search and select a UI designer",hint:"Assign one UI designer per order"},
   {k:"groupLink",l:"Group Link",kind:"url"},
   {k:"rideNotes",l:"Notes",kind:"textarea",wide:1}
  ]
@@ -524,13 +524,12 @@ function chooseMention(button){
  const root=button.closest(".so-mention-wrap"),input=root?.querySelector("input[data-field=processingUI]");
  if(!input||!editor)return;
  const menu=root.querySelector(".so-mention-menu");
- const start=Number(menu.dataset.start),end=Number(menu.dataset.end);
+ // Processing UI represents a single UI designer, not a progress note.
+ // Replace the entire field so selecting a new employee cannot append another person.
  const name=button.dataset.mentionName;
- const insertion="@"+name+" ";
- const next=input.value.slice(0,start)+insertion+input.value.slice(end);
+ const next="@"+name;
  input.value=next;
- const caret=start+insertion.length;
- input.focus();input.setSelectionRange(caret,caret);
+ input.focus();input.setSelectionRange(next.length,next.length);
  editor.data.processingUI=next;editor.changed=true;
  hideMention(root);
 }
