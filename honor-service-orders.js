@@ -118,6 +118,23 @@ const stamp=()=>nowLocal().replace("T"," ")+":00";
 const dateOut=v=>String(v||"—").replace("T"," ");
 let orders=[];
 try{const x=JSON.parse(localStorage.getItem(KEY)||"[]");if(Array.isArray(x))orders=x}catch(_){}
+// First-load sample orders: merge by ID without replacing previously entered records.
+const DEMO_SEED_KEY="honor-service-demo-seeded-v1";
+const demoRows=Array.isArray(window.HONOR_SERVICE_DEMO_ORDERS)?window.HONOR_SERVICE_DEMO_ORDERS:[];
+try{
+ if(!localStorage.getItem(DEMO_SEED_KEY)&&demoRows.length){
+  const ids=new Set(orders.map(o=>String(o.id)));
+  const missing=demoRows.filter(o=>!ids.has(String(o.id)));
+  const combined=orders.concat(missing);
+  localStorage.setItem(KEY,JSON.stringify(combined));
+  localStorage.setItem(DEMO_SEED_KEY,"1");
+  orders=combined;
+ }
+}catch(_){
+ // Still show mock orders when browser storage is disabled, without deleting existing data.
+ const ids=new Set(orders.map(o=>String(o.id)));
+ orders=orders.concat(demoRows.filter(o=>!ids.has(String(o.id))));
+}
 let filters={},page=1,pageSize=20,editor=null;
 function defaultDraft(){
  return {orderType:"unban",redeemedOrderId:"",userId:"",nationality:"",redemptionTime:nowLocal(),
