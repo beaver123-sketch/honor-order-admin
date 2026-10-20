@@ -1,7 +1,7 @@
 
 /* Dedicated unified activity log screen; original order screens unaffected. */
-.audit-filter-fields{grid-template-columns:repeat(4,minmax(170px,1fr))}
-.audit-date{grid-column:span 2}
+.audit-filter-fields{grid-template-columns:repeat(3,minmax(150px,1fr)) minmax(330px,2fr)}
+.audit-date{grid-column:auto}
 .audit-date-range{display:flex;gap:8px;align-items:center}
 .audit-date-range input{flex:1;min-width:0}
 .audit-date-range span{color:#9ba6b2}
@@ -24,5 +24,5 @@
 .audit-meta strong{display:block;color:#8a97a6;font-size:11px;font-weight:500;margin-bottom:5px}
 .audit-meta span{font-size:12px;color:#4a5a6b;overflow-wrap:anywhere}
 .audit-field-search .so-control-label{white-space:normal}
-@media(max-width:1100px){.audit-filter-fields{grid-template-columns:repeat(2,minmax(180px,1fr))}}
+@media(max-width:1100px){.audit-filter-fields{grid-template-columns:repeat(2,minmax(180px,1fr))}.audit-date{grid-column:span 2}}
 @media(max-width:680px){.audit-filter-fields{grid-template-columns:1fr}.audit-date{grid-column:auto}.audit-meta{grid-template-columns:1fr}.audit-diff th,.audit-diff td{padding:7px}}
