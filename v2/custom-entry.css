@@ -1,0 +1,71 @@
+
+/* V2 custom-information prototype — isolated from the historic V1. */
+.ci-backdrop{position:fixed;inset:0;z-index:1500;background:rgba(246,248,252,.46);display:none;align-items:center;justify-content:center;padding:18px}
+.ci-backdrop.show{display:flex}
+.ci-modal{width:665px;max-width:calc(100vw - 30px);max-height:calc(100vh - 35px);background:#fff;border:1px solid #545454;border-radius:6px;box-shadow:0 6px 26px rgba(36,54,76,.11);font-size:12px;display:flex;flex-direction:column;color:#292e34}
+.ci-head{padding:17px 36px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ci-head h2{font-size:19px;line-height:1.45;margin:0;color:#151515;font-weight:700}
+.ci-link-order{font-size:10px;color:#8b98a6;display:flex;align-items:center;gap:5px}
+.ci-link-order select{max-width:190px;font-size:11px;height:25px;border:1px solid #dce2e9;border-radius:3px;padding:0 4px;background:#fff;color:#758296}
+.ci-content{padding:2px 36px 8px;flex:1;min-height:0;overflow-y:auto}
+.ci-row{display:grid;grid-template-columns:68px minmax(0,1fr) 82px minmax(0,1fr);gap:9px 10px;align-items:center;margin-bottom:13px}
+.ci-row.single{grid-template-columns:68px minmax(0,1fr)}
+.ci-row.wide{grid-template-columns:68px minmax(0,1fr)}
+.ci-label{font-weight:650;font-size:12px;color:#222;line-height:1.3}
+.ci-span3{grid-column:2/-1}
+.ci-span2{grid-column:2/4}
+.ci-input,.ci-select,.ci-textarea{height:28px;border:1px solid #c9c9c9;padding:3px 7px;border-radius:2px;color:#545454;background:#fff;font:12px -apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif;outline:none;min-width:0;max-width:100%;width:100%}
+.ci-select{max-width:170px}
+.ci-input:focus,.ci-select:focus,.ci-textarea:focus{border-color:#409eff}
+.ci-input::placeholder,.ci-textarea::placeholder{color:#a0a0a0}
+.ci-textarea{min-height:50px;height:auto;resize:vertical;padding:7px}
+.ci-textarea.reason{height:87px;max-width:415px}
+.ci-textarea.notes{height:49px}
+.ci-field-hint{font-size:10px;color:#9da3aa;margin-top:3px}
+.ci-status-select{width:170px;max-width:100%}
+.ci-long-input{max-width:none}
+.ci-small-input{max-width:155px}
+.ci-choose{height:24px;padding:2px 11px;background:#409eff;border:0;border-radius:2px;color:#fff;font-size:11px;cursor:pointer}
+.ci-choose:hover{background:#2789ed}
+.ci-upload-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-height:27px}
+.ci-filelist{font-size:11px;color:#63758a;max-width:350px;overflow-wrap:anywhere}
+.ci-hidden-file{display:none}
+.ci-regions{display:flex;align-items:center;gap:3px;flex-wrap:wrap;margin:0 0 6px;font-size:9px;color:#808995}
+.ci-regions label{display:inline-flex;align-items:center;gap:2px;white-space:nowrap;cursor:pointer}
+.ci-regions input[type="checkbox"]{height:10px;width:10px;margin:0;accent-color:#409eff}
+.ci-region-search{width:84px;height:20px;padding:2px 4px;border:1px solid #e1e6ec;color:#6b7a8b;font-size:10px}
+.ci-mini-btn{border:1px solid #dde4eb;background:#f8fafc;padding:2px 5px;cursor:pointer;color:#8090a3;font-size:10px}
+.ci-region-tags{display:flex;gap:4px;flex-wrap:wrap;margin:1px 0 4px}
+.ci-region-tags span{background:#eaf5ff;color:#3e86bc;padding:1px 5px;border-radius:2px;font-size:10px}
+.ci-date-range{display:flex;align-items:center;gap:7px}
+.ci-date-range input{width:174px;flex:1;min-width:0;height:27px}
+.ci-date-range b{font-weight:400;color:#93999f}
+.ci-switch{position:relative;display:inline-flex;align-items:center;width:27px;height:16px;cursor:pointer}
+.ci-switch input{opacity:0;width:0;height:0;position:absolute}
+.ci-switch span{display:block;width:27px;height:16px;border-radius:12px;background:#d2d8e0;transition:background .12s}
+.ci-switch span:before{content:"";position:absolute;top:2px;left:2px;height:12px;width:12px;border-radius:50%;background:#fff;transition:transform .12s}
+.ci-switch input:checked+span{background:#409eff}
+.ci-switch input:checked+span:before{transform:translateX(11px)}
+.ci-footer{padding:18px 47px 25px;display:flex;justify-content:flex-end;gap:21px;flex:0 0 auto}
+.ci-footer button{min-width:86px;height:33px;border:1px solid #626262;background:#fff;font-size:12px;color:#797979;cursor:pointer}
+.ci-footer button.primary{background:#409eff;border-color:#165993;color:white}
+.ci-footer button:hover{filter:brightness(.97)}
+.ci-error{background:#fff1f0;border:1px solid #f7cdc8;color:#bd5552;padding:8px 10px;margin:6px 0 10px;display:none;font-size:11px;border-radius:3px}
+.ci-error.show{display:block}
+.ci-banner-extras{border:1px dashed #d9e5f2;border-radius:4px;padding:8px 10px;margin:4px 0 12px 78px}
+.ci-banner-extras header{display:flex;align-items:center;justify-content:space-between;color:#647992;font-size:11px}
+.ci-add-slot{font-size:11px;color:#368cd9;background:#f3f9ff;border:1px solid #d3e5f7;padding:4px 8px;cursor:pointer}
+.ci-slots{display:flex;flex-direction:column;gap:6px;margin-top:7px}
+.ci-slot{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;border:1px solid #e3edf7;padding:8px;background:#fafcff}
+.ci-slot input,.ci-slot select{height:26px;font-size:11px;width:100%;min-width:0;border:1px solid #dce5ee;border-radius:2px}
+.ci-slot small{font-size:10px;color:#98a6b5}
+.ci-slot button{border:none;background:transparent;color:#d35c5c;cursor:pointer;text-align:right}
+.ci-operator{font-size:11px;color:#64768c}
+.ci-state-cell{font-size:11px!important;white-space:normal;line-height:1.45}
+.ci-state-cell .ci-clickable{border:none;background:transparent;color:#3586c6;font-size:11px;cursor:pointer;padding:0;line-height:1.4;text-align:left}
+.ci-state-cell .ci-clickable:hover{text-decoration:underline}
+.ci-top-button{padding:0 12px!important;white-space:nowrap}
+.ci-notice{position:fixed;bottom:24px;right:26px;background:#273c54;color:#fff;padding:11px 18px;border-radius:4px;z-index:1550;font-size:12px;box-shadow:0 6px 20px #20304030;max-width:400px}
+.ci-notice.success{background:#276e69}
+.ci-help{font-size:10px;color:#99a5b0;padding-top:2px}
+@media(max-width:700px){.ci-backdrop{padding:8px}.ci-modal{max-height:calc(100dvh - 16px)}.ci-head{padding:14px 16px 8px}.ci-content{padding:2px 16px 8px}.ci-footer{padding:12px 16px}.ci-row{grid-template-columns:75px minmax(0,1fr);gap:7px 10px}.ci-row .ci-label:nth-of-type(2){grid-column:1}.ci-row .ci-input:nth-of-type(2){grid-column:2}.ci-span3,.ci-span2{grid-column:2}.ci-banner-extras{margin-left:0}.ci-head h2{font-size:16px}.ci-link-order select{max-width:115px}}
