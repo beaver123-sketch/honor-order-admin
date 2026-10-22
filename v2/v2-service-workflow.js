@@ -28,8 +28,8 @@ function kindFor(value){
  var v=String(value||"").toLowerCase();
  if(/unban|unlock|解封/.test(v))return "unban";
  if(/splash|banner|open screen|开屏|横幅/.test(v))return "banner";
- if(/custom.*gift|定制礼物/.test(v))return "gift";
- if(/custom.*ride|定制座驾/.test(v))return "ride";
+ if(/custom.*gift|定制礼物|自定义礼物/.test(v))return "gift";
+ if(/custom.*ride|定制座驾|自定义座驾/.test(v))return "ride";
  return "";
 }
 function findForOrder(orderId){return Object.values(records).find(function(x){return x.linkedOrderId===String(orderId)})}
@@ -367,6 +367,9 @@ function submit(){
   try{var prev=JSON.parse(before),now=JSON.parse(after);Object.keys(now).forEach(function(k){if(JSON.stringify(prev[k])!==JSON.stringify(now[k]))fields.push(k)})}catch(e){fields=["配置信息"]}
  }
  var changes=fields.join("、");
+ if(before===after&&active.status==="notified"){
+  errorMessage("当前服务信息没有变化，无需重复通知。如需重新发送，请先编辑配置。");return;
+ }
  var enabled=cfg.enabled!==false&&String(cfg.group||"").trim().length>0;
  var note={id:newId(),time:stamp(),group:cfg.group||"",result:enabled?"模拟已发送":"未发送（群未配置或开关关闭）",
  label:before?"更新通知":"首次通知",body:buildNotification(active.kind,changes),changes:changes};
