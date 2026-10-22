@@ -78,10 +78,14 @@ function rowData(orderId){
  var tr=Array.from(byId("orderRows").querySelectorAll("tr")).find(function(x){var a=x.querySelector("td");return a&&a.textContent.trim()===String(orderId)});
  if(!tr)return null;
  var t=tr.querySelectorAll("td");
- return {id:String(t[0].textContent).trim(),benefit:String(t[1].textContent).trim().replace(/\s+/g," "),
-  uid:t[7].textContent.trim(),name:t[8].textContent.trim(),level:t[9].textContent.trim(),
-  country:t[10].textContent.trim(),purchaseTime:t[12].textContent.trim().replace(/\s+/g," "),
-  contactHint:t[18].textContent.trim().replace(/\s+/g," ")};
+ function cellText(node){
+  // Existing table renders purchase time and WhatsApp with <br> separators.
+  // innerText preserves their visual line breaks; textContent alone concatenates digits.
+  return String(node.innerText||node.textContent||"").trim().replace(/\s+/g," ");
+ }
+ return {id:cellText(t[0]),benefit:cellText(t[1]),
+  uid:cellText(t[7]),name:cellText(t[8]),level:cellText(t[9]),
+  country:cellText(t[10]),purchaseTime:cellText(t[12]),contactHint:cellText(t[18])};
 }
 function newRecord(kind,order){
  var base={userId:order?order.uid:"",username:order?order.name:"",honorLevel:order?order.level:"",
