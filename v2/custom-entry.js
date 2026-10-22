@@ -169,7 +169,7 @@ function close(){modal.classList.remove("show");modal.setAttribute("aria-hidden"
 function render(){
  if(!form)return;
  var orderSelect='<span class="ci-link-order">关联订单 <select data-ci-order>'+opt(orderOptions(),form.orderId||"")+'</select></span>';
- header.innerHTML='<h2>定制信息录入</h2>'+orderSelect;
+ header.innerHTML='<h2 id="ciTitle">定制信息录入</h2>'+orderSelect;
  content.innerHTML='<div class="ci-error" id="ciError"></div>'+
  (form.kind==="unban"?unblock():form.kind==="banner"?banner():form.kind==="gift"?gift():ride())+
  '<datalist id="ciDesignerList">'+DESIGNERS.map(function(x){return '<option value="@'+esc(x)+'"></option>'}).join("")+'</datalist>';
@@ -279,17 +279,26 @@ function decorate(){
  Array.from(tbody.children).forEach(function(tr){
   var td=Array.from(tr.children);
   if(td.length===1&&td[0].hasAttribute("colspan")){td[0].setAttribute("colspan","22");return}
-  if(td.length<19||tr.getAttribute("data-ci-decorated"))return;
+  if(td.length<19)return;
   var id=td[0].textContent.trim();
+  if(tr.getAttribute("data-ci-decorated")){
+   var existing=recordFor(id),followExisting=tr.querySelector(".ci-follow"),customExisting=tr.querySelector(".ci-custom-status");
+   if(followExisting)followExisting.textContent=existing?(existing.processingStatus||""):"";
+   if(customExisting){
+    var btn=customExisting.querySelector("[data-ci-edit-order]");
+    if(btn)btn.textContent=existing?"已录入 · 编辑":"待录入";
+   }
+   return;
+  }
   if(td[17]&&td[17].textContent.trim()==="")td[17].remove(); // CP01 has one redundant Details cell.
   var remain=Array.from(tr.children);
   var whatsapp=remain[17],operator=remain[18],action=remain[19];
   if(!whatsapp||!operator||!action)return;
-  var follow=document.createElement("td");follow.className="ci-state-cell";
+  var follow=document.createElement("td");follow.className="ci-state-cell ci-follow";
   var rec=recordFor(id);
   follow.textContent=rec?(rec.processingStatus||""):"";
   tr.insertBefore(follow,operator);
-  var custom=document.createElement("td");custom.className="ci-state-cell";
+  var custom=document.createElement("td");custom.className="ci-state-cell ci-custom-status";
   var kind=typeFromBenefit(remain[1].textContent);
   if(kind){
    var b=document.createElement("button");b.type="button";b.className="ci-clickable";
