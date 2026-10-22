@@ -171,8 +171,7 @@ function fileChips(area,field){
 }
 function bannerFirst(){
  var tasks=active.tasks||[];
- var p='<div class="v2-grid">'+f("Agent ID / 代理ID","top","agentId",active.agentId,{required:true,placeholder:"输入代理ID"})+
-  f("首次提交说明 / Notes","top","initialNotes",active.initialNotes,{textarea:true})+'</div>';
+ var p='<div class="v2-grid">'+f("Agent ID / 代理ID","top","agentId",active.agentId,{required:true,placeholder:"输入代理ID"})+'</div>';
  p+=panel("选择 Banner / Splash 类型",
   '<div class="v2-grid-banner"><div class="v2-banner-select"><div class="v2-pane-title">左侧 · 可添加类型（支持重复）</div>'+
   TYPE_LIST.map(function(type){return '<label><button class="v2-link" data-v2-addtype="'+esc(type)+'" type="button">＋ '+esc(type)+'</button></label>'}).join("")+'</div>'+
@@ -343,7 +342,15 @@ function validate(){
   }
  }
  if(active.kind==="unban"&&!d.suspensionReason)return "请填写封禁原因。";
- if(active.kind==="gift"&&!d.giftName)return "请补充 Gift Name。";
+ if(active.kind==="gift"){
+  if(!d.giftName)return "请补充 Gift Name。";
+  if(d.giftPrice){
+   var minimum=d.giftType==="limited"?600000:177000;
+   if(!isFinite(Number(d.giftPrice))||Number(d.giftPrice)<minimum)return "礼物价格低于当前标准：普通礼物177000，限定礼物600000。";
+  }
+  var description=String(d.giftDescription||"").trim();
+  if(description&&description.split(/\s+/).length>10)return "Gift Description 请控制在10个英文单词内。";
+ }
  if(active.kind==="ride"&&!d.rideName)return "请补充 Ride Name。";
  if(["gift","ride"].includes(active.kind)&&!d.processingUI)return "请指定 Processing UI 设计师。";
  if(d.scheduleStart&&d.scheduleEnd&&d.scheduleEnd<d.scheduleStart)return "制作排期结束日期不能早于开始日期。";
