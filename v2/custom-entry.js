@@ -123,7 +123,9 @@ function slotUi(slot,index){
  '<input type="datetime-local" data-ci-slot-key="start" data-ci-slot-index="'+index+'" value="'+esc(slot.start||"")+'">'+
  '<input type="datetime-local" data-ci-slot-key="end" data-ci-slot-index="'+index+'" value="'+esc(slot.end||"")+'">'+
  '<select data-ci-slot-key="timezone" data-ci-slot-index="'+index+'">'+opt(["UTC+0","UTC+1","UTC+2","UTC+3","UTC+4","UTC+5","UTC+5:30","UTC+6","UTC+7","UTC+8","UTC+9","UTC-3","UTC-4","UTC-5"],slot.timezone||"UTC+3")+'</select>'+
- '<button type="button" data-ci-removeslot="'+index+'">删除此任务</button></div>';
+ '<button type="button" data-ci-removeslot="'+index+'">删除此任务</button>'+
+ '<label style="grid-column:1/-1;font-size:11px;color:#647992">独立图片素材 <input type="file" accept="image/*" multiple data-ci-file="slot-'+esc(slot.id)+'" style="max-width:100%;font-size:11px">'+
+ '<small style="margin-left:5px">'+esc(((form.files||{})["slot-"+slot.id]||[]).join("、"))+'</small></label></div>';
 }
 function gift(){
  return phaseRow()+
@@ -331,7 +333,7 @@ function init(){
    q('[data-ci-file="'+button.getAttribute("data-ci-choose")+'"]',modal).click();return;
   }
   if(button.hasAttribute("data-ci-addslot")){
-   form.slots=form.slots||[];form.slots.push({type:"Banner-24h",country:"",timezone:"UTC+3",start:"",end:"",manualEnd:false});render();return;
+   form.slots=form.slots||[];form.slots.push({id:uid(),type:"Banner-24h",country:"",timezone:"UTC+3",start:"",end:"",manualEnd:false});render();return;
   }
   if(button.hasAttribute("data-ci-removeslot")){form.slots.splice(Number(button.getAttribute("data-ci-removeslot")),1);render();return}
   if(button.hasAttribute("data-ci-country-add")){
